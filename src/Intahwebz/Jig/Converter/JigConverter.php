@@ -21,22 +21,22 @@ class JigConverter {
 	public $compilePath = null;
 	public $forceCompile = false;
 
-    //TODO this is duplicated in ParsedTemplate
-    const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
-    const FILENAME_PATTERN = "[\.\w\\/]+";
+	//TODO this is duplicated in ParsedTemplate
+	const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
+	const FILENAME_PATTERN = "[\.\w\\/]+";
 
-    //TODO needs to be in a plugin
-    const SYNTAX_START  =  "<!-- SyntaxHighlighter Start -->";
+	//TODO needs to be in a plugin
+	const SYNTAX_START  =  "<!-- SyntaxHighlighter Start -->";
 
-    private $activeBlock = null;
-    private $activeBlockName = null;
-    private $literalMode = false;
-    public $proxied = false;
+	private $activeBlock = null;
+	private $activeBlockName = null;
+	private $literalMode = false;
+	public $proxied = false;
 
-    /**
-     * @var ParsedTemplate
-     */
-    public $parsedTemplate;
+	/**
+	 * @var ParsedTemplate
+	 */
+	public $parsedTemplate;
 
 	/**
 	 * @param $templatePath
@@ -70,7 +70,7 @@ class JigConverter {
 		}
 
 		try {
-		    $this->createFromLines($fileLines);
+			$this->createFromLines($fileLines);
 			$this->setClassNameFromFilename($templateFilename);
 		}
 		catch(JigException $pte) {
@@ -83,14 +83,14 @@ class JigConverter {
 
 	/**
 	 * @param $templateFilename
-     * //TODO rename this to a better name.
-     * //TODO this duplicates a significant portion of getParsedTemplateFromString
+	 * //TODO rename this to a better name.
+	 * //TODO this duplicates a significant portion of getParsedTemplateFromString
 	 * @return string The full classname of the generated file
 	 */
 	function getParsedTemplate($templateFilename, $mappedClasses, $proxied = false) {
 
-        //TODO this is not safe, as the calls to getParsedTemplate below overwrite it
-        $this->parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
+		//TODO this is not safe, as the calls to getParsedTemplate below overwrite it
+		$this->parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
 
 		$className = self::getNamespacedClassNameFromFileName($templateFilename);
 
@@ -125,8 +125,8 @@ class JigConverter {
 	}
 
 	/**
-     *
-     * This is an entry point
+	 *
+	 * This is an entry point
 	 * @param $templateString
 	 * @param $cacheName
 	 * @return mixed
@@ -137,574 +137,574 @@ class JigConverter {
 
 		$this->forceCompile = true;
 
-		$templateParser = $this->createFromLines(array($templateString));
-		$templateParser->setClassName($cacheName);
-		$templateParser->saveCompiledTemplate($this->compilePath);
+		$this->createFromLines(array($templateString));
+		$this->parsedTemplate->setClassName($cacheName);
+		$this->saveCompiledTemplate($this->compilePath);
 
-		$extendsFilename = $templateParser->getExtends();
+		$extendsFilename = $this->parsedTemplate->getExtends();
 
 		if ($extendsFilename) {
 			$parentTemplate = $this->getParsedTemplate($extendsFilename, $mappedClasses);
 		}
 
-		return $templateParser->getFullNameSpaceClassName();
+		return $this->getFullNameSpaceClassName();
 	}
 
 
-    /**
-     * @param $fileLines
-     * @return TemplateParser
-     */
-    function createFromLines($fileLines) {
-        $segments = array();
-        foreach ($fileLines as $fileLine) {
-            $nextSegments = $this->processLine($fileLine);
-            $segments = array_merge($segments, $nextSegments);
-        }
+	/**
+	 * @param $fileLines
+	 * @return TemplateParser
+	 */
+	function createFromLines($fileLines) {
+		$segments = array();
+		foreach ($fileLines as $fileLine) {
+			$nextSegments = $this->processLine($fileLine);
+			$segments = array_merge($segments, $nextSegments);
+		}
 
-        //$this->parsedTemplate = new ParsedTemplate();
+		//$this->parsedTemplate = new ParsedTemplate();
 
-        foreach ($segments as $segment) {
-            $this->addSegment($segment);
-        }
-    }
+		foreach ($segments as $segment) {
+			$this->addSegment($segment);
+		}
+	}
 
-    /**
-     * @param $fileLine
-     * @return TemplateSegment[]
-     */
-    function processLine($fileLine) {
-        $lineSegments = $this->getLineSegments($fileLine);
-        return $lineSegments;
-    }
+	/**
+	 * @param $fileLine
+	 * @return TemplateSegment[]
+	 */
+	function processLine($fileLine) {
+		$lineSegments = $this->getLineSegments($fileLine);
+		return $lineSegments;
+	}
 
-    /**
-     * @param $fileLine
-     * @return TemplateSegment[]
-     */
-    function getLineSegments($fileLine){
-        $segments = array();
-        $matches = array();
+	/**
+	 * @param $fileLine
+	 * @return TemplateSegment[]
+	 */
+	function getLineSegments($fileLine){
+		$segments = array();
+		$matches = array();
 
-        $pattern = "/\{([^\s]+.*[^\s]+)\}/Uu";
+		$pattern = "/\{([^\s]+.*[^\s]+)\}/Uu";
 
-        $matchCount = preg_match_all($pattern, $fileLine, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
+		$matchCount = preg_match_all($pattern, $fileLine, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
 
-        if ($matchCount == 0) {
-            $segments[] = new TextTemplateSegment($fileLine);
-        }
-        else{
-            $position = 0;
+		if ($matchCount == 0) {
+			$segments[] = new TextTemplateSegment($fileLine);
+		}
+		else{
+			$position = 0;
 
-            foreach ($matches as $matchInfo) {
-                $codeStartPosition = $matchInfo[0][1];
+			foreach ($matches as $matchInfo) {
+				$codeStartPosition = $matchInfo[0][1];
 
-                if ($codeStartPosition > $position) {
-                    $beforeText = mb_substr($fileLine, $position, $codeStartPosition - $position);
-                    $segments[] = new TextTemplateSegment($beforeText);
-                }
+				if ($codeStartPosition > $position) {
+					$beforeText = mb_substr($fileLine, $position, $codeStartPosition - $position);
+					$segments[] = new TextTemplateSegment($beforeText);
+				}
 
-                $codeWithBrackets = $matchInfo[0][0];
-                $code = $matchInfo[1][0];
+				$codeWithBrackets = $matchInfo[0][0];
+				$code = $matchInfo[1][0];
 
-                $startStr = mb_substr($codeWithBrackets, 0, 2);
-                $endStr = mb_substr($codeWithBrackets, -2);
+				$startStr = mb_substr($codeWithBrackets, 0, 2);
+				$endStr = mb_substr($codeWithBrackets, -2);
 
-                $position = $codeStartPosition + mb_strlen($codeWithBrackets);
+				$position = $codeStartPosition + mb_strlen($codeWithBrackets);
 
-                if ($startStr== '{*' &&
-                    $endStr == '*}') {
-                    //it was a comment like {* *}
-                    $segments[] = new CommentTemplateSegment($code);
-                    continue;
-                }
+				if ($startStr== '{*' &&
+					$endStr == '*}') {
+					//it was a comment like {* *}
+					$segments[] = new CommentTemplateSegment($code);
+					continue;
+				}
 
-                $segments[] = new PHPTemplateSegment($code);
-            }
+				$segments[] = new PHPTemplateSegment($code);
+			}
 
-            $remainingString = mb_substr($fileLine, $position);
+			$remainingString = mb_substr($fileLine, $position);
 
-            if ($remainingString !== false) {
-                $segments[] = new TextTemplateSegment($remainingString);
-            }
-        }
+			if ($remainingString !== false) {
+				$segments[] = new TextTemplateSegment($remainingString);
+			}
+		}
 
-        return $segments;
-    }
+		return $segments;
+	}
 
-    /**
-     * @param $literalMode
-     */
-    function setLiteralMode($literalMode){
-        $this->literalMode = $literalMode;
-    }
+	/**
+	 * @param $literalMode
+	 */
+	function setLiteralMode($literalMode){
+		$this->literalMode = $literalMode;
+	}
 
 
-    /**
-     * @param $filename
-     */
-    public function setInclude($filename){
-        //$this->includedFilenames[] = $filename;
-        $code = "\$this->view->includeFile('$filename')";
-        $this->addCode($code);
-    }
+	/**
+	 * @param $filename
+	 */
+	public function setInclude($filename){
+		//$this->includedFilenames[] = $filename;
+		$code = "\$this->view->includeFile('$filename')";
+		$this->addCode($code);
+	}
 
-    /**
-     * @param TemplateSegment $segment
-     * @throws \Exception
-     */
-    function addSegment(TemplateSegment $segment){
-        $segmentText = $segment->text;
+	/**
+	 * @param TemplateSegment $segment
+	 * @throws \Exception
+	 */
+	function addSegment(TemplateSegment $segment){
+		$segmentText = $segment->text;
 
-        if (strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0){
-            $this->processLiteralEnd();
-            return;
-        }
-        else if (strncmp($segmentText, '/syntaxHighlighter', mb_strlen('/syntaxHighlighter')) == 0){
-            $this->processSyntaxHighlighterEnd();
-            return;
-        }
+		if (strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0){
+			$this->processLiteralEnd();
+			return;
+		}
+		else if (strncmp($segmentText, '/syntaxHighlighter', mb_strlen('/syntaxHighlighter')) == 0){
+			$this->processSyntaxHighlighterEnd();
+			return;
+		}
 
-        //Anything that escapes literal mode (i.e. /literal or /syntaxHighlighter) must be above this
-        if ($this->literalMode == true) {
-            $this->addLineInternal($segment->getRawString());
-            return;
-        }
+		//Anything that escapes literal mode (i.e. /literal or /syntaxHighlighter) must be above this
+		if ($this->literalMode == true) {
+			$this->addLineInternal($segment->getRawString());
+			return;
+		}
 
 		//TODO this is bad code
-        if ($segment instanceof TextTemplateSegment) {
-            $this->addLineInternal($segment->getString($this->parsedTemplate));
-        }
-        else if ($segment instanceof PHPTemplateSegment) {
-            $this->parseJigSegment($segment);
-        }
-        else if ($segment instanceof CommentTemplateSegment) {
-            $this->addCode($segment->getString($this->parsedTemplate));
-        }
-        else{
-            throw new \Exception("Unknown Segment type ".get_class($segment));
-        }
-    }
+		if ($segment instanceof TextTemplateSegment) {
+			$this->addLineInternal($segment->getString($this->parsedTemplate));
+		}
+		else if ($segment instanceof PHPTemplateSegment) {
+			$this->parseJigSegment($segment);
+		}
+		else if ($segment instanceof CommentTemplateSegment) {
+			$this->addCode($segment->getString($this->parsedTemplate));
+		}
+		else{
+			throw new \Exception("Unknown Segment type ".get_class($segment));
+		}
+	}
 
-    /**
-     * @param TemplateSegment $segment
-     */
-    function parseJigSegment(TemplateSegment $segment){
-        $segmentText = $segment->text;
+	/**
+	 * @param TemplateSegment $segment
+	 */
+	function parseJigSegment(TemplateSegment $segment){
+		$segmentText = $segment->text;
 
-        if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
-            $this->processExtends($segmentText);
-        }
-        else if (strncmp($segmentText, 'dynamicExtends ', mb_strlen('dynamicExtends ')) == 0){
-            $this->processDynamicExtends($segmentText);
-        }
-        else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
-            $this->processInclude($segmentText);
-        }
-        else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0){
-            $this->processBlockStart($segmentText);
-        }
-        else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0){
-            $this->processBlockEnd();
-        }
-        else if (strncmp($segmentText, 'spoiler', mb_strlen('spoiler ')) == 0){
-            $this->processSpoilerBlockStart();
-        }
-        else if (strncmp($segmentText, '/spoiler', mb_strlen('/spoiler')) == 0){
-            $this->processSpoilerBlockEnd();
-        }
-        else if (strncmp($segmentText, 'trim ', mb_strlen('trim')) == 0){
-            $this->processTrimStart($segmentText);
-        }
-        else if (strncmp($segmentText, '/trim', mb_strlen('/trim')) == 0){
-            $this->processTrimEnd();
-        }
-        else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0){
-            $this->processForeachStart($segmentText);
-        }
-        else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0){
-            $this->processForeachEnd();
-        }
-        else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0){
-            $this->processLiteralStart();
-        }
-        else if (strncmp($segmentText, 'isset', mb_strlen('isset')) == 0){
-            $this->processIssetStart($segmentText);
-        }
-        else if (strncmp($segmentText, 'markdown', mb_strlen('markdown')) == 0){
-            $this->processMarkdownStart();
-        }
-        else if (strncmp($segmentText, '/markdown', mb_strlen('/markdown')) == 0){
-            $this->processMarkdownEnd();
-        }
-        else if (strncmp($segmentText, 'syntaxHighlighter', mb_strlen('syntaxHighlighter')) == 0){
-            $this->processSyntaxHighlighterStart($segmentText);
-        }
-        else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
-            $origText = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+		if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
+			$this->processExtends($segmentText);
+		}
+		else if (strncmp($segmentText, 'dynamicExtends ', mb_strlen('dynamicExtends ')) == 0){
+			$this->processDynamicExtends($segmentText);
+		}
+		else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
+			$this->processInclude($segmentText);
+		}
+		else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0){
+			$this->processBlockStart($segmentText);
+		}
+		else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0){
+			$this->processBlockEnd();
+		}
+		else if (strncmp($segmentText, 'spoiler', mb_strlen('spoiler ')) == 0){
+			$this->processSpoilerBlockStart();
+		}
+		else if (strncmp($segmentText, '/spoiler', mb_strlen('/spoiler')) == 0){
+			$this->processSpoilerBlockEnd();
+		}
+		else if (strncmp($segmentText, 'trim ', mb_strlen('trim')) == 0){
+			$this->processTrimStart($segmentText);
+		}
+		else if (strncmp($segmentText, '/trim', mb_strlen('/trim')) == 0){
+			$this->processTrimEnd();
+		}
+		else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0){
+			$this->processForeachStart($segmentText);
+		}
+		else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0){
+			$this->processForeachEnd();
+		}
+		else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0){
+			$this->processLiteralStart();
+		}
+		else if (strncmp($segmentText, 'isset', mb_strlen('isset')) == 0){
+			$this->processIssetStart($segmentText);
+		}
+		else if (strncmp($segmentText, 'markdown', mb_strlen('markdown')) == 0){
+			$this->processMarkdownStart();
+		}
+		else if (strncmp($segmentText, '/markdown', mb_strlen('/markdown')) == 0){
+			$this->processMarkdownEnd();
+		}
+		else if (strncmp($segmentText, 'syntaxHighlighter', mb_strlen('syntaxHighlighter')) == 0){
+			$this->processSyntaxHighlighterStart($segmentText);
+		}
+		else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
+			$origText = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
 
-            $ifPos = strpos($origText, 'if');
-            $text = substr($origText, 0, $ifPos);
-            $text .= "if (";
-            $text .= substr($origText, $ifPos + 2);
+			$ifPos = strpos($origText, 'if');
+			$text = substr($origText, 0, $ifPos);
+			$text .= "if (";
+			$text .= substr($origText, $ifPos + 2);
 
-            $this->addLineInternal('<?php '.$text.'){ ?>');
-        }
-        else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
-            $this->addLineInternal('<?php } ?>');
-        }
-        else if (strncmp($segmentText, 'else', mb_strlen('else')) == 0){
-            $this->addCode(" } else { ");
-        }
-        else{
-            //It's a line of code that needs to be included.
-            $this->addLineInternal($segment->getString($this->parsedTemplate));
-        }
-    }
+			$this->addLineInternal('<?php '.$text.'){ ?>');
+		}
+		else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
+			$this->addLineInternal('<?php } ?>');
+		}
+		else if (strncmp($segmentText, 'else', mb_strlen('else')) == 0){
+			$this->addCode(" } else { ");
+		}
+		else{
+			//It's a line of code that needs to be included.
+			$this->addLineInternal($segment->getString($this->parsedTemplate));
+		}
+	}
 
-    /**
-     * @param $text
-     */
-    function addHTML($text){
-        $this->addLineInternal($text);
-    }
+	/**
+	 * @param $text
+	 */
+	function addHTML($text){
+		$this->addLineInternal($text);
+	}
 
-    /**
-     * @param $text
-     */
-    function addCode($text){
-        $this->addLineInternal("<?php ".$text." ?>");
-    }
+	/**
+	 * @param $text
+	 */
+	function addCode($text){
+		$this->addLineInternal("<?php ".$text." ?>");
+	}
 
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processSyntaxHighlighterStart($segmentText) {
-        $pattern = '#lang=[\'"]([\.\w]+)[\'"]#u';
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount == 0) {
-            throw new \Exception("Could not extract lang from [$segmentText] for syntaxHighlighter.");
-        }
+	/**
+	 * @param $segmentText
+	 * @throws \Exception
+	 */
+	function processSyntaxHighlighterStart($segmentText) {
+		$pattern = '#lang=[\'"]([\.\w]+)[\'"]#u';
+		$matchCount = preg_match($pattern, $segmentText, $matches);
+		if ($matchCount == 0) {
+			throw new \Exception("Could not extract lang from [$segmentText] for syntaxHighlighter.");
+		}
 
-        $lang = $matches[1];
+		$lang = $matches[1];
 
-        $srcFile = false;
+		$srcFile = false;
 
-        $pattern = '#file=[\'"]([\.\w-]+)[\'"]#u';
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount != 0) {
-            $srcFile = $matches[1];
-        }
+		$pattern = '#file=[\'"]([\.\w-]+)[\'"]#u';
+		$matchCount = preg_match($pattern, $segmentText, $matches);
+		if ($matchCount != 0) {
+			$srcFile = $matches[1];
+		}
 
-        //TODO - this needs to be outside of Intahwebz?
-        $this->addHTML(self::SYNTAX_START);
+		//TODO - this needs to be outside of Intahwebz?
+		$this->addHTML(self::SYNTAX_START);
 
-        if ($srcFile){
-            //TODO - add error checking.
-            //$rawLink = "/staticImage/original/".$srcFile;
-            $rawLink = "/staticFile/".$srcFile;
+		if ($srcFile){
+			//TODO - add error checking.
+			//$rawLink = "/staticImage/original/".$srcFile;
+			$rawLink = "/staticFile/".$srcFile;
 
-            $this->addHTML("<pre class='brush: $lang; toolbar: true;' data-link='$rawLink'>");
-            $this->setLiteralMode(true);
+			$this->addHTML("<pre class='brush: $lang; toolbar: true;' data-link='$rawLink'>");
+			$this->setLiteralMode(true);
 
-            $originalCacheFileName = S3Storage::getStaticLocalCacheFile($srcFile);
-            $fileContents = htmlentities(file_get_contents($originalCacheFileName), ENT_QUOTES);
+			$originalCacheFileName = S3Storage::getStaticLocalCacheFile($srcFile);
+			$fileContents = htmlentities(file_get_contents($originalCacheFileName), ENT_QUOTES);
 
-            $fileContents = str_replace("<?php ", "&lt;php", $fileContents);
-            $fileContents = str_replace("?>", "?&gt;", $fileContents);
+			$fileContents = str_replace("<?php ", "&lt;php", $fileContents);
+			$fileContents = str_replace("?>", "?&gt;", $fileContents);
 
-            $this->addHTML($fileContents);
-        }
-        else{
-            $this->addHTML("<pre class='brush: $lang; toolbar: true;'>");
-            $this->setLiteralMode(true);
-        }
-    }
+			$this->addHTML($fileContents);
+		}
+		else{
+			$this->addHTML("<pre class='brush: $lang; toolbar: true;'>");
+			$this->setLiteralMode(true);
+		}
+	}
 
-    /**
-     *
-     */
-    function processSyntaxHighlighterEnd() {
-        $this->setLiteralMode(false);
-        $this->addHTML("</pre>");
-    }
+	/**
+	 *
+	 */
+	function processSyntaxHighlighterEnd() {
+		$this->setLiteralMode(false);
+		$this->addHTML("</pre>");
+	}
 
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processIssetStart($segmentText) {
+	/**
+	 * @param $segmentText
+	 * @throws \Exception
+	 */
+	function processIssetStart($segmentText) {
 
-        $pattern = '#isset\(\$([\w\[\]\']+)\)#u';
+		$pattern = '#isset\(\$([\w\[\]\']+)\)#u';
 
-        $matchCount = preg_match($pattern, $segmentText, $match);
+		$matchCount = preg_match($pattern, $segmentText, $match);
 
-        if ($matchCount == 0) {
-            throw new \Exception("Could not extract variable from [$segmentText] to check isset.");
-        }
+		if ($matchCount == 0) {
+			throw new \Exception("Could not extract variable from [$segmentText] to check isset.");
+		}
 
-        $code = 'if ($this->view->isVariableSet(\''.addslashes($match[1]).'\') == true) {';
-        $this->addCode($code);
-    }
+		$code = 'if ($this->view->isVariableSet(\''.addslashes($match[1]).'\') == true) {';
+		$this->addCode($code);
+	}
 
-    /**
-     *
-     */
-    function processMarkdownStart(){
-        $this->addCode(" ob_start(); ");
-    }
+	/**
+	 *
+	 */
+	function processMarkdownStart(){
+		$this->addCode(" ob_start(); ");
+	}
 
-    /**
-     *
-     */
-    function processMarkdownEnd(){
-        $this->addCode(" \$contents = ob_get_contents();
+	/**
+	 *
+	 */
+	function processMarkdownEnd(){
+		$this->addCode(" \$contents = ob_get_contents();
 		ob_end_clean();
 		\$this->view->markdown(\$contents);
 		");
-    }
+	}
 
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processExtends($segmentText){
-        $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
+	/**
+	 * @param $segmentText
+	 * @throws \Exception
+	 */
+	function processExtends($segmentText){
+		$pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
 
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount == 0) {
-            throw new \Exception("Could not extract filename from [$segmentText] to extend.");
-        }
+		$matchCount = preg_match($pattern, $segmentText, $matches);
+		if ($matchCount == 0) {
+			throw new \Exception("Could not extract filename from [$segmentText] to extend.");
+		}
 
-        $this->parsedTemplate->setExtends($matches[1]);
-    }
+		$this->parsedTemplate->setExtends($matches[1]);
+	}
 
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processDynamicExtends($segmentText) {
-        $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
+	/**
+	 * @param $segmentText
+	 * @throws \Exception
+	 */
+	function processDynamicExtends($segmentText) {
+		$pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
 
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount == 0) {
-            throw new \Exception("Could not extract filename from [$segmentText] to mapExtend.");
-        }
+		$matchCount = preg_match($pattern, $segmentText, $matches);
+		if ($matchCount == 0) {
+			throw new \Exception("Could not extract filename from [$segmentText] to mapExtend.");
+		}
 
-        $this->parsedTemplate->setDynamicExtends($matches[1]);
-    }
-
-
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processInclude($segmentText) {
-        $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
-
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount != 0) {
-            $this->setInclude($matches[1]);
-            return;
-        }
-
-        //dynamic include from variable?
-        $pattern = '#file=\$(\w+)#u';
-
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount != 0) {
-            $code = "\$file = \$this->view->getVariable('".$matches[1]."');\n";
-            $this->addCode($code);
-            //TODO add error handling when file is null
-            $code = "\$this->view->includeFile(\$file)";
-            $this->addCode($code);
-            return;
-        }
-
-        throw new \Exception("Could not extract filename from [$segmentText] to include.");
-    }
-
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processBlockStart($segmentText){
-        $pattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount == 0) {
-            throw new \Exception("Could not extract filename from [$segmentText] for blockStart.");
-        }
-
-        $blockName = $matches[1];
-
-        if ($this->activeBlock != null) {
-            throw new \Exception("Trying to start block [$blockName] while still in a block. That's not possible.");
-        }
-
-        $this->activeBlock = array();
-        $this->activeBlockName = $blockName;
-    }
-
-    /**
-     *
-     */
-    function processBlockEnd() {
-        if ($this->parsedTemplate->extends == null) {
-            //Added in the correct spot, not in the active block
-            //$this->textLines[] = " <?php \$this->".$this->activeBlockName."();  ? > ";
-            $this->parsedTemplate->addTextLine(" <?php \$this->".$this->activeBlockName."();  ?> ");
-        }
-
-        $this->parsedTemplate->addFunctionBlock($this->activeBlockName, $this->activeBlock);
-        $this->activeBlock = null;
-        $this->activeBlockName = null;
-    }
-
-    /**
-     * @param $segmentText
-     */
-    function processTrimStart($segmentText){
-        $this->addCode("ob_start();");
-    }
-
-    /**
-     *
-     */
-    function processTrimEnd() {
-        $this->addCode('$output = ob_get_contents();');
-        $this->addCode('ob_end_clean();');
-        $this->addCode('echo trim($output);');
-    }
+		$this->parsedTemplate->setDynamicExtends($matches[1]);
+	}
 
 
-    /**
-     * @param $segmentText
-     * @throws \Intahwebz\Jig\JigException
-     */
-    function processForeachStart($segmentText){
-        //find the variable and replace it with new version
-        $pattern = '/foreach\s+(\$\w+)\s/u';
+	/**
+	 * @param $segmentText
+	 * @throws \Exception
+	 */
+	function processInclude($segmentText) {
+		$pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
 
-        $matchCount = preg_match($pattern, $segmentText, $matches, PREG_OFFSET_CAPTURE);
-        if ($matchCount == 0) {
-            throw new JigException("Could not extract variable to foreach over from [$segmentText].");
-        }
+		$matchCount = preg_match($pattern, $segmentText, $matches);
+		if ($matchCount != 0) {
+			$this->setInclude($matches[1]);
+			return;
+		}
 
-        $varName = $matches[1][0];
-        $varPosition = $matches[1][1];
-        $segmentText = str_replace('foreach', 'foreach (', $segmentText);
+		//dynamic include from variable?
+		$pattern = '#file=\$(\w+)#u';
 
-        if ($this->parsedTemplate->hasLocalVariable($varName) == true) {
-            $this->addLineInternal( $segmentText.'){' );
-        }
-        else{
-            $cVar = substr($varName, 1);
-            $replace = "\$this->view->getVariable('$cVar')";
-            $segmentText = str_replace($varName, $replace, $segmentText);
-            $this->addCode($segmentText.'){ ');
-        }
+		$matchCount = preg_match($pattern, $segmentText, $matches);
+		if ($matchCount != 0) {
+			$code = "\$file = \$this->view->getVariable('".$matches[1]."');\n";
+			$this->addCode($code);
+			//TODO add error handling when file is null
+			$code = "\$this->view->includeFile(\$file)";
+			$this->addCode($code);
+			return;
+		}
 
-        $dependentVariablesPosition = $varPosition + strlen($varName);
+		throw new \Exception("Could not extract filename from [$segmentText] to include.");
+	}
 
-        $pattern = '/\s+(\$\w+)\s?/u';
+	/**
+	 * @param $segmentText
+	 * @throws \Exception
+	 */
+	function processBlockStart($segmentText){
+		$pattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
+		$matchCount = preg_match($pattern, $segmentText, $matches);
+		if ($matchCount == 0) {
+			throw new \Exception("Could not extract filename from [$segmentText] for blockStart.");
+		}
 
-        $matchCount = preg_match_all($pattern, $segmentText, $matches, PREG_PATTERN_ORDER, $dependentVariablesPosition);
+		$blockName = $matches[1];
 
-        foreach ($matches[1] as $variableName) {
-            $this->parsedTemplate->addLocalVariable($variableName);
-        }
-    }
+		if ($this->activeBlock != null) {
+			throw new \Exception("Trying to start block [$blockName] while still in a block. That's not possible.");
+		}
 
-    /**
-     *
-     */
-    function processSpoilerBlockStart(){
-        $spoiler = "<div>";
-        $spoiler .= "<span class='clickyButton' onclick='showHide(this, \"spoilerHidden\");'>Spoiler</span>";
-        $spoiler .= "<div class='spoilerBlock' style=''>";
-        $spoiler .= "<div class='spoilerHidden' style='display: none;'>";
-        $this->addLineInternal($spoiler);
-    }
+		$this->activeBlock = array();
+		$this->activeBlockName = $blockName;
+	}
 
-    /**
-     *
-     */
-    function processSpoilerBlockEnd(){
-        $this->addLineInternal("<div style='clear: both;'></div>");
-        $this->addLineInternal("</div>");
-        $this->addLineInternal("</div></div>");
-    }
+	/**
+	 *
+	 */
+	function processBlockEnd() {
+		if ($this->parsedTemplate->extends == null) {
+			//Added in the correct spot, not in the active block
+			//$this->textLines[] = " <?php \$this->".$this->activeBlockName."();  ? > ";
+			$this->parsedTemplate->addTextLine(" <?php \$this->".$this->activeBlockName."();  ?> ");
+		}
+
+		$this->parsedTemplate->addFunctionBlock($this->activeBlockName, $this->activeBlock);
+		$this->activeBlock = null;
+		$this->activeBlockName = null;
+	}
+
+	/**
+	 * @param $segmentText
+	 */
+	function processTrimStart($segmentText){
+		$this->addCode("ob_start();");
+	}
+
+	/**
+	 *
+	 */
+	function processTrimEnd() {
+		$this->addCode('$output = ob_get_contents();');
+		$this->addCode('ob_end_clean();');
+		$this->addCode('echo trim($output);');
+	}
 
 
-    /**
-     *
-     */
-    function processForeachEnd() {
-        $this->addCode(" } ");
-    }
+	/**
+	 * @param $segmentText
+	 * @throws \Intahwebz\Jig\JigException
+	 */
+	function processForeachStart($segmentText){
+		//find the variable and replace it with new version
+		$pattern = '/foreach\s+(\$\w+)\s/u';
 
-    /**
-     * @param $textLine
-     */
-    private function addLineInternal($textLine) {
-        if ($this->activeBlock !== null){
-            $this->activeBlock[] = $textLine;
-        }
-        else {
-            //$this->textLines[] = $textLine;
-            $this->parsedTemplate->addTextLine($textLine);
-        }
-    }
+		$matchCount = preg_match($pattern, $segmentText, $matches, PREG_OFFSET_CAPTURE);
+		if ($matchCount == 0) {
+			throw new JigException("Could not extract variable to foreach over from [$segmentText].");
+		}
 
-    /**
-     *
-     */
-    function processLiteralStart(){
-        $this->setLiteralMode(true);
-    }
+		$varName = $matches[1][0];
+		$varPosition = $matches[1][1];
+		$segmentText = str_replace('foreach', 'foreach (', $segmentText);
 
-    /**
-     *
-     */
-    function processLiteralEnd(){
-        $this->setLiteralMode(false);
-    }
+		if ($this->parsedTemplate->hasLocalVariable($varName) == true) {
+			$this->addLineInternal( $segmentText.'){' );
+		}
+		else{
+			$cVar = substr($varName, 1);
+			$replace = "\$this->view->getVariable('$cVar')";
+			$segmentText = str_replace($varName, $replace, $segmentText);
+			$this->addCode($segmentText.'){ ');
+		}
 
-    /**
-     * @param TemplateParser $templateParser
-     * @return string
-     * @throws \Exception
-     */
-    function saveCompiledTemplate($compilePath, $proxied) {
-        $fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
+		$dependentVariablesPosition = $varPosition + strlen($varName);
 
-        $fullClassName = str_replace("/", "\\", $fullClassName);
+		$pattern = '/\s+(\$\w+)\s?/u';
 
-        $namespace = getNamespace($fullClassName);
-        $className = getClassName($fullClassName);
+		$matchCount = preg_match_all($pattern, $segmentText, $matches, PREG_PATTERN_ORDER, $dependentVariablesPosition);
 
-        if($proxied == true) {
-            $parentFullClassName =	$fullClassName;
-            $className = 'Proxied'.$className;
-        }
-        else if ($this->parsedTemplate->dynamicExtends != null) {
-            //Dynamic extension does class extension at run time.
-            $parentFullClassName = "\\Intahwebz\\Jig\\DynamicTemplateExtender";
-        }
-        else{
-            $parentFullClassName = $this->parsedTemplate->getParentClass();
-        }
+		foreach ($matches[1] as $variableName) {
+			$this->parsedTemplate->addLocalVariable($variableName);
+		}
+	}
 
-        $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
+	/**
+	 *
+	 */
+	function processSpoilerBlockStart(){
+		$spoiler = "<div>";
+		$spoiler .= "<span class='clickyButton' onclick='showHide(this, \"spoilerHidden\");'>Spoiler</span>";
+		$spoiler .= "<div class='spoilerBlock' style=''>";
+		$spoiler .= "<div class='spoilerHidden' style='display: none;'>";
+		$this->addLineInternal($spoiler);
+	}
 
-        $parentNamespace = getNamespace($parentFullClassName);
-        $parentClassName = getClassName($parentFullClassName);
+	/**
+	 *
+	 */
+	function processSpoilerBlockEnd(){
+		$this->addLineInternal("<div style='clear: both;'></div>");
+		$this->addLineInternal("</div>");
+		$this->addLineInternal("</div></div>");
+	}
 
-        $outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
-        $outputFilename = $compilePath.$outputFilename.".php";
 
-        $startSection = <<< END
+	/**
+	 *
+	 */
+	function processForeachEnd() {
+		$this->addCode(" } ");
+	}
+
+	/**
+	 * @param $textLine
+	 */
+	private function addLineInternal($textLine) {
+		if ($this->activeBlock !== null){
+			$this->activeBlock[] = $textLine;
+		}
+		else {
+			//$this->textLines[] = $textLine;
+			$this->parsedTemplate->addTextLine($textLine);
+		}
+	}
+
+	/**
+	 *
+	 */
+	function processLiteralStart(){
+		$this->setLiteralMode(true);
+	}
+
+	/**
+	 *
+	 */
+	function processLiteralEnd(){
+		$this->setLiteralMode(false);
+	}
+
+	/**
+	 * @param TemplateParser $templateParser
+	 * @return string
+	 * @throws \Exception
+	 */
+	function saveCompiledTemplate($compilePath, $proxied) {
+		$fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
+
+		$fullClassName = str_replace("/", "\\", $fullClassName);
+
+		$namespace = getNamespace($fullClassName);
+		$className = getClassName($fullClassName);
+
+		if($proxied == true) {
+			$parentFullClassName =	$fullClassName;
+			$className = 'Proxied'.$className;
+		}
+		else if ($this->parsedTemplate->dynamicExtends != null) {
+			//Dynamic extension does class extension at run time.
+			$parentFullClassName = "\\Intahwebz\\Jig\\DynamicTemplateExtender";
+		}
+		else{
+			$parentFullClassName = $this->parsedTemplate->getParentClass();
+		}
+
+		$parentFullClassName = str_replace("/", "\\", $parentFullClassName);
+
+		$parentNamespace = getNamespace($parentFullClassName);
+		$parentClassName = getClassName($parentFullClassName);
+
+		$outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
+		$outputFilename = $compilePath.$outputFilename.".php";
+
+		$startSection = <<< END
 <?php
 
 namespace $namespace;
@@ -715,98 +715,98 @@ class $className extends $parentClassName {
 
 END;
 
-        ensureDirectoryExists($outputFilename);
+		ensureDirectoryExists($outputFilename);
 
-        $outputFileHandle = @fopen($outputFilename, "w");
+		$outputFileHandle = @fopen($outputFilename, "w");
 
-        if ($outputFileHandle == false) {
-            throw new \Exception("Could not open file [$outputFilename] for writing template.");
-        }
+		if ($outputFileHandle == false) {
+			throw new \Exception("Could not open file [$outputFilename] for writing template.");
+		}
 
-        fwrite($outputFileHandle, $startSection);
+		fwrite($outputFileHandle, $startSection);
 
-        if ($this->parsedTemplate->dynamicExtends != null) {
-            $this->writeMappedSection($outputFileHandle);
-        }
+		if ($this->parsedTemplate->dynamicExtends != null) {
+			$this->writeMappedSection($outputFileHandle);
+		}
 
-        if($proxied == true) {
-            $this->writeProxySection($outputFileHandle);
-        }
-        else {
-            $functionBlocks = $this->parsedTemplate->getFunctionBlocks();
+		if($proxied == true) {
+			$this->writeProxySection($outputFileHandle);
+		}
+		else {
+			$functionBlocks = $this->parsedTemplate->getFunctionBlocks();
 
-            foreach ($functionBlocks as $name => $functionBlockSegments) {
-                $this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
-            }
-        }
+			foreach ($functionBlocks as $name => $functionBlockSegments) {
+				$this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
+			}
+		}
 
-        if ($this->parsedTemplate->getExtends() == null &&
-            $this->parsedTemplate->dynamicExtends == null &&
-            $proxied == false) {
-            $remainingSegments = $this->parsedTemplate->getLines();
-            $this->writeFunction($outputFileHandle, 'renderInternal', $remainingSegments);
-        }
+		if ($this->parsedTemplate->getExtends() == null &&
+			$this->parsedTemplate->dynamicExtends == null &&
+			$proxied == false) {
+			$remainingSegments = $this->parsedTemplate->getLines();
+			$this->writeFunction($outputFileHandle, 'renderInternal', $remainingSegments);
+		}
 
-        $this->writeEndSection($outputFileHandle);
+		$this->writeEndSection($outputFileHandle);
 
-        fclose($outputFileHandle);
+		fclose($outputFileHandle);
 
-        if (class_exists($fullClassName) == false) {
-            require($outputFilename);
-        }
-        else {
-            //Warn - file was compiled when class already exists?
-        }
+		if (class_exists($fullClassName) == false) {
+			require($outputFilename);
+		}
+		else {
+			//Warn - file was compiled when class already exists?
+		}
 
-        return $fullClassName;
-    }
+		return $fullClassName;
+	}
 
-    /**
-     * @param $outputFileHandle
-     */
-    function writeEndSection($outputFileHandle) {
+	/**
+	 * @param $outputFileHandle
+	 */
+	function writeEndSection($outputFileHandle) {
 
-        $endSection = <<< END
+		$endSection = <<< END
 		}
 
 		?>
 END;
 
-        fwrite($outputFileHandle, $endSection);
-    }
+		fwrite($outputFileHandle, $endSection);
+	}
 
-    /**
-     * @param $outputFileHandle
-     * @param $functionName
-     * @param $lines
-     */
-    function writeFunction($outputFileHandle, $functionName, $lines) {
-        if ($lines > 0) {
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "\tfunction ".$functionName."() {\n");
-            fwrite($outputFileHandle, "?>\n");
-            fwrite($outputFileHandle, "\n");
+	/**
+	 * @param $outputFileHandle
+	 * @param $functionName
+	 * @param $lines
+	 */
+	function writeFunction($outputFileHandle, $functionName, $lines) {
+		if ($lines > 0) {
+			fwrite($outputFileHandle, "\n");
+			fwrite($outputFileHandle, "\n");
+			fwrite($outputFileHandle, "\tfunction ".$functionName."() {\n");
+			fwrite($outputFileHandle, "?>\n");
+			fwrite($outputFileHandle, "\n");
 
-            foreach ($lines as $line) {
-                fwrite($outputFileHandle, $line);
-            }
+			foreach ($lines as $line) {
+				fwrite($outputFileHandle, $line);
+			}
 
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "<?php \n");
-            fwrite($outputFileHandle, "\t}\n");
-            fwrite($outputFileHandle, "\n");
-        }
-    }
+			fwrite($outputFileHandle, "\n");
+			fwrite($outputFileHandle, "<?php \n");
+			fwrite($outputFileHandle, "\t}\n");
+			fwrite($outputFileHandle, "\n");
+		}
+	}
 
-    /**
-     * @param $outputFileHandle
-     */
-    function writeMappedSection($outputFileHandle) {
+	/**
+	 * @param $outputFileHandle
+	 */
+	function writeMappedSection($outputFileHandle) {
 
-        $dynamicExtends = $this->parsedTemplate->dynamicExtends;
+		$dynamicExtends = $this->parsedTemplate->dynamicExtends;
 
-        $output = <<< END
+		$output = <<< END
 		public function __construct(\$view, \$mappedClassInfo = array()) {
 
 			if (array_key_exists('$dynamicExtends', \$mappedClassInfo) == false) {
@@ -822,21 +822,21 @@ END;
 		}
 END;
 
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, "\n");
-    }
+		fwrite($outputFileHandle, "\n");
+		fwrite($outputFileHandle, "\n");
+		fwrite($outputFileHandle, $output);
+		fwrite($outputFileHandle, "\n");
+		fwrite($outputFileHandle, "\n");
+	}
 
 
-    /**
-     * @param $outputFileHandle
-     */
-    public function writeProxySection($outputFileHandle) {
+	/**
+	 * @param $outputFileHandle
+	 */
+	public function writeProxySection($outputFileHandle) {
 
-        fwrite($outputFileHandle, "\n");
-        $output = <<< END
+		fwrite($outputFileHandle, "\n");
+		$output = <<< END
 
 		var \$childInstance = null;
 
@@ -847,14 +847,14 @@ END;
 
 END;
 
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
+		fwrite($outputFileHandle, "\n");
+		fwrite($outputFileHandle, $output);
+		fwrite($outputFileHandle, "\n");
 
-        $functionBlocks = $this->parsedTemplate->getFunctionBlocks();
-        foreach ($functionBlocks as $name => $functionBlockSegments) {
+		$functionBlocks = $this->parsedTemplate->getFunctionBlocks();
+		foreach ($functionBlocks as $name => $functionBlockSegments) {
 
-            $output = <<< END
+			$output = <<< END
 
 			function $name() {
 				if (method_exists (\$this->childInstance, '$name') == true) {
@@ -864,50 +864,50 @@ END;
 			}
 END;
 
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, $output);
-            fwrite($outputFileHandle, "\n");
-        }
+			fwrite($outputFileHandle, "\n");
+			fwrite($outputFileHandle, $output);
+			fwrite($outputFileHandle, "\n");
+		}
 
-        fwrite($outputFileHandle, "\n");
-    }
+		fwrite($outputFileHandle, "\n");
+	}
 
 
-    /**
-     * @param $templateFilename
-     */
-    function setClassNameFromFilename($templateFilename){
-        $className = self::getClassNameFromFileName($templateFilename);
-        $this->parsedTemplate->setClassName($className);
-    }
+	/**
+	 * @param $templateFilename
+	 */
+	function setClassNameFromFilename($templateFilename){
+		$className = self::getClassNameFromFileName($templateFilename);
+		$this->parsedTemplate->setClassName($className);
+	}
 
-    /**
-     *
-     * //TODO - this is a global function?
-     * @param $templateFilename
-     * @return string
-     */
-    static function getClassNameFromFileName($templateFilename){
-        $templatePath = str_replace('/', '\\', $templateFilename);
-        $templatePath = str_replace('-', '', $templatePath);
-        return $templatePath;
-    }
+	/**
+	 *
+	 * //TODO - this is a global function?
+	 * @param $templateFilename
+	 * @return string
+	 */
+	static function getClassNameFromFileName($templateFilename){
+		$templatePath = str_replace('/', '\\', $templateFilename);
+		$templatePath = str_replace('-', '', $templatePath);
+		return $templatePath;
+	}
 
-    /**
-     * @param $templateFilename
-     * @return string
-     */
-    static function getNamespacedClassNameFromFileName($templateFilename) {
-        return self::COMPILED_NAMESPACE."\\".self::getClassNameFromFileName($templateFilename);
-    }
+	/**
+	 * @param $templateFilename
+	 * @return string
+	 */
+	static function getNamespacedClassNameFromFileName($templateFilename) {
+		return self::COMPILED_NAMESPACE."\\".self::getClassNameFromFileName($templateFilename);
+	}
 
-    /**
-     * @return string
-     */
-    function getFullNameSpaceClassName() {
-        $fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
-        return $fullClassName;
-    }
+	/**
+	 * @return string
+	 */
+	function getFullNameSpaceClassName() {
+		$fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
+		return $fullClassName;
+	}
 }
 
 
