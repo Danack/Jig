@@ -21,9 +21,12 @@ class JigConverter {
 	public $compilePath = null;
 	public $forceCompile = false;
 
-	//TODO this is duplicated in ParsedTemplate
 	const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
-	const FILENAME_PATTERN = "[\.\w\\/]+";
+
+    /**
+     * This is what JigConverter accepts when looking for a file name
+     */
+    const FILENAME_PATTERN = "[\.\w\\/]+";
 
 	//TODO needs to be in a plugin
 	const SYNTAX_START  =  "<!-- SyntaxHighlighter Start -->";
@@ -139,7 +142,7 @@ class JigConverter {
 
 		$this->createFromLines(array($templateString));
 		$this->parsedTemplate->setClassName($cacheName);
-		$this->saveCompiledTemplate($this->compilePath);
+		$this->saveCompiledTemplate($this->compilePath, false);
 
 		$extendsFilename = $this->parsedTemplate->getExtends();
 

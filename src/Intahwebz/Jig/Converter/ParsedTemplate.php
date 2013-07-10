@@ -21,8 +21,6 @@ class ParsedTemplate {
 
     private $className = null;
 
-//    const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
-
     var $extends = null;
 
     public $dynamicExtends = null;
