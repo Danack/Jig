@@ -119,7 +119,7 @@ class ParsedTemplate {
 
         $extendsClassName = str_replace('/', '\\', $this->extends);
 
-        return $this->baseNameSpace."\\".$extendsClassName;
+        return $this->baseNamespace."\\".$extendsClassName;
     }
 
     /**
