@@ -98,7 +98,6 @@ class ParsedTemplate {
     public function setExtends($filename){
         //TODO allow full qualified names. Maybe.
         //$this->extends = "Intahwebz\\PHPCompiledTemplate\\".$filename;
-
         $this->extends = $filename;
     }
 
