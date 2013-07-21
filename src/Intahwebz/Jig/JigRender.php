@@ -7,11 +7,21 @@ use Intahwebz\View;
 
 use Intahwebz\Jig\Converter\JigConverter;
 
+
+/**
+ * Class JigRender
+ * 
+ * This class seems to have very little point. 
+ * 
+ * @package Intahwebz\Jig
+ */
 class JigRender {
 
     private $view;
 
     private $mappedClasses = array();
+
+    private $boundFunctions = array();
     
     function __construct(View $view, $templateSourceDirectory, $templateCompileDirectory, $extension) {
         
@@ -62,8 +72,7 @@ class JigRender {
         $this->renderTemplateFile($filename);
     }
 
-    private $boundFunctions = array();
-    
+
     /**
      * @param $functionName
      * @param callable $callable
@@ -71,28 +80,6 @@ class JigRender {
     function bindFunction($functionName, callable $callable){
         $this->boundFunctions[$functionName] = $callable;
     }
-
-
-
-
-//    /**
-//     * @param $params
-//     * @return mixed|void
-//     */
-//    function call($params) {
-//        $functionName = array_shift($params);
-//
-//        if (array_key_exists($functionName, $this->boundFunctions) == true) {
-//            return call_user_func_array($this->boundFunctions[$functionName], $params);
-//        }
-//
-//        if (method_exists($this->view, $functionName) == true) {
-//            return call_user_func_array([$this->view, $functionName], $params);    
-//        }
-//
-//        echo "No method $functionName";
-//        return;
-//    }
 
     /**
      * Sets the class map for dynamically extending classes
@@ -137,7 +124,6 @@ class JigRender {
         return $proxiedClassName;
     }
 
-
     /**
      * @param $templateString
      * @param $objectID
@@ -151,11 +137,13 @@ class JigRender {
             $template->render($this->view);
         }
         catch(JigException $je) {
+            //Just rethrow it to keep the stack trace the same
             throw $je;
         }
         catch(\Exception $e){
-            throw new \Exception("Failed to render template: ".$e->getMessage(), $e->getCode(), $e);
-
+            //Catch all exceptions, but throw as a JigException to allow only code to only
+            //catch the template errors.
+            throw new JigException("Failed to render template: ".$e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -174,8 +162,6 @@ class JigRender {
 
         $className = $this->jigConverter->getParsedTemplate($templateFilename, $this->mappedClasses);
 
-        //Injecting them
-        //$instance = new \Intahwebz\PHPCompiledTemplate\pages\image\displayAll($this->view, $this->mappedClasses);
         $template = new $className($this->view, $this);
         $template->render($this->view, $this);
 
@@ -187,6 +173,10 @@ class JigRender {
         return $contents;
     }
 
+    function bindBlock($blockName, Callable $startCallback, Callable $endCallback) {
+        $this->jigConverter->bindBlock($blockName, $startCallback, $endCallback);
+    }
+    
 }
 
 

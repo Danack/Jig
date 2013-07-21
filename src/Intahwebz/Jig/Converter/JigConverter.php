@@ -25,9 +25,6 @@ class JigConverter {
     const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
     const FILENAME_PATTERN = "[\.\w\\/]+";
 
-//    //TODO needs to be in a plugin
-//    const SYNTAX_START  =  "<!-- SyntaxHighlighter Start -->";
-
     private $activeBlock = null;
     private $activeBlockName = null;
     private $literalMode = false;
@@ -163,8 +160,6 @@ class JigConverter {
             $segments = array_merge($segments, $nextSegments);
         }
 
-        //$this->parsedTemplate = new ParsedTemplate();
-
         foreach ($segments as $segment) {
             $this->addSegment($segment);
         }
@@ -245,7 +240,6 @@ class JigConverter {
      * @param $filename
      */
     public function setInclude($filename){
-        //$this->includedFilenames[] = $filename;
         $code = "\$this->view->includeFile('$filename')";
         $this->addCode($code);
     }
@@ -362,7 +356,6 @@ class JigConverter {
         else{
             foreach ($this->blockFunctions as $blockName => $blockFunctions) {
                 if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
-                    //call_user_func($blockFunctions[0], $this, $segmentText);
                     $blockFunctions[0]($this, $segmentText);
                     return;
                 }
@@ -399,7 +392,6 @@ class JigConverter {
      * @throws \Exception
      */
     function processIssetStart($segmentText) {
-
         $pattern = '#isset\(\$([\w\[\]\']+)\)#u';
 
         $matchCount = preg_match($pattern, $segmentText, $match);
@@ -869,6 +861,11 @@ END;
     }
 
 
+    /**
+     * @param $blockName
+     * @param callable $startCallback
+     * @param callable $endCallback
+     */
     function bindBlock($blockName, Callable $startCallback, Callable $endCallback) {
         $this->blockFunctions[$blockName] = array($startCallback, $endCallback);
     }

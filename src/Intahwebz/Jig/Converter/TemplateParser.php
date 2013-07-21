@@ -249,9 +249,9 @@ class TemplateParser {
 		else if (strncmp($segmentText, '/markdown', mb_strlen('/markdown')) == 0){
 			$this->processMarkdownEnd();
 		}
-		else if (strncmp($segmentText, 'syntaxHighlighter', mb_strlen('syntaxHighlighter')) == 0){
-			$this->processSyntaxHighlighterStart($segmentText);
-		}
+//		else if (strncmp($segmentText, 'syntaxHighlighter', mb_strlen('syntaxHighlighter')) == 0){
+//			$this->processSyntaxHighlighterStart($segmentText);
+//		}
 		else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
 			$origText = $segment->getString($this, ['nofilter', 'nophp', 'nooutput']);
 
@@ -290,60 +290,60 @@ class TemplateParser {
 		$this->addLineInternal("<?php ".$text." ?>");
 	}
 
+//
+//    /**
+//     * @param $segmentText
+//     * @throws \Exception
+//     */
+//    function processSyntaxHighlighterStart($segmentText) {
+//		$pattern = '#lang=[\'"]([\.\w]+)[\'"]#u';
+//		$matchCount = preg_match($pattern, $segmentText, $matches);
+//		if ($matchCount == 0) {
+//			throw new \Exception("Could not extract lang from [$segmentText] for syntaxHighlighter.");
+//		}
+//
+//		$lang = $matches[1];
+//
+//		$srcFile = false;
+//
+//		$pattern = '#file=[\'"]([\.\w-]+)[\'"]#u';
+//		$matchCount = preg_match($pattern, $segmentText, $matches);
+//		if ($matchCount != 0) {
+//			$srcFile = $matches[1];
+//		}
+//
+//		//TODO - this needs to be outside of Intahwebz?
+//		$this->addHTML(self::SYNTAX_START);
+//
+//		if ($srcFile){
+//            //TODO - add error checking.
+//            //$rawLink = "/staticImage/original/".$srcFile;
+//            $rawLink = "/staticFile/".$srcFile;
+//
+//            $this->addHTML("<pre class='brush: $lang; toolbar: true;' data-link='$rawLink'>");
+//            $this->setLiteralMode(true);
+//
+//            $originalCacheFileName = S3Storage::getStaticLocalCacheFile($srcFile);
+//			$fileContents = htmlentities(file_get_contents($originalCacheFileName), ENT_QUOTES);
+//
+//			$fileContents = str_replace("<?php ", "&lt;php", $fileContents);
+//			$fileContents = str_replace("? >", "?&gt;", $fileContents);
+//
+//			$this->addHTML($fileContents);
+//		}
+//        else{
+//            $this->addHTML("<pre class='brush: $lang; toolbar: true;'>");
+//            $this->setLiteralMode(true);
+//        }
+//	}
 
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processSyntaxHighlighterStart($segmentText) {
-		$pattern = '#lang=[\'"]([\.\w]+)[\'"]#u';
-		$matchCount = preg_match($pattern, $segmentText, $matches);
-		if ($matchCount == 0) {
-			throw new \Exception("Could not extract lang from [$segmentText] for syntaxHighlighter.");
-		}
-
-		$lang = $matches[1];
-
-		$srcFile = false;
-
-		$pattern = '#file=[\'"]([\.\w-]+)[\'"]#u';
-		$matchCount = preg_match($pattern, $segmentText, $matches);
-		if ($matchCount != 0) {
-			$srcFile = $matches[1];
-		}
-
-		//TODO - this needs to be outside of Intahwebz?
-		$this->addHTML(self::SYNTAX_START);
-
-		if ($srcFile){
-            //TODO - add error checking.
-            //$rawLink = "/staticImage/original/".$srcFile;
-            $rawLink = "/staticFile/".$srcFile;
-
-            $this->addHTML("<pre class='brush: $lang; toolbar: true;' data-link='$rawLink'>");
-            $this->setLiteralMode(true);
-
-            $originalCacheFileName = S3Storage::getStaticLocalCacheFile($srcFile);
-			$fileContents = htmlentities(file_get_contents($originalCacheFileName), ENT_QUOTES);
-
-			$fileContents = str_replace("<?php ", "&lt;php", $fileContents);
-			$fileContents = str_replace("?>", "?&gt;", $fileContents);
-
-			$this->addHTML($fileContents);
-		}
-        else{
-            $this->addHTML("<pre class='brush: $lang; toolbar: true;'>");
-            $this->setLiteralMode(true);
-        }
-	}
-
-    /**
-     *
-     */
-    function processSyntaxHighlighterEnd() {
-		$this->setLiteralMode(false);
-		$this->addHTML("</pre>");
-	}
+//    /**
+//     *
+//     */
+//    function processSyntaxHighlighterEnd() {
+//		$this->setLiteralMode(false);
+//		$this->addHTML("</pre>");
+//	}
 
     /**
      * @param $segmentText
