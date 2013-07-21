@@ -295,6 +295,8 @@ class JigConverter {
      */
     function parseJigSegment(TemplateSegment $segment){
         $segmentText = $segment->text;
+        
+        try{
 
         if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
             $this->processExtends($segmentText);
@@ -368,6 +370,12 @@ class JigConverter {
 
             //It's a line of code that needs to be included.
             $this->addLineInternal($segment->getString($this->parsedTemplate));
+        }
+            
+        }
+        catch(\Exception $e) {
+            $message = "Could not parse template segment [{".$segmentText."}]: ".$e->getMessage();
+            throw new JigException($message, $e->getCode(), $e);
         }
     }
 
@@ -762,17 +770,11 @@ END;
 
         $dynamicExtends = $this->parsedTemplate->dynamicExtends;
 
+        //Todo just pass in parent class name - or eve just parent instance
         $output = <<< END
-		public function __construct(\$view, \$mappedClassInfo = array()) {
-
-			if (array_key_exists('$dynamicExtends', \$mappedClassInfo) == false) {
-				throw new \Exception("Class '$dynamicExtends' not listed in mappedClassInfo, cannot proxy");
-			}
-
-			\$classInstanceName = \$view->getProxiedClass('$dynamicExtends');
-
+		public function __construct(\$view, \$jigRender) {
+			\$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
 			\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
-
             \$parentInstance = new \$fullclassName(\$this, \$view);
 			\$this->setParentInstance(\$parentInstance);
 		}
