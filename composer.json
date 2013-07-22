@@ -18,7 +18,8 @@
 
     "autoload": {
         "psr-0": {
-            "Intahwebz": "src/"
+            "Intahwebz": "src/",
+            "Intahwebz\\PHPCompiledTemplate": "src/Intahwebz/Jig/Tests/generatedTemplates/"
         }
     },
 

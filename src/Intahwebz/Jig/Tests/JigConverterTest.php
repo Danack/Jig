@@ -71,6 +71,32 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains("This is the second child block.", $contents);
     }
 
+    function testDynamicExtends1() {
+        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->mapClasses(array('parent' => 'dynamicExtend/parent1'));
+        $this->jigRenderer->renderTemplateFile('dynamicExtend/dynamicChild');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("This is the child content.", $contents);
+        $this->assertContains("This is the parent 1 start.", $contents);
+        $this->assertContains("This is the parent 1 end.", $contents);
+    }
+
+    function testDynamicExtends2() {
+        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->mapClasses(array('parent' => 'dynamicExtend/parent2'));
+        $this->jigRenderer->renderTemplateFile('dynamicExtend/dynamicChild');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("This is the child content.", $contents);
+
+        $this->assertContains("This is the parent 2 start.", $contents);
+        $this->assertContains("This is the parent 2 end.", $contents);
+    }
 
 
 

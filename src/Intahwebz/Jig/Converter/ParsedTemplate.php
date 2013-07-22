@@ -272,12 +272,13 @@ END;
 
         $dynamicExtends = $this->dynamicExtends;
 
-        //Todo just pass in parent class name - or eve just parent instance
+        //Todo just pass in parent class namen - or eve just parent instance
         $output = <<< END
 		public function __construct(\$view, \$jigRender) {
 			\$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
 			\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
-            \$parentInstance = new \$fullclassName(\$this, \$view);
+
+            \$parentInstance = new \$fullclassName(\$view, \$jigRender, \$this);
 			\$this->setParentInstance(\$parentInstance);
 		}
 END;
@@ -302,7 +303,7 @@ END;
 		var \$view = null;
 		var \$jigRender = null; 
 
-		function __construct(\$view, \$jigRender, \$childInstance,){
+		function __construct(\$view, \$jigRender, \$childInstance){
 			\$this->view = \$view;
 			\$this->jigRender = \$jigRender;
 			\$this->childInstance = \$childInstance;

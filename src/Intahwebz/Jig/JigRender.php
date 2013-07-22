@@ -258,7 +258,7 @@ class JigRender {
                 throw new JigException("File $templateFilename is trying to proxy [".$parsedTemplate->dynamicExtends."] but that doesn't exist in the mappedClasses.");
             }
 
-            $dynamicExtendsClass = $mappedClasses[$this->parsedTemplate->dynamicExtends];
+            $dynamicExtendsClass = $mappedClasses[$parsedTemplate->dynamicExtends];
 
             //Generate this twice - once for reals, once as a proxy.
             $dynamicExtendsParsedTemplate = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);

@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "604d21f2238758dc56ad1d865b9b4793",
+    "hash": "753b014408575e308c2d51d8fd9dc620",
     "packages": [
         {
             "name": "intahwebz/core",
@@ -527,17 +527,17 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.3.1",
+            "version": "v2.3.2",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "v2.3.1"
+                "reference": "v2.3.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/v2.3.1",
-                "reference": "v2.3.1",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/v2.3.2",
+                "reference": "v2.3.2",
                 "shasum": ""
             },
             "require": {
@@ -570,7 +570,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-05-10 18:12:13"
+            "time": "2013-07-11 19:36:36"
         }
     ],
     "aliases": [

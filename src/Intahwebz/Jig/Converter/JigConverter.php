@@ -184,7 +184,7 @@ class JigConverter {
             $this->addCode($segment->getString($this->parsedTemplate));
         }
         else{
-            throw new \Exception("Unknown Segment type ".get_class($segment));
+            throw new JigException("Unknown Segment type ".get_class($segment));
         }
     }
 
