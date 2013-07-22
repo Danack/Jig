@@ -49,7 +49,7 @@ abstract class JigBase {
     function call($functionName) {
 		$functionArgs = func_get_args();
 		//todo - if this template has $functionName - call it?
-		return $this->view->call($functionArgs);
+		return $this->jigRender->call($functionArgs);
 	}
 }
 

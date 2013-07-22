@@ -1,8 +1,14 @@
 <?php
 
+namespace  {
+
+    function testFunction1() {
+        echo "This is a global function.";
+    }
+}
 
 
-namespace Intahwebz\Tests\PHPTemplate;
+namespace Intahwebz\Tests\PHPTemplate{
 
 
 use Intahwebz\Jig\Converter;
@@ -99,10 +105,40 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+    function testFunctionBinding() {
+
+        $this->jigRenderer->bindFunction('testFunction1', 'testFunction1');
+        $this->jigRenderer->bindFunction('testFunction2', [$this, 'classBoundFunction']);
+        $this->jigRenderer->bindFunction('testFunction3', function () {
+            echo "This is a closure function.";
+        });
+        
+        
+        ob_start();
+        
+        
+        
+        $this->jigRenderer->renderTemplateFile('binding/binding');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("This is a global function.", $contents);
+        $this->assertContains("This is a class function.", $contents);
+        
+        $this->assertContains("This is a closure function.", $contents);
+
+        //$this->assertContains("This is the parent 2 end.", $contents);
+        
+    }
+
+
+    function classBoundFunction() {
+        echo "This is a class function.";
+    }
 
 }
 
-
+}
 
 
 ?>

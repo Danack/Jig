@@ -275,6 +275,8 @@ END;
         //Todo just pass in parent class namen - or eve just parent instance
         $output = <<< END
 		public function __construct(\$view, \$jigRender) {
+		    \$this->view = \$view;
+		    \$this->jigRender = \$jigRender;
 			\$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
 			\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
 

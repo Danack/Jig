@@ -61,10 +61,7 @@ class JigRender {
         return $this->view->getVariable($variable);
     }
 
-    function call($params) {
-        return $this->view->call($params);
-    }
-    
+
     /**
      * @param $templateString
      * @param $templateID
@@ -302,6 +299,24 @@ class JigRender {
         return $this->getFullNameSpaceClassName();
     }
 
+    /**
+     * @param $params
+     * @return mixed|void
+     */
+    function call($params) {
+        $functionName = array_shift($params);
+
+        if (array_key_exists($functionName, $this->boundFunctions) == true) {
+            return call_user_func_array($this->boundFunctions[$functionName], $params);
+        }
+
+        if (method_exists($this->view, $functionName) == true) {
+            return call_user_func_array([$this->view, $functionName], $params);
+        }
+
+        echo "No method $functionName";
+        return;
+    }
 
 
 }
