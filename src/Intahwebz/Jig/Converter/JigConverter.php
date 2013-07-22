@@ -4,6 +4,7 @@
 namespace Intahwebz\Jig\Converter;
 
 use Intahwebz\Jig\JigException;
+use Intahwebz\Utils\SafeAccess;
 
 \Intahwebz\Functions::load();
 \Intahwebz\MBExtra\Functions::load();
@@ -16,144 +17,42 @@ use Intahwebz\Jig\JigException;
  * @package Intahwebz\Jig\Converter
  */
 class JigConverter {
-
-    public $templatePath = null;
-    public $compilePath = null;
-    public $forceCompile = false;
+    
+    use SafeAccess;
 
     //TODO this is duplicated in ParsedTemplate
     const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
     const FILENAME_PATTERN = "[\.\w\\/]+";
+    
+    const jigExtension = '';
 
-    private $activeBlock = null;
-    private $activeBlockName = null;
     private $literalMode = false;
-    public $proxied = false;
+    public  $proxied = false;
 
     private $blockFunctions = array();
-
 
     /**
      * @var ParsedTemplate
      */
-    public $parsedTemplate;
+    public $parsedTemplate = null;
 
-    /**
-     * @param $templatePath
-     * @param $compilePath
-     * @param $extension
-     */
-    function init($templatePath, $compilePath, $extension){
-        $this->templatePath = $templatePath;
-        $this->compilePath = $compilePath;
-        $this->extension = $extension;
-    }
+    private $activeBlock = null;
+    private $activeBlockName = null;
 
-    /**
-     * @param $forceCompile
-     */
-    public function setForceCompile($forceCompile) {
-        $this->forceCompile = $forceCompile;
-    }
-
-    /**
-     * @param $templateFilename
-     * @return TemplateParser
-     * @throws JigException
-     */
-    function prepareTemplateFromFile($templateFilename, $extension){
-        $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
-        $fileLines = file($templateFullFilename);
-
-        if ($fileLines === false) {
-            throw new JigException("Could not open template [".$templateFullFilename."] for reading.");
-        }
-
-        try {
-            $this->createFromLines($fileLines);
-            $this->setClassNameFromFilename($templateFilename);
-        }
-        catch(JigException $pte) {
-            throw new JigException("Error in file $templateFilename: ".$pte->getMessage(), $pte->getCode(), $pte);
-        }
-
-        return $this->parsedTemplate;
-    }
-
-
-    /**
-     * @param $templateFilename
-     * //TODO rename this to a better name.
-     * //TODO this duplicates a significant portion of getParsedTemplateFromString
-     * @return string The full classname of the generated file
-     */
-    function getParsedTemplate($templateFilename, $mappedClasses, $proxied = false) {
-
-        //TODO this is not safe, as the calls to getParsedTemplate below overwrite it
-        $this->parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
-
-        $className = self::getNamespacedClassNameFromFileName($templateFilename);
-
-        //If not cached
-        if ($this->forceCompile == false) {
-            if (class_exists($className) == true) {
-                return $className;
-            }
-        }
-
-        $this->prepareTemplateFromFile($templateFilename, $this->extension);
-        $fullClassName = $this->saveCompiledTemplate($this->compilePath, $proxied);
-        $extendsClass = $this->parsedTemplate->getExtends();
-
-        if ($extendsClass) {
-            $parentTemplate = $this->getParsedTemplate($extendsClass, $mappedClasses);
-        }
-
-        if ($this->parsedTemplate->dynamicExtends) {
-            if (array_key_exists($this->parsedTemplate->dynamicExtends, $mappedClasses) == false) {
-                throw new JigException("File $templateFilename is trying to proxy [".$this->parsedTemplate->dynamicExtends."] but that doesn't exist in the mappedClasses.");
-            }
-
-            $dynamicExtendsClass = $mappedClasses[$this->parsedTemplate->dynamicExtends];
-
-            //Generate this twice - once for reals, once as a proxy.
-            $parentTemplate = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);
-            $parentTemplate = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, true);
-        }
-
-        return $className;
-    }
-
-    /**
-     *
-     * This is an entry point
-     * @param $templateString
-     * @param $cacheName
-     * @return mixed
-     */
-    function getParsedTemplateFromString($templateString, $cacheName, $mappedClasses) {
-        $templateString = str_replace( "<?php", "&lt;php", $templateString);
-        $templateString = str_replace( "?>", "?&gt;", $templateString);
-
-        $this->forceCompile = true;
-        $this->createFromLines(array($templateString));
-        $this->parsedTemplate->setClassName($cacheName);
-        $this->saveCompiledTemplate($this->compilePath, false);
-        $extendsFilename = $this->parsedTemplate->getExtends();
-
-        if ($extendsFilename) {
-            $parentTemplate = $this->getParsedTemplate($extendsFilename, $mappedClasses);
-        }
-
-        return $this->getFullNameSpaceClassName();
-    }
 
 
     /**
      * @param $fileLines
-     * @return TemplateParser
+     * @return ParsedTemplate
      */
     function createFromLines($fileLines) {
+
+        if ($this->parsedTemplate != null) {
+            throw new \Exception("Trying to convert template while in the middle of converting another one.");
+        }
+        
+        $this->parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
+
         $segments = array();
         foreach ($fileLines as $fileLine) {
             $nextSegments = $this->processLine($fileLine);
@@ -163,6 +62,11 @@ class JigConverter {
         foreach ($segments as $segment) {
             $this->addSegment($segment);
         }
+
+        $parsedTemplate = $this->parsedTemplate;
+        $this->parsedTemplate = null;
+
+        return $parsedTemplate;
     }
 
     /**
@@ -240,7 +144,7 @@ class JigConverter {
      * @param $filename
      */
     public function setInclude($filename){
-        $code = "\$this->view->includeFile('$filename')";
+        $code = "\$this->jigRender->includeFile('$filename')";
         $this->addCode($code);
     }
 
@@ -248,7 +152,7 @@ class JigConverter {
      * @param TemplateSegment $segment
      * @throws \Exception
      */
-    function addSegment(TemplateSegment $segment){
+    function  addSegment(TemplateSegment $segment){
         $segmentText = $segment->text;
 
         if (strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0){
@@ -507,8 +411,6 @@ class JigConverter {
      */
     function processBlockEnd() {
         if ($this->parsedTemplate->extends == null) {
-            //Added in the correct spot, not in the active block
-            //$this->textLines[] = " <?php \$this->".$this->activeBlockName."();  ? > ";
             $this->parsedTemplate->addTextLine(" <?php \$this->".$this->activeBlockName."();  ?> ");
         }
 
@@ -608,7 +510,6 @@ class JigConverter {
             $this->activeBlock[] = $textLine;
         }
         else {
-            //$this->textLines[] = $textLine;
             $this->parsedTemplate->addTextLine($textLine);
         }
     }
@@ -627,238 +528,15 @@ class JigConverter {
         $this->setLiteralMode(false);
     }
 
-    /**
-     * @param TemplateParser $templateParser
-     * @return string
-     * @throws \Exception
-     */
-    function saveCompiledTemplate($compilePath, $proxied) {
-        $fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
-
-        $fullClassName = str_replace("/", "\\", $fullClassName);
-
-        $namespace = getNamespace($fullClassName);
-        $className = getClassName($fullClassName);
-
-        if($proxied == true) {
-            $parentFullClassName =	$fullClassName;
-            $className = 'Proxied'.$className;
-        }
-        else if ($this->parsedTemplate->dynamicExtends != null) {
-            //Dynamic extension does class extension at run time.
-            $parentFullClassName = "\\Intahwebz\\Jig\\DynamicTemplateExtender";
-        }
-        else{
-            $parentFullClassName = $this->parsedTemplate->getParentClass();
-        }
-
-        $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
-
-        $parentNamespace = getNamespace($parentFullClassName);
-        $parentClassName = getClassName($parentFullClassName);
-
-        $outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
-        $outputFilename = $compilePath.$outputFilename.".php";
-
-        $startSection = <<< END
-<?php
-
-namespace $namespace;
-
-use $parentFullClassName;
-
-class $className extends $parentClassName {
-
-END;
-
-        ensureDirectoryExists($outputFilename);
-
-        $outputFileHandle = @fopen($outputFilename, "w");
-
-        if ($outputFileHandle == false) {
-            throw new \Exception("Could not open file [$outputFilename] for writing template.");
-        }
-
-        fwrite($outputFileHandle, $startSection);
-
-        if ($this->parsedTemplate->dynamicExtends != null) {
-            $this->writeMappedSection($outputFileHandle);
-        }
-
-        if($proxied == true) {
-            $this->writeProxySection($outputFileHandle);
-        }
-        else {
-            $functionBlocks = $this->parsedTemplate->getFunctionBlocks();
-
-            foreach ($functionBlocks as $name => $functionBlockSegments) {
-                $this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
-            }
-        }
-
-        if ($this->parsedTemplate->getExtends() == null &&
-            $this->parsedTemplate->dynamicExtends == null &&
-            $proxied == false) {
-            $remainingSegments = $this->parsedTemplate->getLines();
-            $this->writeFunction($outputFileHandle, 'renderInternal', $remainingSegments);
-        }
-
-        $this->writeEndSection($outputFileHandle);
-
-        fclose($outputFileHandle);
-
-        if (class_exists($fullClassName) == false) {
-            require($outputFilename);
-        }
-        else {
-            //Warn - file was compiled when class already exists?
-        }
-
-        return $fullClassName;
-    }
-
-    /**
-     * @param $outputFileHandle
-     */
-    function writeEndSection($outputFileHandle) {
-
-        $endSection = <<< END
-		}
-
-		?>
-END;
-
-        fwrite($outputFileHandle, $endSection);
-    }
-
-    /**
-     * @param $outputFileHandle
-     * @param $functionName
-     * @param $lines
-     */
-    function writeFunction($outputFileHandle, $functionName, $lines) {
-        if ($lines > 0) {
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "\tfunction ".$functionName."() {\n");
-            fwrite($outputFileHandle, "?>\n");
-            fwrite($outputFileHandle, "\n");
-
-            foreach ($lines as $line) {
-                fwrite($outputFileHandle, $line);
-            }
-
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "<?php \n");
-            fwrite($outputFileHandle, "\t}\n");
-            fwrite($outputFileHandle, "\n");
-        }
-    }
-
-    /**
-     * @param $outputFileHandle
-     */
-    function writeMappedSection($outputFileHandle) {
-
-        $dynamicExtends = $this->parsedTemplate->dynamicExtends;
-
-        //Todo just pass in parent class name - or eve just parent instance
-        $output = <<< END
-		public function __construct(\$view, \$jigRender) {
-			\$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
-			\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
-            \$parentInstance = new \$fullclassName(\$this, \$view);
-			\$this->setParentInstance(\$parentInstance);
-		}
-END;
-
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, "\n");
-    }
-
-
-    /**
-     * @param $outputFileHandle
-     */
-    public function writeProxySection($outputFileHandle) {
-
-        fwrite($outputFileHandle, "\n");
-        $output = <<< END
-
-		var \$childInstance = null;
-
-		function __construct(\$childInstance, \$view){
-			\$this->childInstance = \$childInstance;
-			\$this->view = \$view;
-		}
-
-END;
-
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
-
-        $functionBlocks = $this->parsedTemplate->getFunctionBlocks();
-        foreach ($functionBlocks as $name => $functionBlockSegments) {
-
-            $output = <<< END
-
-			function $name() {
-				if (method_exists (\$this->childInstance, '$name') == true) {
-					return \$this->childInstance->$name();
-				}
-				parent::$name();
-			}
-END;
-
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, $output);
-            fwrite($outputFileHandle, "\n");
-        }
-
-        fwrite($outputFileHandle, "\n");
-    }
-
+   
 
     /**
      * @param $templateFilename
      */
     function setClassNameFromFilename($templateFilename){
-        $className = self::getClassNameFromFileName($templateFilename);
-        $this->parsedTemplate->setClassName($className);
+        return self::getClassNameFromFileName($templateFilename);
     }
 
-    /**
-     *
-     * //TODO - this is a global function?
-     * @param $templateFilename
-     * @return string
-     */
-    static function getClassNameFromFileName($templateFilename){
-        $templatePath = str_replace('/', '\\', $templateFilename);
-        $templatePath = str_replace('-', '', $templatePath);
-        return $templatePath;
-    }
-
-    /**
-     * @param $templateFilename
-     * @return string
-     */
-    static function getNamespacedClassNameFromFileName($templateFilename) {
-        return self::COMPILED_NAMESPACE."\\".self::getClassNameFromFileName($templateFilename);
-    }
-
-
-    /**
-     * @return string
-     */
-    function getFullNameSpaceClassName() {
-        $fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
-        return $fullClassName;
-    }
 
 
     /**
@@ -868,6 +546,35 @@ END;
      */
     function bindBlock($blockName, Callable $startCallback, Callable $endCallback) {
         $this->blockFunctions[$blockName] = array($startCallback, $endCallback);
+    }
+
+    /**
+     *
+     * //TODO - this is a global function?
+     * @param $templateFilename
+     * @return string
+     */
+     function getClassNameFromFileName($templateFilename){
+        $templatePath = str_replace('/', '\\', $templateFilename);
+        $templatePath = str_replace('-', '', $templatePath);
+        return $templatePath;
+    }
+
+    /**
+     * @param $templateFilename
+     * @return string
+     */
+    function getNamespacedClassNameFromFileName($templateFilename) {
+        return self::COMPILED_NAMESPACE."\\".self::getClassNameFromFileName($templateFilename).self::jigExtension;
+    }
+
+
+    /**
+     * @return string
+     */
+    function getFullNameSpaceClassName() {
+        $fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
+        return $fullClassName;
     }
 }
 

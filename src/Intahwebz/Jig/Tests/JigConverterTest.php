@@ -6,63 +6,70 @@ namespace Intahwebz\Tests\PHPTemplate;
 
 
 use Intahwebz\Jig\Converter;
-//use Intahwebz\Jig\JigBase;
 use Intahwebz\Jig\Tests\PlaceHolderView;
 use Intahwebz\Jig\Converter\JigConverter;
 use Intahwebz\Jig\Tests\JigTestException;
 
-
+use Intahwebz\Jig\JigRender;
 
 
 
 
 class JigTest extends \PHPUnit_Framework_TestCase {
 
+    /**
+     * @var \Intahwebz\Jig\JigRender
+     */
+    private $jigRenderer = null;
 
 	protected function setUp(){
-        ob_start();
-	}
-
-	protected function tearDown(){
-        ob_end_clean();
-	}
-
-
-
-
-    /**
-     * @expectedException \Intahwebz\Jig\Tests\JigTestException
-     */
-    function testConversion(){
-
-        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-
-        $phpTemplateConverter = new JigConverter();
-
-        $phpTemplateConverter->init(
+        $viewModel = new PlaceHolderView();
+        
+        $this->jigRenderer = new JigRender(
+            $viewModel,
             __DIR__."/templates/",
             __DIR__."/generatedTemplates/",
             "php.tpl"
         );
 
-        $phpTemplateConverter->setForceCompile(true);
-        $parsedTemplateClassName = $phpTemplateConverter->getParsedTemplate('basic', array());
+	}
 
-        require_once(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+	protected function tearDown(){
+        //ob_end_clean();
+	}   
 
-        $view = new PlaceHolderView();
-
-        $template = new $parsedTemplateClassName($view, array());
-
-        /**
-         * var Jig
-         */
-
-
-        $template->render($view);
-
+    
+    function testBasicConversion(){
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('basic/basic');
+        
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("Basic test passed.", $contents);
+        $this->assertContains("Function was called.", $contents);
     }
 
+    function testIncludeConversion(){
+        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('includeFile/includeTest');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("Include test passed.", $contents);
+    }
+
+
+    function testStandardExtends(){
+        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('extendTest/child');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("This is the second child block.", $contents);
+    }
 
 
 

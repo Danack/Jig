@@ -15,14 +15,23 @@ abstract class JigBase {
 	 * @var View
 	 */
 	protected $view;
+    
+    
+    protected   $jigRender;
+    
+    function __construct($view, $jigRender){
+        $this->view = $view;
+        $this->jigRender = $jigRender;
+    }
+    
 
     abstract function renderInternal();
 
     /**
      * @param $view
      */
-    public function render($view) {
-		$this->view = $view;
+    public function render() {
+		//$this->view = $view;
 		$this->renderInternal();
 	}
 

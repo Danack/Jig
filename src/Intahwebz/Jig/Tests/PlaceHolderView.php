@@ -58,7 +58,7 @@ class PlaceHolderView implements View {
     }
 
     function viewFunction($foo){
-        throw new JigTestException("Function was called");
+        echo "Function was called.";
     }
 
 }

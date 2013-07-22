@@ -3,11 +3,14 @@
 
 namespace Intahwebz\Jig\Converter;
 
+use Intahwebz\Jig\JigException;
 use Intahwebz\Utils\SafeAccess;
 
 
 class ParsedTemplate {
 
+    const jigExtension = '';
+    
     use SafeAccess;
 
     /**
@@ -35,14 +38,14 @@ class ParsedTemplate {
         $this->textLines[] = $string;
     }
 
-
     /**
      * @param $className
      */
     public function setClassName($className){
         $className = str_replace("/", "\\", $className);
         $className = str_replace("-", "", $className);
-        $this->className = $className;
+
+        $this->className = $className.self::jigExtension;
     }
 
     /**
@@ -118,6 +121,7 @@ class ParsedTemplate {
 
         $extendsClassName = str_replace('/', '\\', $this->extends);
 
+        //echo "hmm - this may be broken";
         return $this->baseNamespace."\\".$extendsClassName;
     }
 
@@ -127,6 +131,210 @@ class ParsedTemplate {
     function getExtends(){
         return $this->extends;
     }
+
+
+    /**
+     * @param TemplateParser $templateParser
+     * @return string
+     * @throws \Exception
+     */
+    function saveCompiledTemplate($compilePath, $proxied) {
+
+        //$fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
+        $fullClassName = $this->baseNamespace."\\".$this->getClassName();
+
+        $fullClassName = str_replace("/", "\\", $fullClassName);
+
+        $namespace = getNamespace($fullClassName);
+        $className = getClassName($fullClassName);
+
+        if($proxied == true) {
+            $parentFullClassName =	$fullClassName;
+            $className = 'Proxied'.$className;
+        }
+        else if ($this->dynamicExtends != null) {
+            //Dynamic extension does class extension at run time.
+            $parentFullClassName = "\\Intahwebz\\Jig\\DynamicTemplateExtender";
+        }
+        else{
+            $parentFullClassName = $this->getParentClass();
+        }
+
+        $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
+
+        $parentNamespace = getNamespace($parentFullClassName);
+        $parentClassName = getClassName($parentFullClassName);
+
+        $outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
+        $outputFilename = $compilePath.$outputFilename.".php";
+
+        $startSection = <<< END
+<?php
+
+namespace $namespace;
+
+use $parentFullClassName;
+
+class $className extends $parentClassName {
+
+END;
+
+        ensureDirectoryExists($outputFilename);
+
+        $outputFileHandle = @fopen($outputFilename, "w");
+
+        if ($outputFileHandle == false) {
+            throw new JigException("Could not open file [$outputFilename] for writing template.");
+        }
+
+        fwrite($outputFileHandle, $startSection);
+
+        if ($this->dynamicExtends != null) {
+            $this->writeMappedSection($outputFileHandle);
+        }
+
+        if($proxied == true) {
+            $this->writeProxySection($outputFileHandle);
+        }
+        else {
+            $functionBlocks = $this->getFunctionBlocks();
+
+            foreach ($functionBlocks as $name => $functionBlockSegments) {
+                $this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
+            }
+        }
+
+        if ($this->getExtends() == null &&
+            $this->dynamicExtends == null &&
+            $proxied == false) {
+            $remainingSegments = $this->getLines();
+            $this->writeFunction($outputFileHandle, 'renderInternal', $remainingSegments);
+        }
+
+        $this->writeEndSection($outputFileHandle);
+
+        fclose($outputFileHandle);
+
+
+//        if (class_exists($fullClassName) == false) {
+//            require($outputFilename);
+//        }
+//        else {
+//            //Warn - file was compiled when class already exists?
+//        }
+
+        return $outputFilename;
+        //return $fullClassName;
+    }
+
+    /**
+     * @param $outputFileHandle
+     */
+    function writeEndSection($outputFileHandle) {
+
+        $endSection = <<< END
+		}
+
+		?>
+END;
+
+        fwrite($outputFileHandle, $endSection);
+    }
+
+    /**
+     * @param $outputFileHandle
+     * @param $functionName
+     * @param $lines
+     */
+    function writeFunction($outputFileHandle, $functionName, $lines) {
+        if ($lines > 0) {
+            fwrite($outputFileHandle, "\n");
+            fwrite($outputFileHandle, "\n");
+            fwrite($outputFileHandle, "\tfunction ".$functionName."() {\n");
+            fwrite($outputFileHandle, "?>\n");
+            fwrite($outputFileHandle, "\n");
+
+            foreach ($lines as $line) {
+                fwrite($outputFileHandle, $line);
+            }
+
+            fwrite($outputFileHandle, "\n");
+            fwrite($outputFileHandle, "<?php \n");
+            fwrite($outputFileHandle, "\t}\n");
+            fwrite($outputFileHandle, "\n");
+        }
+    }
+
+    /**
+     * @param $outputFileHandle
+     */
+    function writeMappedSection($outputFileHandle) {
+
+        $dynamicExtends = $this->dynamicExtends;
+
+        //Todo just pass in parent class name - or eve just parent instance
+        $output = <<< END
+		public function __construct(\$view, \$jigRender) {
+			\$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
+			\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
+            \$parentInstance = new \$fullclassName(\$this, \$view);
+			\$this->setParentInstance(\$parentInstance);
+		}
+END;
+
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, $output);
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, "\n");
+    }
+
+
+    /**
+     * @param $outputFileHandle
+     */
+    public function writeProxySection($outputFileHandle) {
+
+        fwrite($outputFileHandle, "\n");
+        $output = <<< END
+
+		var \$childInstance = null;
+		var \$view = null;
+		var \$jigRender = null; 
+
+		function __construct(\$view, \$jigRender, \$childInstance,){
+			\$this->view = \$view;
+			\$this->jigRender = \$jigRender;
+			\$this->childInstance = \$childInstance;
+		}
+
+END;
+
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, $output);
+        fwrite($outputFileHandle, "\n");
+
+        $functionBlocks = $this->getFunctionBlocks();
+        foreach ($functionBlocks as $name => $functionBlockSegments) {
+
+            $output = <<< END
+
+			function $name() {
+				if (method_exists (\$this->childInstance, '$name') == true) {
+					return \$this->childInstance->$name();
+				}
+				parent::$name();
+			}
+END;
+
+            fwrite($outputFileHandle, "\n");
+            fwrite($outputFileHandle, $output);
+            fwrite($outputFileHandle, "\n");
+        }
+
+        fwrite($outputFileHandle, "\n");
+    }
+
 
 
 }
