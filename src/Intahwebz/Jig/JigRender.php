@@ -143,7 +143,7 @@ class JigRender {
      */
     public function renderTemplateFromString($templateString, $objectID){
         try{
-            $className = $this->jigConverter->getParsedTemplateFromString($templateString, $objectID, $this->mappedClasses);
+            $className = $this->getParsedTemplateFromString($templateString, $objectID, $this->mappedClasses);
             
             $template = new $className($this->view, $this);
             $template->render($this->view);
@@ -289,7 +289,7 @@ class JigRender {
         $templateString = str_replace( "?>", "?&gt;", $templateString);
 
         $this->forceCompile = true;
-        $parsedTemplate = $this->createFromLines(array($templateString));
+        $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
         $parsedTemplate->saveCompiledTemplate($this->compilePath, false);
         $extendsFilename = $parsedTemplate->getExtends();
@@ -298,7 +298,7 @@ class JigRender {
             $parentTemplate = $this->getParsedTemplate($extendsFilename, $mappedClasses);
         }
 
-        return $this->getFullNameSpaceClassName();
+        return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
     }
 
     /**

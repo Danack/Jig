@@ -205,9 +205,8 @@ class JigConverter {
      */
     function parseJigSegment(TemplateSegment $segment){
         $segmentText = $segment->text;
-        
-        try{
 
+        try{
             if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
                 $this->processExtends($segmentText);
             }

@@ -184,6 +184,18 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         ob_end_clean();
         $this->assertContains("€¥™<>", $contents);
     }
+
+    function testBlockEscapingFromString() {
+        
+        $string = file_get_contents(__DIR__."/templates/binding/blocks.php.tpl");
+        
+        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', null, 'htmlEntityDecode');
+        ob_start();
+        $this->jigRenderer->renderTemplateFromString($string, 'Foo1');
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("€¥™<>", $contents);
+    }
 }
 
 }//end namespace
