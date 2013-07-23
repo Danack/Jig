@@ -190,7 +190,7 @@ class JigRender {
     }
 
     function bindProcessedBlock($blockName, $endFunctionName, $startFunctionName = null) {
-        $this->jigConverter->bindProcessedBlock($blockName, $startFunctionName, $endFunctionName);
+        $this->jigConverter->bindProcessedBlock($blockName, $endFunctionName, $startFunctionName);
     }
 
     function clearCompiledFile(){
@@ -319,8 +319,6 @@ class JigRender {
         echo "No method $functionName";
         return;
     }
-
-
 }
 
 

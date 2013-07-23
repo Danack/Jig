@@ -177,7 +177,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
 
     function testBlockEscaping() {
-        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', null, 'htmlEntityDecode');
+        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode','htmlEntityDecode');
         ob_start();
         $this->jigRenderer->renderTemplateFile('binding/blocks');
         $contents = ob_get_contents();
@@ -189,7 +189,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         
         $string = file_get_contents(__DIR__."/templates/binding/blocks.php.tpl");
         
-        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', null, 'htmlEntityDecode');
+        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', 'htmlEntityDecode');
         ob_start();
         $this->jigRenderer->renderTemplateFromString($string, 'Foo1');
         $contents = ob_get_contents();
