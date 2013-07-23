@@ -51,14 +51,21 @@ class PlaceHolderView implements View {
 
 
     function isVariableSet($string){
-        return false;
+        return array_key_exists($string, $this->variables);
+        //return false;
     }
 
     function assign($variable, $value){
+        $this->variables[$variable] = $value;
     }
 
     function viewFunction($foo){
         echo "Function was called.";
+    }
+
+    function var_dump($foo) {
+        echo "Value is:";
+        var_dump($foo);
     }
 
 }

@@ -16,23 +16,47 @@ use Intahwebz\Jig\Tests\PlaceHolderView;
 use Intahwebz\Jig\Converter\JigConverter;
 use Intahwebz\Jig\Tests\JigTestException;
 
+use Intahwebz\View;
+
 use Intahwebz\Jig\JigRender;
+
+class VariableTest{
+
+    private $value;
+    
+    function __construct($value) {
+        $this->value = $value;
+    }
+
+    function getValue() {
+        return $this->value;
+    }
+}
 
 
 
 
 class JigTest extends \PHPUnit_Framework_TestCase {
 
+    function classBoundFunction() {
+        echo "This is a class function.";
+    }
+    
     /**
      * @var \Intahwebz\Jig\JigRender
      */
     private $jigRenderer = null;
 
+    /**
+     * @var \Intahwebz\View
+     */
+    private $viewModel;
+
 	protected function setUp(){
-        $viewModel = new PlaceHolderView();
+        $this->viewModel = new PlaceHolderView();
         
         $this->jigRenderer = new JigRender(
-            $viewModel,
+            $this->viewModel,
             __DIR__."/templates/",
             __DIR__."/generatedTemplates/",
             "php.tpl"
@@ -124,16 +148,31 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         ob_end_clean();
         $this->assertContains("This is a global function.", $contents);
         $this->assertContains("This is a class function.", $contents);
-        
         $this->assertContains("This is a closure function.", $contents);
-
-        //$this->assertContains("This is the parent 2 end.", $contents);
-        
     }
 
 
-    function classBoundFunction() {
-        echo "This is a class function.";
+    function testAssignment() {
+        
+        $variable1 = "This is variable 1.";
+        $variableArray = array('index1' => "This is a variable array.");
+
+        $objectMessage = "This is an object variable";
+        $variableObject = new VariableTest($objectMessage);
+
+        $this->viewModel->assign('variable1', $variable1);
+        $this->viewModel->assign('variableArray', $variableArray);
+        $this->viewModel->assign('variableObject', $variableObject);
+
+        ob_start();
+
+        $this->jigRenderer->renderTemplateFile('assigning/assigning');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains($variable1, $contents);
+        $this->assertContains($variableArray['index1'], $contents);
+        $this->assertContains($objectMessage, $contents);
     }
 
 }
