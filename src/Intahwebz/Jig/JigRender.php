@@ -115,7 +115,8 @@ class JigRender {
 
         $proxiedClassName = $this->mappedClasses[$className];
 
-        //TODO - why is this apparently not needed.
+        //TODO - this should be needed if dynamic extended classes are used out of order
+        //need to add tests.
 //		if (class_exists($proxiedClassName) == false) {
 //			echo "It's compiling time.";
 //			$className = $this->phpTemplateConverter->getParsedTemplate($templateFilename, $this->mappedClasses);
@@ -188,13 +189,17 @@ class JigRender {
         $this->jigConverter->bindBlock($blockName, $startCallback, $endCallback);
     }
 
+    function bindProcessedBlock($blockName, $endFunctionName, $startFunctionName = null) {
+        $this->jigConverter->bindProcessedBlock($blockName, $startFunctionName, $endFunctionName);
+    }
+
     function clearCompiledFile(){
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");   
     }
 
     /**
      * @param $templateFilename
-     * @return ParsedTemplate
+     * @return \Intahwebz\Jig\Converter\ParsedTemplate
      * @throws JigException
      */
     function prepareTemplateFromFile($templateFilename, $extension){
@@ -233,9 +238,6 @@ class JigRender {
                 return $className;
             }
         }
-
-        //TODO this is not safe, as the calls to getParsedTemplate below overwrite it
-//        $parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
 
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename, $this->extension);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(

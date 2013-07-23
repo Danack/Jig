@@ -62,12 +62,9 @@ class ParsedTemplate {
         return $this->textLines;
     }
 
-
-
     public function hasLocalVariable($variableName) {
         return in_array($variableName, $this->localVariables);
     }
-
 
     /**
      * @param $localVariable
@@ -132,17 +129,14 @@ class ParsedTemplate {
         return $this->extends;
     }
 
-
     /**
-     * @param TemplateParser $templateParser
+     * @param $compilePath
+     * @param $proxied
      * @return string
-     * @throws \Exception
+     * @throws \Intahwebz\Jig\JigException
      */
     function saveCompiledTemplate($compilePath, $proxied) {
-
-        //$fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
         $fullClassName = $this->baseNamespace."\\".$this->getClassName();
-
         $fullClassName = str_replace("/", "\\", $fullClassName);
 
         $namespace = getNamespace($fullClassName);
@@ -162,11 +156,18 @@ class ParsedTemplate {
 
         $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
 
-        $parentNamespace = getNamespace($parentFullClassName);
-        $parentClassName = getClassName($parentFullClassName);
-
         $outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
         $outputFilename = $compilePath.$outputFilename.".php";
+
+        ensureDirectoryExists($outputFilename);
+
+        $outputFileHandle = @fopen($outputFilename, "w");
+
+        if ($outputFileHandle == false) {
+            throw new JigException("Could not open file [$outputFilename] for writing template.");
+        }
+
+        $parentClassName = getClassName($parentFullClassName);
 
         $startSection = <<< END
 <?php
@@ -178,14 +179,6 @@ use $parentFullClassName;
 class $className extends $parentClassName {
 
 END;
-
-        ensureDirectoryExists($outputFilename);
-
-        $outputFileHandle = @fopen($outputFilename, "w");
-
-        if ($outputFileHandle == false) {
-            throw new JigException("Could not open file [$outputFilename] for writing template.");
-        }
 
         fwrite($outputFileHandle, $startSection);
 
@@ -215,16 +208,7 @@ END;
 
         fclose($outputFileHandle);
 
-
-//        if (class_exists($fullClassName) == false) {
-//            require($outputFilename);
-//        }
-//        else {
-//            //Warn - file was compiled when class already exists?
-//        }
-
         return $outputFilename;
-        //return $fullClassName;
     }
 
     /**
@@ -273,16 +257,16 @@ END;
         $dynamicExtends = $this->dynamicExtends;
 
         //Todo just pass in parent class namen - or eve just parent instance
-        $output = <<< END
-		public function __construct(\$view, \$jigRender) {
-		    \$this->view = \$view;
-		    \$this->jigRender = \$jigRender;
-			\$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
-			\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
+$output = <<< END
+public function __construct(\$view, \$jigRender) {
+    \$this->view = \$view;
+    \$this->jigRender = \$jigRender;
+    \$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
+    \$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
 
-            \$parentInstance = new \$fullclassName(\$view, \$jigRender, \$this);
-			\$this->setParentInstance(\$parentInstance);
-		}
+    \$parentInstance = new \$fullclassName(\$view, \$jigRender, \$this);
+    \$this->setParentInstance(\$parentInstance);
+}
 END;
 
         fwrite($outputFileHandle, "\n");
@@ -310,7 +294,6 @@ END;
 			\$this->jigRender = \$jigRender;
 			\$this->childInstance = \$childInstance;
 		}
-
 END;
 
         fwrite($outputFileHandle, "\n");

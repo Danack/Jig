@@ -68,6 +68,12 @@ class PlaceHolderView implements View {
         var_dump($foo);
     }
 
+
+    function htmlEntityDecode($content) {
+        //$result = Markdown($contents);
+        echo html_entity_decode($content);
+    }
+    
 }
 
 

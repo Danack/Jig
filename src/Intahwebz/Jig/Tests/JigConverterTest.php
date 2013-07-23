@@ -175,9 +175,18 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains($objectMessage, $contents);
     }
 
+
+    function testBlockEscaping() {
+        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', null, 'htmlEntityDecode');
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('binding/blocks');
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("€¥™<>", $contents);
+    }
 }
 
-}
+}//end namespace
 
 
 ?>

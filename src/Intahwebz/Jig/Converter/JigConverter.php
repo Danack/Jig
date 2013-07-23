@@ -31,6 +31,8 @@ class JigConverter {
 
     private $blockFunctions = array();
 
+    private $processedBlockFunctions = array();
+
     /**
      * @var ParsedTemplate
      */
@@ -38,7 +40,6 @@ class JigConverter {
 
     private $activeBlock = null;
     private $activeBlockName = null;
-
 
 
     /**
@@ -53,14 +54,12 @@ class JigConverter {
         
         $this->parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
 
-        $segments = array();
         foreach ($fileLines as $fileLine) {
             $nextSegments = $this->processLine($fileLine);
-            $segments = array_merge($segments, $nextSegments);
-        }
 
-        foreach ($segments as $segment) {
-            $this->addSegment($segment);
+            foreach ($nextSegments as $segment) {
+                $this->addSegment($segment);
+            }
         }
 
         $parsedTemplate = $this->parsedTemplate;
@@ -167,6 +166,19 @@ class JigConverter {
             }
         }
 
+        foreach ($this->processedBlockFunctions as $blockName => $blockFunctions) {
+            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
+
+                $endFunctionName = $blockFunctions[1];
+
+                $this->addCode(" \$contents = ob_get_contents();
+		ob_end_clean();
+		\$this->view->".$endFunctionName."(\$contents);
+		");
+                return;
+            }
+        }
+
         //Anything that escapes literal mode (i.e. /literal or /syntaxHighlighter) must be above this
         if ($this->literalMode == true) {
             $this->addLineInternal($segment->getRawString());
@@ -196,78 +208,93 @@ class JigConverter {
         
         try{
 
-        if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
-            $this->processExtends($segmentText);
-        }
-        else if (strncmp($segmentText, 'dynamicExtends ', mb_strlen('dynamicExtends ')) == 0){
-            $this->processDynamicExtends($segmentText);
-        }
-        else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
-            $this->processInclude($segmentText);
-        }
-        else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0){
-            $this->processBlockStart($segmentText);
-        }
-        else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0){
-            $this->processBlockEnd();
-        }
-        else if (strncmp($segmentText, 'spoiler', mb_strlen('spoiler ')) == 0){
-            $this->processSpoilerBlockStart();
-        }
-        else if (strncmp($segmentText, '/spoiler', mb_strlen('/spoiler')) == 0){
-            $this->processSpoilerBlockEnd();
-        }
-        else if (strncmp($segmentText, 'trim ', mb_strlen('trim')) == 0){
-            $this->processTrimStart($segmentText);
-        }
-        else if (strncmp($segmentText, '/trim', mb_strlen('/trim')) == 0){
-            $this->processTrimEnd();
-        }
-        else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0){
-            $this->processForeachStart($segmentText);
-        }
-        else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0){
-            $this->processForeachEnd();
-        }
-        else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0){
-            $this->processLiteralStart();
-        }
-        else if (strncmp($segmentText, 'isset', mb_strlen('isset')) == 0){
-            $this->processIssetStart($segmentText);
-        }
-        else if (strncmp($segmentText, 'markdown', mb_strlen('markdown')) == 0){
-            $this->processMarkdownStart();
-        }
-        else if (strncmp($segmentText, '/markdown', mb_strlen('/markdown')) == 0){
-            $this->processMarkdownEnd();
-        }
-        else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
-            $origText = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
-
-            $ifPos = strpos($origText, 'if');
-            $text = substr($origText, 0, $ifPos);
-            $text .= "if (";
-            $text .= substr($origText, $ifPos + 2);
-
-            $this->addLineInternal('<?php '.$text.'){ ?>');
-        }
-        else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
-            $this->addLineInternal('<?php } ?>');
-        }
-        else if (strncmp($segmentText, 'else', mb_strlen('else')) == 0){
-            $this->addCode(" } else { ");
-        }
-        else{
-            foreach ($this->blockFunctions as $blockName => $blockFunctions) {
-                if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
-                    $blockFunctions[0]($this, $segmentText);
-                    return;
-                }
+            if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
+                $this->processExtends($segmentText);
             }
+            else if (strncmp($segmentText, 'dynamicExtends ', mb_strlen('dynamicExtends ')) == 0){
+                $this->processDynamicExtends($segmentText);
+            }
+            else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
+                $this->processInclude($segmentText);
+            }
+            else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0){
+                $this->processBlockStart($segmentText);
+            }
+            else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0){
+                $this->processBlockEnd();
+            }
+            else if (strncmp($segmentText, 'spoiler', mb_strlen('spoiler ')) == 0){
+                $this->processSpoilerBlockStart();
+            }
+            else if (strncmp($segmentText, '/spoiler', mb_strlen('/spoiler')) == 0){
+                $this->processSpoilerBlockEnd();
+            }
+            else if (strncmp($segmentText, 'trim ', mb_strlen('trim')) == 0){
+                $this->processTrimStart($segmentText);
+            }
+            else if (strncmp($segmentText, '/trim', mb_strlen('/trim')) == 0){
+                $this->processTrimEnd();
+            }
+            else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0){
+                $this->processForeachStart($segmentText);
+            }
+            else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0){
+                $this->processForeachEnd();
+            }
+            else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0){
+                $this->processLiteralStart();
+            }
+            else if (strncmp($segmentText, 'isset', mb_strlen('isset')) == 0){
+                $this->processIssetStart($segmentText);
+            }
+//            //todo needs to be a block
+//            else if (strncmp($segmentText, 'markdown', mb_strlen('markdown')) == 0){
+//                $this->processMarkdownStart();
+//            }
+//            else if (strncmp($segmentText, '/markdown', mb_strlen('/markdown')) == 0){
+//                $this->processMarkdownEnd();
+//            }
+            else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
+                $origText = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+    
+                $ifPos = strpos($origText, 'if');
+                $text = substr($origText, 0, $ifPos);
+                $text .= "if (";
+                $text .= substr($origText, $ifPos + 2);
+    
+                $this->addLineInternal('<?php '.$text.'){ ?>');
+            }
+            else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
+                $this->addLineInternal('<?php } ?>');
+            }
+            else if (strncmp($segmentText, 'else', mb_strlen('else')) == 0){
+                $this->addCode(" } else { ");
+            }
+            else{
+                foreach ($this->blockFunctions as $blockName => $blockFunctions) {
+                    if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
+                        $blockFunctions[0]($this, $segmentText);
+                        return;
+                    }
+                }
 
-            //It's a line of code that needs to be included.
-            $this->addLineInternal($segment->getString($this->parsedTemplate));
-        }
+                foreach ($this->processedBlockFunctions as $blockName => $blockFunctions) {
+                    if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
+
+                        $startFunctionName = $blockFunctions[0];
+
+                        if ($startFunctionName != null) { 
+                            $this->addCode(" \$this->view->".$startFunctionName."(); ");
+                        }
+
+                        $this->addCode(" ob_start(); ");
+                        return;
+                    }
+                }
+    
+                //It's a line of code that needs to be included.
+                $this->addLineInternal($segment->getString($this->parsedTemplate));
+            }
             
         }
         catch(\Exception $e) {
@@ -290,7 +317,6 @@ class JigConverter {
         $this->addLineInternal("<?php ".$text." ?>");
     }
 
-
     /**
      * @param $segmentText
      * @throws \Exception
@@ -306,23 +332,6 @@ class JigConverter {
 
         $code = 'if ($this->view->isVariableSet(\''.addslashes($match[1]).'\') == true) {';
         $this->addCode($code);
-    }
-
-    /**
-     *
-     */
-    function processMarkdownStart(){
-        $this->addCode(" ob_start(); ");
-    }
-
-    /**
-     *
-     */
-    function processMarkdownEnd(){
-        $this->addCode(" \$contents = ob_get_contents();
-		ob_end_clean();
-		\$this->view->markdown(\$contents);
-		");
     }
 
     /**
@@ -494,7 +503,6 @@ class JigConverter {
         $this->addLineInternal("</div></div>");
     }
 
-
     /**
      *
      */
@@ -528,7 +536,6 @@ class JigConverter {
         $this->setLiteralMode(false);
     }
 
-   
 
     /**
      * @param $templateFilename
@@ -537,8 +544,6 @@ class JigConverter {
         return self::getClassNameFromFileName($templateFilename);
     }
 
-
-
     /**
      * @param $blockName
      * @param callable $startCallback
@@ -546,6 +551,10 @@ class JigConverter {
      */
     function bindBlock($blockName, Callable $startCallback, Callable $endCallback) {
         $this->blockFunctions[$blockName] = array($startCallback, $endCallback);
+    }
+
+    function bindProcessedBlock($blockName, $endFunctionName, $startFunctionName = null) {
+        $this->processedBlockFunctions[$blockName] = array($startFunctionName, $endFunctionName);
     }
 
     /**
@@ -567,7 +576,6 @@ class JigConverter {
     function getNamespacedClassNameFromFileName($templateFilename) {
         return self::COMPILED_NAMESPACE."\\".self::getClassNameFromFileName($templateFilename).self::jigExtension;
     }
-
 
     /**
      * @return string
