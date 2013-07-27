@@ -85,7 +85,19 @@ class JigConverter {
         $segments = array();
         $matches = array();
 
+        //U = ungreedy
+        //u = utf
         $pattern = "/\{([^\s]+.*[^\s]+)\}/Uu";
+        //TODO preg is the wrong way of doing this.
+
+        //http://stackoverflow.com/questions/524548/regular-expression-to-detect-semi-colon-terminated-c-for-while-loops/524624#524624
+//        You could write a little, very simple routine that does it, without using a regular expression:
+//
+//Set a position counter pos so that is points to just before the opening bracket after your for or while.
+//Set an open brackets counter openBr to 0.
+//Now keep incrementing pos, reading the characters at the respective positions, and increment openBr when you see an opening bracket, and decrement it when you see a closing bracket. That will increment it once at the beginning, for the first opening bracket in "for (", increment and decrement some more for some brackets in between, and set it back to 0 when your for bracket closes.
+//        So, stop when openBr is 0 again.
+//        
 
         $matchCount = preg_match_all($pattern, $fileLine, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
 

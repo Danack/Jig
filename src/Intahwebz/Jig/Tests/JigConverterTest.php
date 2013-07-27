@@ -68,7 +68,6 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         //ob_end_clean();
 	}   
 
-    
     function testBasicConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         ob_start();
@@ -78,6 +77,17 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         ob_end_clean();
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
+    }
+    
+    
+    function testBasicComment() {
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('basic/comments');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("Basic comment test passed.", $contents);
     }
 
     function testIncludeConversion(){
