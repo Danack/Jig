@@ -315,6 +315,7 @@ class JigRender {
             return call_user_func_array([$this->view, $functionName], $params);
         }
 
+        //TODO - should this just through an exception?
         echo "No method $functionName";
         return;
     }

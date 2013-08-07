@@ -22,7 +22,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     function addLocalVariable($name) {
         //echo "Added local var $name \n";
-        $parsedTemplate->addLocalVariable($name);
+        $this->parsedTemplate->addLocalVariable($name);
     }
 
     public function pParam(\PHPParser_Node_Param $node) {

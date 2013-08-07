@@ -16,7 +16,7 @@ abstract class TemplateSegment {
 		$this->text = $text;
 	}
 
-	abstract function getString(ParsedTemplate $parsedTemplate);
+	abstract function getString(ParsedTemplate $parsedTemplate, $extraFilters = array());
 	abstract function getRawString();
 }
 

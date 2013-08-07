@@ -41,6 +41,17 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     function classBoundFunction() {
         echo "This is a class function.";
     }
+
+    function testFunctionCall() {
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('basic/functionCall');
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        $hasBeenCalled = $this->viewModel->hasBeenCalled('someFunction', '$("#myTable").tablesorter();');
+        $this->assertTrue($hasBeenCalled);
+        $this->assertContains("checkRole works", $contents);
+    }
     
     /**
      * @var \Intahwebz\Jig\JigRender
@@ -206,31 +217,24 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         ob_end_clean();
         $this->assertContains("€¥™<>", $contents);
     }
+
+
+//
+//    function testInlinePHP() {
+//        ob_start();
+//        $this->jigRenderer->renderTemplateFile('inlinePHP/simple');
+//        $contents = ob_get_contents();
+//        ob_end_clean();
+//
+//        $this->markTestIncomplete(
+//            'This test has not been implemented yet.'
+//        );
+//
+////        $this->assertContains("inline echo", $contents);
+////        $this->assertContains("This is inside quotes.", $contents);
+//    } 
     
 
-    function testInlinePHP() {
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('inlinePHP/simple');
-        $contents = ob_get_contents();
-        ob_end_clean();
-
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-
-//        $this->assertContains("inline echo", $contents);
-//        $this->assertContains("This is inside quotes.", $contents);
-    } 
-    
-    function testFunctionCall() {
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/functionCall');
-        $contents = ob_get_contents();
-        ob_end_clean();
-
-        $hasBeenCalled = $this->viewModel->hasBeenCalled('someFunction', '$("#myTable").tablesorter();');
-        $this->assertTrue($hasBeenCalled);
-    }
     
 }
 

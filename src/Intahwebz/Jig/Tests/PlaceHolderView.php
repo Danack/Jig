@@ -90,6 +90,14 @@ class PlaceHolderView implements View {
         }
         return false;
     }
+
+    function checkRole($role) {
+        if ($role == 'admin') {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 

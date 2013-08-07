@@ -260,14 +260,17 @@ class JigConverter {
                 $this->processIssetStart($segmentText);
             }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
-                $origText = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+              
     
-                $ifPos = strpos($origText, 'if');
-                $text = substr($origText, 0, $ifPos);
-                $text .= "if (";
-                $text .= substr($origText, $ifPos + 2);
-    
-                $this->addLineInternal('<?php '.$text.'){ ?>');
+//                $ifPos = strpos($origText, 'if');
+//                $text = substr($origText, 0, $ifPos);
+                //$text = "if (";
+                
+                $segment->text = substr($segmentText, 3);
+
+                $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+
+                $this->addLineInternal('<?php if ('.$text.'){ ?>');
             }
             else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
                 $this->addLineInternal('<?php } ?>');

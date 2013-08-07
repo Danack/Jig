@@ -13,7 +13,7 @@ class TextTemplateSegment extends TemplateSegment {
 		return $this->text;
 	}
 
-	function getString(ParsedTemplate $parsedTemplate) {
+	function getString(ParsedTemplate $parsedTemplate, $extraFilters = array()) {
 		return $this->text;
 	}
 }

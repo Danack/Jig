@@ -124,6 +124,7 @@ class PHPTemplateSegment extends TemplateSegment {
 		return false;
 	}
 
+    //TODO - this should be in converter.
     public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array()) {
         $filters = $this->removeFilters();
 
@@ -137,7 +138,19 @@ class PHPTemplateSegment extends TemplateSegment {
 
         $parser = new PHPParser_Parser(new PHPParser_Lexer);
 
+//        echo "grr: ".$code."\n";
+//        
+//        static $count = 0;
+//        
+//        $count++;
+//
+//        if ($count >= 2) {
+//            exit(0);
+//        }
+        
         $statements = $parser->parse($code);
+
+        
         
         $printer = new TemplatePrinter($parsedTemplate);
 
@@ -145,7 +158,6 @@ class PHPTemplateSegment extends TemplateSegment {
 
         $segmentText = substr($segmentText, 0, strrpos($segmentText, ';'));
 
-       
 //        if ($equalsPosition != false) {
 //            $filters[] = 'nooutput';
 //        }
