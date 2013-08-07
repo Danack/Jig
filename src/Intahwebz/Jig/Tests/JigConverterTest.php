@@ -149,9 +149,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         
         
         ob_start();
-        
-        
-        
+
         $this->jigRenderer->renderTemplateFile('binding/binding');
 
         $contents = ob_get_contents();
@@ -185,14 +183,16 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains($objectMessage, $contents);
     }
 
-
     function testBlockEscaping() {
+        $this->viewModel->assign('variable1', "This is a variable");
+        
         $this->jigRenderer->bindProcessedBlock('htmlEntityDecode','htmlEntityDecode');
         ob_start();
         $this->jigRenderer->renderTemplateFile('binding/blocks');
         $contents = ob_get_contents();
         ob_end_clean();
         $this->assertContains("€¥™<>", $contents);
+        $this->assertContains("This is a variable", $contents);
     }
 
     function testBlockEscapingFromString() {
@@ -206,6 +206,32 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         ob_end_clean();
         $this->assertContains("€¥™<>", $contents);
     }
+    
+
+    function testInlinePHP() {
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('inlinePHP/simple');
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+
+//        $this->assertContains("inline echo", $contents);
+//        $this->assertContains("This is inside quotes.", $contents);
+    } 
+    
+    function testFunctionCall() {
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('basic/functionCall');
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        $hasBeenCalled = $this->viewModel->hasBeenCalled('someFunction', '$("#myTable").tablesorter();');
+        $this->assertTrue($hasBeenCalled);
+    }
+    
 }
 
 }//end namespace

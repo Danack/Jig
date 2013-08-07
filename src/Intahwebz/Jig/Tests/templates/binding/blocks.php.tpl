@@ -6,3 +6,11 @@
 
 
 Hmm that was odd
+
+
+
+{htmlEntityDecode}
+
+Variable is: {$variable1}
+
+{/htmlEntityDecode}
