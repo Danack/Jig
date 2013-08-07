@@ -55,7 +55,7 @@ class JigConverter {
         $this->parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
 
         foreach ($fileLines as $fileLine) {
-            $nextSegments = $this->processLine($fileLine);
+            $nextSegments = $this->getLineSegments($fileLine);
 
             foreach ($nextSegments as $segment) {
                 $this->addSegment($segment);
@@ -72,18 +72,19 @@ class JigConverter {
      * @param $fileLine
      * @return TemplateSegment[]
      */
-    function processLine($fileLine) {
-        $lineSegments = $this->getLineSegments($fileLine);
-        return $lineSegments;
-    }
-
-    /**
-     * @param $fileLine
-     * @return TemplateSegment[]
-     */
     function getLineSegments($fileLine){
         $segments = array();
         $matches = array();
+
+        $commentStart = strpos($fileLine, "{*");
+        if ($commentStart) {
+            $commentEnd = strpos($fileLine, "*}", $commentStart);
+            
+            if ($commentEnd) {
+                $newLine = substr($fileLine, 0, $commentStart).substr($fileLine, $commentEnd + 2);
+                $fileLine = $newLine;
+            }
+        }
 
         //U = ungreedy
         //u = utf
@@ -258,13 +259,6 @@ class JigConverter {
             else if (strncmp($segmentText, 'isset', mb_strlen('isset')) == 0){
                 $this->processIssetStart($segmentText);
             }
-//            //todo needs to be a block
-//            else if (strncmp($segmentText, 'markdown', mb_strlen('markdown')) == 0){
-//                $this->processMarkdownStart();
-//            }
-//            else if (strncmp($segmentText, '/markdown', mb_strlen('/markdown')) == 0){
-//                $this->processMarkdownEnd();
-//            }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
                 $origText = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
     

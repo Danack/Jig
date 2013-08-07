@@ -246,7 +246,6 @@ class JigRender {
             //self::COMPILED_NAMESPACE
         );
 
-
         $extendsClass = $parsedTemplate->getExtends();
 
         if ($extendsClass) {

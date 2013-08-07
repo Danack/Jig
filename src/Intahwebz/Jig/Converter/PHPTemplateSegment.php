@@ -3,6 +3,10 @@
 
 namespace Intahwebz\Jig\Converter;
 
+use Intahwebz\Jig\JigException;
+use \PHPParser_Lexer;
+use \PHPParser_Parser;
+use \PHPParser_NodeTraverser;
 
 /**
  * Sort to reverse order.
@@ -120,7 +124,59 @@ class PHPTemplateSegment extends TemplateSegment {
 		return false;
 	}
 
-	public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array()) {
+    public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array()) {
+        $filters = $this->removeFilters();
+
+        $filters = array_merge($filters, $extraFilters);
+
+        $codePre = "<?php ";
+
+        $code = $codePre;
+        $code .= $this->text;
+        $code .= " ?>";
+
+        $parser = new PHPParser_Parser(new PHPParser_Lexer);
+
+        $statements = $parser->parse($code);
+        
+        $printer = new TemplatePrinter($parsedTemplate);
+
+        $segmentText = $printer->prettyPrint($statements);
+
+        $segmentText = substr($segmentText, 0, strrpos($segmentText, ';'));
+
+       
+//        if ($equalsPosition != false) {
+//            $filters[] = 'nooutput';
+//        }
+
+        if (in_array('nofilter', $filters) == false) {
+            $segmentText =  "\safeTextObject(".$segmentText.", ENT_QUOTES)";
+        }
+
+        if (in_array('nooutput', $filters) == false) {
+            $segmentText = "echo ".$segmentText."";
+        }
+
+        if (in_array('nophp', $filters) == false) {
+            $segmentText = "<?php ".$segmentText." ; ?>";
+        }
+
+        return $segmentText;
+    }
+
+    //1. For all assignments, i.e. left of an equals sign - $parsedTemplate->addLocalVariable($assignmentMatch[1][0]);
+    
+    //2. Var all variable fetch, replace with 
+        //2a - if ($parsedTemplate->hasLocalVariable($variableName) == true)
+            //just add it
+        //2b - else
+            //replace with $this->getVariable('".$variableName."')"
+    
+    //3. For all function calls - replace function with $this->call('functionName', $params).
+    
+    
+	public function getStringOld(ParsedTemplate $parsedTemplate, $extraFilters = array()) {
 		$filters = $this->removeFilters();
 
 		$filters = array_merge($filters, $extraFilters);
@@ -163,7 +219,13 @@ class PHPTemplateSegment extends TemplateSegment {
 
 		$variableMatchCount = preg_match_all($variablePattern, $this->text, $variableMatches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE, $equalsPosition);
 
+        //TODO - this doesn't work, we need to actually parse the code as PHP
+        //Rather than use a regex.
 		$functionPattern = '/(\w+\()[^\)]*\)/u';
+        
+        $debug = token_get_all('<?php '.$this->text.' ?>');
+        
+        
 		$functionMatchCount = preg_match_all($functionPattern, $this->text, $functionMatches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE, $equalsPosition);
 
 		$replaceInfoArray = array();
@@ -206,7 +268,6 @@ class PHPTemplateSegment extends TemplateSegment {
 
 //Incorrect order
 //<?php echo \safeTextObject($this->call('showPagination', $this->getVariable('conten$this->getVariable('contentFilterData')e, $contentFilterData->maxPages), ENT_QUOTES) ; ? >
-
 
 
 		$segmentText = $this->text;
