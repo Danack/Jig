@@ -30,6 +30,8 @@ How it works
 TODO
 ====
 
+* Included dynamic files don't trigger a force compile.
+
 * Add more Typehints to function calls as some are missing.
 
 * Replace the preg_match_all with a sane parser.

@@ -219,6 +219,21 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+
+
+    function testDynamicInclude(){
+
+        $this->viewModel->assign('dynamicInclude', "includeFile/includedFile");
+
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('includeFile/dynamicIncludeTest');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("This is the included file.", $contents);
+    }
+
+    
 //
 //    function testInlinePHP() {
 //        ob_start();

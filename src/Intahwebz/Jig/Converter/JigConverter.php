@@ -394,7 +394,7 @@ class JigConverter {
             $code = "\$file = \$this->view->getVariable('".$matches[1]."');\n";
             $this->addCode($code);
             //TODO add error handling when file is null
-            $code = "\$this->view->includeFile(\$file)";
+            $code = "\$this->jigRender->includeFile(\$file)";
             $this->addCode($code);
             return;
         }
