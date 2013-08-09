@@ -8,6 +8,13 @@
 		}
 	},
 
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "/documents/projects/github/intahwebz-core"
+        }
+    ],
+    
 	"authors": [
 		{
 			"name": "Dan Ackroyd",

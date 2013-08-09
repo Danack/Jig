@@ -3,21 +3,15 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "4405740803090e6863d5b7a81da6bf1a",
+    "hash": "901d5aba147d020eecb8e0bfca26f746",
     "packages": [
         {
             "name": "intahwebz/core",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "4c87702af5c8db382c6518aee69ad3073a3085b2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/4c87702af5c8db382c6518aee69ad3073a3085b2",
-                "reference": "4c87702af5c8db382c6518aee69ad3073a3085b2",
-                "shasum": ""
+                "url": "/documents/projects/github/intahwebz-core",
+                "reference": "d2325011d9366901e74ff8afb689ff1a0c85e743"
             },
             "require": {
                 "psr/log": "~1.0"
@@ -28,7 +22,6 @@
                     "Intahwebz": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "authors": [
                 {
                     "name": "Dan Ackroyd",
@@ -42,7 +35,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-07-25 21:25:13"
+            "time": "2013-08-09 01:53:10"
         },
         {
             "name": "intahwebz/mb_extra",
@@ -571,17 +564,17 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.3.2",
+            "version": "v2.3.3",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "v2.3.2"
+                "reference": "v2.3.3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/v2.3.2",
-                "reference": "v2.3.2",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/v2.3.3",
+                "reference": "v2.3.3",
                 "shasum": ""
             },
             "require": {
@@ -614,7 +607,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-07-11 19:36:36"
+            "time": "2013-07-21 12:12:18"
         }
     ],
     "aliases": [
