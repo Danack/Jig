@@ -29,20 +29,19 @@ class JigRender {
 
     private $extension = ".tpl";
 
-    function __construct(ViewModel $viewModel, $templateSourceDirectory, $templateCompileDirectory, $extension) {
-        
-        $this->viewModel = $viewModel;
-        
-        $this->jigConverter = new JigConverter();
+    function __construct($forceCompile, $templateSourceDirectory, $templateCompileDirectory, $extension) {
 
+        $this->jigConverter = new JigConverter();
         $this->templatePath = $templateSourceDirectory;
         $this->compilePath = $templateCompileDirectory;
         $this->extension = $extension;
-
-        //TODO - erm...how to do config
-        $this->setForceCompile(true);
+        $this->setForceCompile($forceCompile);
     }
 
+    function bindViewModel(ViewModel $viewModel) {
+        $this->viewModel = $viewModel;
+    }
+    
     /**
      * @param $forceCompile
      */

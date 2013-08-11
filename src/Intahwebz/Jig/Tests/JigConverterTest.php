@@ -73,6 +73,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
             "php.tpl"
         );
 
+        $this->jigRenderer->bindViewModel($this->viewModel);
 	}
 
 	protected function tearDown(){
