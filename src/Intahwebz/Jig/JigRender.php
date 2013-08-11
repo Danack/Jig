@@ -3,7 +3,7 @@
 
 namespace Intahwebz\Jig;
 
-use Intahwebz\View;
+use Intahwebz\ViewModel;
 
 use Intahwebz\Jig\Converter\JigConverter;
 
@@ -11,18 +11,16 @@ use Intahwebz\Jig\Converter\JigConverter;
 /**
  * Class JigRender
  * 
- * This class seems to have very little point. 
- * 
  * @package Intahwebz\Jig
  */
 class JigRender {
 
     const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
 
-    private $view;
+    private $viewModel;
 
     private $mappedClasses = array();
-
+//
     private $boundFunctions = array();
 
     public $templatePath = null;
@@ -31,10 +29,9 @@ class JigRender {
 
     private $extension = ".tpl";
 
-
-    function __construct(View $view, $templateSourceDirectory, $templateCompileDirectory, $extension) {
+    function __construct(ViewModel $viewModel, $templateSourceDirectory, $templateCompileDirectory, $extension) {
         
-        $this->view = $view;
+        $this->viewModel = $viewModel;
         
         $this->jigConverter = new JigConverter();
 
@@ -54,11 +51,11 @@ class JigRender {
     }
     
     function isVariableSet($variableName){
-        return $this->view->isVariableSet($variableName);
+        return $this->viewModel->isVariableSet($variableName);
     }
 
     function getVariable($variable) {
-        return $this->view->getVariable($variable);
+        return $this->viewModel->getVariable($variable);
     }
 
 
@@ -84,13 +81,13 @@ class JigRender {
     }
 
 
-    /**
-     * @param $functionName
-     * @param callable $callable
-     */
-    function bindFunction($functionName, callable $callable){
-        $this->boundFunctions[$functionName] = $callable;
-    }
+//    /**
+//     * @param $functionName
+//     * @param callable $callable
+//     */
+//    function bindFunction($functionName, callable $callable){
+//        $this->boundFunctions[$functionName] = $callable;
+//    }
 
     /**
      * Sets the class map for dynamically extending classes
@@ -145,8 +142,8 @@ class JigRender {
         try{
             $className = $this->getParsedTemplateFromString($templateString, $objectID, $this->mappedClasses);
             
-            $template = new $className($this->view, $this);
-            $template->render($this->view);
+            $template = new $className($this->viewModel, $this);
+            $template->render($this->viewModel);
         }
         catch(JigException $je) {
             //Just rethrow it to keep the stack trace the same
@@ -174,8 +171,8 @@ class JigRender {
 
         $className = $this->getParsedTemplate($templateFilename, $this->mappedClasses);
 
-        $template = new $className($this->view, $this);
-        $template->render($this->view, $this);
+        $template = new $className($this->viewModel, $this);
+        $template->render($this->viewModel, $this);
 
         if ($capture == true) {
             $contents = ob_get_contents();
@@ -300,25 +297,25 @@ class JigRender {
         return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
     }
 
-    /**
-     * @param $params
-     * @return mixed|void
-     */
-    function call($params) {
-        $functionName = array_shift($params);
-
-        if (array_key_exists($functionName, $this->boundFunctions) == true) {
-            return call_user_func_array($this->boundFunctions[$functionName], $params);
-        }
-
-        if (method_exists($this->view, $functionName) == true) {
-            return call_user_func_array([$this->view, $functionName], $params);
-        }
-
-        //TODO - should this just through an exception?
-        echo "No method $functionName";
-        return;
-    }
+//    /**
+//     * @param $params
+//     * @return mixed|void
+//     */
+//    function call($params) {
+//        $functionName = array_shift($params);
+//
+//        if (array_key_exists($functionName, $this->boundFunctions) == true) {
+//            return call_user_func_array($this->boundFunctions[$functionName], $params);
+//        }
+//
+//        if (method_exists($this->viewModel, $functionName) == true) {
+//            return call_user_func_array([$this->viewModel, $functionName], $params);
+//        }
+//
+//        //TODO - should this just through an exception?
+//        echo "No method $functionName";
+//        return;
+//    }
 }
 
 

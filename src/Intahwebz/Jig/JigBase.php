@@ -3,7 +3,7 @@
 
 namespace Intahwebz\Jig;
 
-use Intahwebz\View;
+use Intahwebz\ViewModel;
 
 /**
  * Class JigBase
@@ -12,18 +12,19 @@ use Intahwebz\View;
 abstract class JigBase {
 
 	/**
-	 * @var View
+	 * @var ViewModel
 	 */
-	protected $view;
-    
-    
+	protected $viewModel;
+
+    /**
+     * @var JigRender
+     */
     protected   $jigRender;
     
-    function __construct($view, $jigRender){
-        $this->view = $view;
+    function __construct(ViewModel $viewModel, $jigRender){
+        $this->viewModel = $viewModel;
         $this->jigRender = $jigRender;
     }
-    
 
     abstract function renderInternal();
 
@@ -31,7 +32,6 @@ abstract class JigBase {
      * @param $view
      */
     public function render() {
-		//$this->view = $view;
 		$this->renderInternal();
 	}
 
@@ -40,16 +40,17 @@ abstract class JigBase {
      * @return mixed
      */
     function getVariable($name) {
-		return $this->view->getVariable($name);
+		return $this->viewModel->getVariable($name);
 	}
 
     /**
-     * @param $functionName
+     * @param array $functionArgs
+     * @return mixed|void
      */
-    function call($functionName) {
+    function call($placeHolder) {
 		$functionArgs = func_get_args();
 		//todo - if this template has $functionName - call it?
-		return $this->jigRender->call($functionArgs);
+		return $this->viewModel->call($functionArgs);
 	}
 }
 

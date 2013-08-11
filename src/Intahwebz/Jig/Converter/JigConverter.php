@@ -186,7 +186,7 @@ class JigConverter {
 
                 $this->addCode(" \$contents = ob_get_contents();
 		ob_end_clean();
-		\$this->view->".$endFunctionName."(\$contents);
+		\$this->viewModel->".$endFunctionName."(\$contents);
 		");
                 return;
             }
@@ -292,7 +292,7 @@ class JigConverter {
                         $startFunctionName = $blockFunctions[0];
 
                         if ($startFunctionName != null) { 
-                            $this->addCode(" \$this->view->".$startFunctionName."(); ");
+                            $this->addCode(" \$this->viewModel->".$startFunctionName."(); ");
                         }
 
                         $this->addCode(" ob_start(); ");
@@ -338,7 +338,7 @@ class JigConverter {
             throw new \Exception("Could not extract variable from [$segmentText] to check isset.");
         }
 
-        $code = 'if ($this->view->isVariableSet(\''.addslashes($match[1]).'\') == true) {';
+        $code = 'if ($this->viewModel->isVariableSet(\''.addslashes($match[1]).'\') == true) {';
         $this->addCode($code);
     }
 
@@ -391,7 +391,7 @@ class JigConverter {
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
         if ($matchCount != 0) {
-            $code = "\$file = \$this->view->getVariable('".$matches[1]."');\n";
+            $code = "\$file = \$this->viewModel->getVariable('".$matches[1]."');\n";
             $this->addCode($code);
             //TODO add error handling when file is null
             $code = "\$this->jigRender->includeFile(\$file)";
@@ -475,7 +475,7 @@ class JigConverter {
         }
         else{
             $cVar = substr($varName, 1);
-            $replace = "\$this->view->getVariable('$cVar')";
+            $replace = "\$this->viewModel->getVariable('$cVar')";
             $segmentText = str_replace($varName, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
         }

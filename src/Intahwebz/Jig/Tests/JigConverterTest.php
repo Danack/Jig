@@ -16,7 +16,7 @@ use Intahwebz\Jig\Tests\PlaceHolderView;
 use Intahwebz\Jig\Converter\JigConverter;
 use Intahwebz\Jig\Tests\JigTestException;
 
-use Intahwebz\View;
+use Intahwebz\ViewModel;
 
 use Intahwebz\Jig\JigRender;
 
@@ -59,7 +59,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     private $jigRenderer = null;
 
     /**
-     * @var \Intahwebz\View
+     * @var \Intahwebz\ViewModel
      */
     private $viewModel;
 
@@ -152,9 +152,9 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testFunctionBinding() {
 
-        $this->jigRenderer->bindFunction('testFunction1', 'testFunction1');
-        $this->jigRenderer->bindFunction('testFunction2', [$this, 'classBoundFunction']);
-        $this->jigRenderer->bindFunction('testFunction3', function () {
+        $this->viewModel->bindFunction('testFunction1', 'testFunction1');
+        $this->viewModel->bindFunction('testFunction2', [$this, 'classBoundFunction']);
+        $this->viewModel->bindFunction('testFunction3', function () {
             echo "This is a closure function.";
         });
         
@@ -179,9 +179,9 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $objectMessage = "This is an object variable";
         $variableObject = new VariableTest($objectMessage);
 
-        $this->viewModel->assign('variable1', $variable1);
-        $this->viewModel->assign('variableArray', $variableArray);
-        $this->viewModel->assign('variableObject', $variableObject);
+        $this->viewModel->setVariable('variable1', $variable1);
+        $this->viewModel->setVariable('variableArray', $variableArray);
+        $this->viewModel->setVariable('variableObject', $variableObject);
 
         ob_start();
 
@@ -195,7 +195,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     }
 
     function testBlockEscaping() {
-        $this->viewModel->assign('variable1', "This is a variable");
+        $this->viewModel->setVariable('variable1', "This is a variable");
         
         $this->jigRenderer->bindProcessedBlock('htmlEntityDecode','htmlEntityDecode');
         ob_start();
@@ -223,7 +223,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testDynamicInclude(){
 
-        $this->viewModel->assign('dynamicInclude', "includeFile/includedFile");
+        $this->viewModel->setVariable('dynamicInclude', "includeFile/includedFile");
 
         ob_start();
         $this->jigRenderer->renderTemplateFile('includeFile/dynamicIncludeTest');

@@ -258,13 +258,13 @@ END;
 
         //Todo just pass in parent class namen - or eve just parent instance
 $output = <<< END
-public function __construct(\$view, \$jigRender) {
-    \$this->view = \$view;
+public function __construct(\$viewModel, \$jigRender) {
+    \$this->viewModel = \$viewModel;
     \$this->jigRender = \$jigRender;
     \$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
     \$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
 
-    \$parentInstance = new \$fullclassName(\$view, \$jigRender, \$this);
+    \$parentInstance = new \$fullclassName(\$viewModel, \$jigRender, \$this);
     \$this->setParentInstance(\$parentInstance);
 }
 END;
@@ -286,11 +286,11 @@ END;
         $output = <<< END
 
 		var \$childInstance = null;
-		var \$view = null;
+		var \$viewModel = null;
 		var \$jigRender = null; 
 
-		function __construct(\$view, \$jigRender, \$childInstance){
-			\$this->view = \$view;
+		function __construct(\$viewModel, \$jigRender, \$childInstance){
+			\$this->viewModel = \$viewModel;
 			\$this->jigRender = \$jigRender;
 			\$this->childInstance = \$childInstance;
 		}
