@@ -581,8 +581,23 @@ class JigConverter {
      * @param $templateFilename
      * @return string
      */
-    function getNamespacedClassNameFromFileName($templateFilename) {
-        return self::COMPILED_NAMESPACE."\\".self::getClassNameFromFileName($templateFilename).self::jigExtension;
+    function getNamespacedClassNameFromFileName($templateFilename, $proxied = false) {
+        $className = self::getClassNameFromFileName($templateFilename);
+
+        if ($proxied == true) {
+            $lastSlashPosition = strrpos($className, '\\');
+    
+            if ($lastSlashPosition === false) {
+                $className = 'Proxied'.$className;
+            }
+            else{
+                $part1 = substr($className, 0, $lastSlashPosition + 1);
+                $part2 = substr($className, $lastSlashPosition + 1);
+                $className = $part1.'Proxied'.$part2;
+            }
+        }
+
+        return self::COMPILED_NAMESPACE."\\".$className.self::jigExtension;
     }
 
     /**

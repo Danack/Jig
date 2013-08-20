@@ -262,7 +262,8 @@ public function __construct(\$viewModel, \$jigRender) {
     \$this->viewModel = \$viewModel;
     \$this->jigRender = \$jigRender;
     \$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
-    \$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
+    //\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
+    \$fullclassName = \$classInstanceName;
 
     \$parentInstance = new \$fullclassName(\$viewModel, \$jigRender, \$this);
     \$this->setParentInstance(\$parentInstance);

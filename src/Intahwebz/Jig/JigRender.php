@@ -6,6 +6,7 @@ namespace Intahwebz\Jig;
 use Intahwebz\ViewModel;
 
 use Intahwebz\Jig\Converter\JigConverter;
+use Psr\Log\LoggerInterface;
 
 
 /**
@@ -29,8 +30,9 @@ class JigRender {
 
     private $extension = ".tpl";
 
-    function __construct($forceCompile, $templateSourceDirectory, $templateCompileDirectory, $extension) {
+    function __construct(LoggerInterface $logger, $forceCompile, $templateSourceDirectory, $templateCompileDirectory, $extension) {
 
+        $this->logger = $logger;
         $this->jigConverter = new JigConverter();
         $this->templatePath = $templateSourceDirectory;
         $this->compilePath = $templateCompileDirectory;
@@ -109,26 +111,33 @@ class JigRender {
             throw new JigException("Class '$className' not listed in mappedClasses, cannot proxy.");
         }
 
-        $proxiedClassName = $this->mappedClasses[$className];
+        $mappedClass = $this->mappedClasses[$className];
 
+        $proxiedClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, true);
+//        
+//        $proxiedClassNameFileName = $proxiedClassName;
+//
+//        //TODO make sure class exists here.
+//        $lastSlashPosition = strrpos($proxiedClassName, '/');
+//
+//        if ($lastSlashPosition !== false) {
+//            $part1 = substr($proxiedClassName, 0, $lastSlashPosition + 1);
+//            $part2 = substr($proxiedClassName, $lastSlashPosition + 1);
+//            $proxiedClassName = $part1.'Proxied'.$part2;
+//        }
+//
+//        $proxiedClassName = str_replace("/", "\\", $proxiedClassName);
+
+        //$className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename);
+        
         //TODO - this should be needed if dynamic extended classes are used out of order
         //need to add tests.
-//		if (class_exists($proxiedClassName) == false) {
+        if (class_exists($proxiedClassName) == false) {
 //			echo "It's compiling time.";
-//			$className = $this->phpTemplateConverter->getParsedTemplate($templateFilename, $this->mappedClasses);
+            $className = $this->getParsedTemplate($mappedClass, $this->mappedClasses, true);
 //			exit(0);
-//		}
-
-        //TODO make sure class exists here.
-        $lastSlashPosition = strrpos($proxiedClassName, '/');
-
-        if ($lastSlashPosition !== false) {
-            $part1 = substr($proxiedClassName, 0, $lastSlashPosition + 1);
-            $part2 = substr($proxiedClassName, $lastSlashPosition + 1);
-            $proxiedClassName = $part1.'Proxied'.$part2;
         }
-
-        $proxiedClassName = str_replace("/", "\\", $proxiedClassName);
+        
         return $proxiedClassName;
     }
 
@@ -226,7 +235,7 @@ class JigRender {
      */
     function getParsedTemplate($templateFilename, $mappedClasses, $proxied = false) {
 
-        $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename);
+        $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
 
         //If not cached
         if ($this->forceCompile == false) {
@@ -234,6 +243,8 @@ class JigRender {
                 return $className;
             }
         }
+
+        $this->logger->warning("Recompiling template ".$templateFilename.", was is this not cached?");
 
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename, $this->extension);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
@@ -256,6 +267,8 @@ class JigRender {
 
             //Generate this twice - once for reals, once as a proxy.
             $dynamicExtendsParsedTemplate = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);
+            
+            //TODO - once the proxy generating is working, this can be removed?
             $dynamicExtendsParsedTemplateProxy = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, true);
         }
 

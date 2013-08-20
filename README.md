@@ -25,12 +25,10 @@ How it works
 
 
 
-
-
 TODO
 ====
 
-* Included dynamic files don't trigger a force compile.
+* Add test case for dynamic include.
 
 * Add more Typehints to function calls as some are missing.
 
