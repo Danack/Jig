@@ -12,6 +12,7 @@ namespace Intahwebz\Tests\PHPTemplate{
 
 
 use Intahwebz\Jig\Converter;
+use Intahwebz\Jig\JigConfig;
 use Intahwebz\Jig\Tests\PlaceHolderView;
 use Intahwebz\Jig\Converter\JigConverter;
 use Intahwebz\Jig\Tests\JigTestException;
@@ -66,15 +67,17 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
 	protected function setUp(){
         $this->viewModel = new PlaceHolderView();
-        
-        
-        
+
+        $jigConfig = new JigConfig(
+            false, //$forceCompile,
+            __DIR__."/templates/", //$templateSourceDirectory, 
+            __DIR__."/generatedTemplates/", //$templateCompileDirectory, 
+            "php.tpl"   // $extension
+        );
+
         $this->jigRenderer = new JigRender(
             new PlaceHolderLogger(),
-            $this->viewModel,
-            __DIR__."/templates/",
-            __DIR__."/generatedTemplates/",
-            "php.tpl"
+            $jigConfig
         );
 
         $this->jigRenderer->bindViewModel($this->viewModel);

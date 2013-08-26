@@ -21,7 +21,6 @@ class JigRender {
     private $viewModel;
 
     private $mappedClasses = array();
-//
     private $boundFunctions = array();
 
     public $templatePath = null;
@@ -30,14 +29,13 @@ class JigRender {
 
     private $extension = ".tpl";
 
-    function __construct(LoggerInterface $logger, $forceCompile, $templateSourceDirectory, $templateCompileDirectory, $extension) {
-
+    function __construct(LoggerInterface $logger, JigConfig $jigConfig) {
         $this->logger = $logger;
         $this->jigConverter = new JigConverter();
-        $this->templatePath = $templateSourceDirectory;
-        $this->compilePath = $templateCompileDirectory;
-        $this->extension = $extension;
-        $this->setForceCompile($forceCompile);
+        $this->templatePath = $jigConfig->templateSourceDirectory;
+        $this->compilePath = $jigConfig->templateCompileDirectory;
+        $this->extension = $jigConfig->extension;
+        $this->setForceCompile($jigConfig->forceCompile);
     }
 
     function bindViewModel(ViewModel $viewModel) {
