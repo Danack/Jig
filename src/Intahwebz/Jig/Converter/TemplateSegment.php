@@ -20,6 +20,3 @@ abstract class TemplateSegment {
 	abstract function getRawString();
 }
 
-
-
-?>

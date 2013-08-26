@@ -54,8 +54,3 @@ abstract class JigBase {
 	}
 }
 
-
-
-
-
-?>

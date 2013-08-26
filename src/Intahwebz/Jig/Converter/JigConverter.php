@@ -608,7 +608,3 @@ class JigConverter {
         return $fullClassName;
     }
 }
-
-
-
-?>

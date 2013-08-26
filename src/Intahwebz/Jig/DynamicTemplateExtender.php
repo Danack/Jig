@@ -42,6 +42,3 @@ class DynamicTemplateExtender extends JigBase {
 }
 
 
-
-
-?>

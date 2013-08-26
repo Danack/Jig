@@ -334,6 +334,3 @@ class PHPTemplateSegment extends TemplateSegment {
 	}
 }
 
-
-
-?>

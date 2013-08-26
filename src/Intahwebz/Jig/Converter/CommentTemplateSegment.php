@@ -19,6 +19,3 @@ class CommentTemplateSegment extends TemplateSegment {
 	}
 }
 
-
-
-?>

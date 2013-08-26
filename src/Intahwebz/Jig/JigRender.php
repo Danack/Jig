@@ -327,7 +327,3 @@ class JigRender {
 //        return;
 //    }
 }
-
-
-
-?>
