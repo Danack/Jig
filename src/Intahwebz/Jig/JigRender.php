@@ -111,29 +111,17 @@ class JigRender {
 
         $mappedClass = $this->mappedClasses[$className];
 
-        $proxiedClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, true);
-//        
-//        $proxiedClassNameFileName = $proxiedClassName;
-//
-//        //TODO make sure class exists here.
-//        $lastSlashPosition = strrpos($proxiedClassName, '/');
-//
-//        if ($lastSlashPosition !== false) {
-//            $part1 = substr($proxiedClassName, 0, $lastSlashPosition + 1);
-//            $part2 = substr($proxiedClassName, $lastSlashPosition + 1);
-//            $proxiedClassName = $part1.'Proxied'.$part2;
-//        }
-//
-//        $proxiedClassName = str_replace("/", "\\", $proxiedClassName);
-
-        //$className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename);
+        $originalClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, false);
+        if (class_exists($originalClassName) == false) {
+            $originalClassName = $this->getParsedTemplate($mappedClass, $this->mappedClasses, false);
+        }
         
-        //TODO - this should be needed if dynamic extended classes are used out of order
-        //need to add tests.
+        $proxiedClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, true);
+
+        //DONE - this was needed if dynamic extended classes are used out of order
+
         if (class_exists($proxiedClassName) == false) {
-//			echo "It's compiling time.";
             $className = $this->getParsedTemplate($mappedClass, $this->mappedClasses, true);
-//			exit(0);
         }
         
         return $proxiedClassName;
@@ -247,8 +235,7 @@ class JigRender {
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename, $this->extension);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
             $this->compilePath,
-            $proxied//,
-            //self::COMPILED_NAMESPACE
+            $proxied
         );
 
         $extendsClass = $parsedTemplate->getExtends();
