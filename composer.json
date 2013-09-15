@@ -2,11 +2,8 @@
 	"name": "intahwebz/jig",
 	"description": "Lightweight, fast, flexible PHP templating system. Just like all the others.",
 	"keywords": ["intahwebz", "core", "library"],
-	"autoload": {
-		"psr-0": {
-			"Intahwebz": "src/"
-		}
-	},
+
+    "license": "MIT",
 
     "repositories": [
         {
