@@ -18,16 +18,19 @@ class JigRender {
 
     const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
 
+    const COMPILE_ALWAYS = 'COMPILE_ALWAYS';
+    const COMPILE_CHECK_EXISTS = 'COMPILE_CHECK_EXISTS';
+    const COMPILE_CHECK_MTIME = 'COMPILE_CHECK_MTIME';
+
     private $viewModel;
 
     private $mappedClasses = array();
     private $boundFunctions = array();
-
     public $templatePath = null;
     public $compilePath = null;
-    public $forceCompile = false;
-
     private $extension = ".tpl";
+    
+    private $compileCheck;
 
     function __construct(LoggerInterface $logger, JigConfig $jigConfig) {
         $this->logger = $logger;
@@ -35,7 +38,7 @@ class JigRender {
         $this->templatePath = $jigConfig->templateSourceDirectory;
         $this->compilePath = $jigConfig->templateCompileDirectory;
         $this->extension = $jigConfig->extension;
-        $this->setForceCompile($jigConfig->forceCompile);
+        $this->compileCheck = $jigConfig->compileCheck;
     }
 
     function bindViewModel(ViewModel $viewModel) {
@@ -45,8 +48,8 @@ class JigRender {
     /**
      * @param $forceCompile
      */
-    public function setForceCompile($forceCompile) {
-        $this->forceCompile = $forceCompile;
+    public function setForceCompile($compileCheck) {
+        $this->compileCheck = $compileCheck;
     }
     
     function isVariableSet($variableName){
@@ -188,6 +191,29 @@ class JigRender {
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");   
     }
 
+    
+    function isGeneratedFileOutOfDate($templateFilename, $extension) {
+        $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
+        $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
+
+        
+
+        
+        $classPath = $this->compilePath.'/'.self::COMPILED_NAMESPACE.'/'.$className.'.php';
+
+        $classPath = str_replace('\\', '/', $classPath);
+        
+        
+        $templateTime = @filemtime($templateFullFilename);
+        $classTime = @filemtime($classPath);
+        
+        if ($classTime < $templateTime) {
+            return true;
+        }
+
+        return false;
+    }
+    
     /**
      * @param $templateFilename
      * @return \Intahwebz\Jig\Converter\ParsedTemplate
@@ -223,14 +249,27 @@ class JigRender {
 
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
 
+        
+        
         //If not cached
-        if ($this->forceCompile == false) {
+        if ($this->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
                 return $className;
             }
         }
 
-        $this->logger->warning("Recompiling template ".$templateFilename.", was is this not cached?");
+        if ($this->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
+
+            //Check file time here....
+            if ($this->isGeneratedFileOutOfDate($templateFilename, $this->extension) == false) {
+                if (class_exists($className) == true) {
+                    return $className;
+                }
+            }
+        }
+        
+
+        $this->logger->info("Recompiling template ".$templateFilename.".");
 
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename, $this->extension);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
@@ -281,7 +320,7 @@ class JigRender {
         $templateString = str_replace( "<?php", "&lt;php", $templateString);
         $templateString = str_replace( "?>", "?&gt;", $templateString);
 
-        $this->forceCompile = true;
+        //$this->forceCompile = true;
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
         $parsedTemplate->saveCompiledTemplate($this->compilePath, false);
