@@ -69,10 +69,10 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->viewModel = new PlaceHolderView();
 
         $jigConfig = new JigConfig(
-            false, //$forceCompile,
-            __DIR__."/templates/", //$templateSourceDirectory, 
-            __DIR__."/generatedTemplates/", //$templateCompileDirectory, 
-            "php.tpl"   // $extension
+            __DIR__."/templates/", 
+            __DIR__."/generatedTemplates/", 
+            "php.tpl",
+            JigRender::COMPILE_ALWAYS
         );
 
         $this->jigRenderer = new JigRender(

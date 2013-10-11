@@ -18,14 +18,13 @@ class JigRender {
 
     const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
 
-    const COMPILE_ALWAYS = 'COMPILE_ALWAYS';
-    const COMPILE_CHECK_EXISTS = 'COMPILE_CHECK_EXISTS';
-    const COMPILE_CHECK_MTIME = 'COMPILE_CHECK_MTIME';
+    const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
+    const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
+    const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
 
     private $viewModel;
 
     private $mappedClasses = array();
-    private $boundFunctions = array();
     public $templatePath = null;
     public $compilePath = null;
     private $extension = ".tpl";
@@ -81,15 +80,6 @@ class JigRender {
     function includeFile($filename){
         $this->renderTemplateFile($filename);
     }
-
-
-//    /**
-//     * @param $functionName
-//     * @param callable $callable
-//     */
-//    function bindFunction($functionName, callable $callable){
-//        $this->boundFunctions[$functionName] = $callable;
-//    }
 
     /**
      * Sets the class map for dynamically extending classes
@@ -195,14 +185,8 @@ class JigRender {
     function isGeneratedFileOutOfDate($templateFilename, $extension) {
         $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
         $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
-
-        
-
-        
         $classPath = $this->compilePath.'/'.self::COMPILED_NAMESPACE.'/'.$className.'.php';
-
         $classPath = str_replace('\\', '/', $classPath);
-        
         
         $templateTime = @filemtime($templateFullFilename);
         $classTime = @filemtime($classPath);
@@ -332,24 +316,4 @@ class JigRender {
 
         return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
     }
-
-//    /**
-//     * @param $params
-//     * @return mixed|void
-//     */
-//    function call($params) {
-//        $functionName = array_shift($params);
-//
-//        if (array_key_exists($functionName, $this->boundFunctions) == true) {
-//            return call_user_func_array($this->boundFunctions[$functionName], $params);
-//        }
-//
-//        if (method_exists($this->viewModel, $functionName) == true) {
-//            return call_user_func_array([$this->viewModel, $functionName], $params);
-//        }
-//
-//        //TODO - should this just through an exception?
-//        echo "No method $functionName";
-//        return;
-//    }
 }

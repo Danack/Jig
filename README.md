@@ -8,6 +8,9 @@ Jig - "A device that holds a piece of machine work and guides the tools operatin
 Or to put it another way, a jig allows you to work fast with sharp tools without cutting your fingers off.
 
 
+[![Build Status](https://travis-ci.org/Danack/Jig.png)](https://travis-ci.org/Danack/Jig)
+
+
 Features 
 ========
 
