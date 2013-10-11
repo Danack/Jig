@@ -1,24 +1,17 @@
 {
-	"name": "intahwebz/jig",
-	"description": "Lightweight, fast, flexible PHP templating system. Just like all the others.",
-	"keywords": ["intahwebz", "core", "library"],
+    "name": "intahwebz/jig",
+    "description": "Lightweight, fast, flexible PHP templating system. Just like all the others.",
+    "keywords": ["intahwebz", "core", "library"],
 
     "license": "MIT",
-
-    "repositories": [
+    
+    "authors": [
         {
-            "type": "vcs",
-            "url": "/documents/projects/github/intahwebz-core"
+            "name": "Dan Ackroyd",
+            "email": "Danack@basereality.com",
+            "homepage": "http://www.basereality.com"
         }
     ],
-    
-	"authors": [
-		{
-			"name": "Dan Ackroyd",
-			"email": "Danack@basereality.com",
-			"homepage": "http://www.basereality.com"
-		}
-	],
 
     "autoload": {
         "psr-0": {
@@ -37,7 +30,7 @@
         "intahwebz/mb_extra": "dev-master",
         "intahwebz/utils": "dev-master",
         "nikic/php-parser": "v0.9.3",
-		"psr/log": "~1.0"
-	}
+        "psr/log": "~1.0"
+    }
 
 }
