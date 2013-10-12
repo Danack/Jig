@@ -45,24 +45,16 @@ class JigRender {
     }
     
     /**
-     * @param $forceCompile
+     * @param $compileCheck
      */
-    public function setForceCompile($compileCheck) {
+    public function setCompileCheck($compileCheck) {
         $this->compileCheck = $compileCheck;
-    }
-    
-    function isVariableSet($variableName){
-        return $this->viewModel->isVariableSet($variableName);
-    }
-
-    function getVariable($variable) {
-        return $this->viewModel->getVariable($variable);
     }
 
 
     /**
      * @param $templateString
-     * @param $templateID
+     * @param $templateID Must be a valid PHP class name i.e. cannot start with digit
      * @return string
      */
     function captureRenderTemplateString($templateString, $templateID){
@@ -178,6 +170,7 @@ class JigRender {
     }
 
     function clearCompiledFile(){
+        //TODO - implement this.
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");   
     }
 
@@ -205,7 +198,7 @@ class JigRender {
      */
     function prepareTemplateFromFile($templateFilename, $extension){
         $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
-        $fileLines = file($templateFullFilename);
+        $fileLines = @file($templateFullFilename);
 
         if ($fileLines === false) {
             throw new JigException("Could not open template [".$templateFullFilename."] for reading.");
