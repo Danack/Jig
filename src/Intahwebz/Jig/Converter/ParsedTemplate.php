@@ -164,7 +164,7 @@ class ParsedTemplate {
         $outputFileHandle = @fopen($outputFilename, "w");
 
         if ($outputFileHandle == false) {
-            throw new JigException("Could not open file [$outputFilename] for writing template.");
+            throw new \Intahwebz\Jig\JigException("Could not open file [$outputFilename] for writing template.");
         }
 
         $parentClassName = getClassName($parentFullClassName);
