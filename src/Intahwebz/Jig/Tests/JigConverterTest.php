@@ -35,6 +35,11 @@ class VariableTest{
     }
 }
 
+    
+
+function testCallableFunction() {
+    echo "I am a callable function";
+}
 
 
 
@@ -81,8 +86,14 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         );
 
         $this->jigRenderer->bindViewModel($this->viewModel);
+
+        $this->viewModel->bindFunction('testCallableFunction', 'Intahwebz\Tests\PHPTemplate\testCallableFunction');
 	}
 
+
+
+
+    
 	protected function tearDown(){
         //ob_end_clean();
 	}   
@@ -92,6 +103,120 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         ob_start();
         $this->jigRenderer->renderTemplateFile('basic/basic');
         
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("Basic test passed.", $contents);
+        $this->assertContains("Function was called.", $contents);
+    }
+
+    function testBasicCapturingConversion(){
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+
+        $contents = $this->jigRenderer->renderTemplateFile('basic/basic', true);
+
+        $this->assertContains("Basic test passed.", $contents);
+        $this->assertContains("Function was called.", $contents);
+    }
+
+
+    
+    
+    
+    function testStringConversion() {
+        $templateString = 'Hello there {$title} {$user} !!!!';
+
+        $title = 'Mr';
+        $user = 'Ackers';
+        $this->viewModel->setVariable('title', $title);
+        $this->viewModel->setVariable('user', $user);
+
+        $renderedText = $this->jigRenderer->captureRenderTemplateString($templateString, "test123");
+
+        $this->assertContains('Mr', $renderedText);
+        $this->assertContains($user, $renderedText);
+    }
+
+
+
+    function testStringExtendsConversion() {
+
+        $templateString = <<< END
+{extends file='extendTest/parentTemplate'}
+
+    {block name='secondBlock'}
+    This is the second child block.
+{/block}
+    
+END;
+
+//        $title = 'Mr';
+//        $user = 'Ackers';
+//        $this->viewModel->setVariable('title', $title);
+//        $this->viewModel->setVariable('user', $user);
+
+        $renderedText = $this->jigRenderer->captureRenderTemplateString($templateString, "testStringExtendsConversion123");
+
+//        $this->assertContains('Mr', $renderedText);
+//        $this->assertContains($user, $renderedText);
+    }
+
+    
+
+
+    function testBasicCoversExistsConversion(){
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        
+        $renderer = clone $this->jigRenderer;
+
+        $renderer->setCompileCheck(JigRender::COMPILE_CHECK_EXISTS);
+        
+        $renderer->renderTemplateFile('basic/basic');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("Basic test passed.", $contents);
+        $this->assertContains("Function was called.", $contents);
+    }
+
+
+
+
+    /**
+     * @expectedException     \Intahwebz\Jig\JigException
+     */
+    function testNonExistantConversion(){
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('nonExistantFile');
+        $contents = ob_get_contents();
+        ob_end_clean();
+    }
+
+
+
+    
+    function testMtimeCachesConversion(){
+
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_CHECK_MTIME
+        );
+
+        $jigRenderer = new JigRender(
+            new PlaceHolderLogger(),
+            $jigConfig
+        );
+
+        $viewModel = new PlaceHolderView();
+        $jigRenderer->bindViewModel($viewModel);
+        
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $jigRenderer->renderTemplateFile('basic/basic');
+        $jigRenderer->renderTemplateFile('basic/basic');
         $contents = ob_get_contents();
         ob_end_clean();
         $this->assertContains("Basic test passed.", $contents);
@@ -241,24 +366,24 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains("This is the included file.", $contents);
     }
 
-    
-//
-//    function testInlinePHP() {
-//        ob_start();
-//        $this->jigRenderer->renderTemplateFile('inlinePHP/simple');
-//        $contents = ob_get_contents();
-//        ob_end_clean();
-//
-//        $this->markTestIncomplete(
-//            'This test has not been implemented yet.'
-//        );
-//
-////        $this->assertContains("inline echo", $contents);
-////        $this->assertContains("This is inside quotes.", $contents);
-//    } 
-    
 
-    
+    function testCoverageConversion(){
+
+        $this->viewModel->setVariable('filteredVar', '<b>bold</b>');
+        
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/coverage');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertContains('comment inside', $contents);
+        $this->assertContains('<b>bold</b>', $contents);
+
+        $this->assertContains('test is 5', $contents);
+    }
+
 }
 
 }//end namespace

@@ -1,5 +1,9 @@
 
-
+{block name='title'}
+    
+    This is a title.
+    
+{/block}
 
 This is the parent 1 start.
 
