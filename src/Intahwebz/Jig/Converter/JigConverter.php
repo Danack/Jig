@@ -81,6 +81,7 @@ class JigConverter {
             $commentEnd = strpos($fileLine, "*}", $commentStart);
             
             if ($commentEnd) {
+                $segments[] = new CommentTemplateSegment(substr($fileLine, $commentStart, $commentEnd));
                 $newLine = substr($fileLine, 0, $commentStart).substr($fileLine, $commentEnd + 2);
                 $fileLine = $newLine;
             }
@@ -209,7 +210,7 @@ class JigConverter {
             $this->addCode($segment->getString($this->parsedTemplate));
         }
         else{
-            throw new JigException("Unknown Segment type ".get_class($segment));
+            throw new \Intahwebz\Jig\JigException("Unknown Segment type ".get_class($segment));
         }
     }
 
@@ -307,7 +308,7 @@ class JigConverter {
         }
         catch(\Exception $e) {
             $message = "Could not parse template segment [{".$segmentText."}]: ".$e->getMessage();
-            throw new JigException($message, $e->getCode(), $e);
+            throw new \Intahwebz\Jig\JigException($message, $e->getCode(), $e);
         }
     }
 
