@@ -4,7 +4,7 @@
 namespace Intahwebz\Jig\Converter;
 
 use Intahwebz\Jig\JigException;
-use Intahwebz\Utils\SafeAccess;
+use Intahwebz\SafeAccess;
 
 
 class ParsedTemplate {

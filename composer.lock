@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "ce2a44c2777cdb2550f487465918b931",
+    "hash": "1ee1add364b776660f1f8307ccbca7a3",
     "packages": [
         {
             "name": "intahwebz/core",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "654540c2158a3f556c871c0ad7baab442b0e8729"
+                "reference": "1e2e2ea826b64f4f04a307aa2085991a50e1ec05"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/654540c2158a3f556c871c0ad7baab442b0e8729",
-                "reference": "654540c2158a3f556c871c0ad7baab442b0e8729",
+                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/1e2e2ea826b64f4f04a307aa2085991a50e1ec05",
+                "reference": "1e2e2ea826b64f4f04a307aa2085991a50e1ec05",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-10-11 13:12:07"
+            "time": "2013-10-12 13:40:50"
         },
         {
             "name": "intahwebz/mb_extra",
@@ -89,45 +89,6 @@
                 "utf8"
             ],
             "time": "2013-10-11 20:18:32"
-        },
-        {
-            "name": "intahwebz/utils",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/intahwebz-utils.git",
-                "reference": "dbac5e582e1782b6825e5ad047b29fe40d57354b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-utils/zipball/dbac5e582e1782b6825e5ad047b29fe40d57354b",
-                "reference": "dbac5e582e1782b6825e5ad047b29fe40d57354b",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Intahwebz\\Tests": "tests/",
-                    "Intahwebz": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Dan Ackroyd",
-                    "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com"
-                }
-            ],
-            "description": "Collection of utility PHP classes for intahwebz development.",
-            "keywords": [
-                "intahwebz",
-                "library"
-            ],
-            "time": "2013-09-30 16:39:53"
         },
         {
             "name": "nikic/php-parser",
@@ -629,8 +590,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "intahwebz/core": 20,
-        "intahwebz/mb_extra": 20,
-        "intahwebz/utils": 20
+        "intahwebz/mb_extra": 20
     },
     "platform": [
 

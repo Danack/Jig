@@ -4,7 +4,7 @@
 namespace Intahwebz\Jig\Converter;
 
 use Intahwebz\Jig\JigException;
-use Intahwebz\Utils\SafeAccess;
+use Intahwebz\SafeAccess;
 
 \Intahwebz\Functions::load();
 \Intahwebz\MBExtra\Functions::load();

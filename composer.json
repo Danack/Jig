@@ -28,7 +28,6 @@
     "require":{
         "intahwebz/core": "dev-master",
         "intahwebz/mb_extra": "dev-master",
-        "intahwebz/utils": "dev-master",
         "nikic/php-parser": "v0.9.3",
         "psr/log": "~1.0"
     }
