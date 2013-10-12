@@ -10,7 +10,6 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
     private $parsedTemplate = null;
     
     function __construct(ParsedTemplate $parsedTemplate) {
-        
         $this->parsedTemplate = $parsedTemplate;
         $this->reset();
     }
@@ -21,7 +20,6 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
     }
 
     function addLocalVariable($name) {
-        //echo "Added local var $name \n";
         $this->parsedTemplate->addLocalVariable($name);
     }
 
