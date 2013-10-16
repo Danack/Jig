@@ -226,8 +226,6 @@ class JigRender {
 
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
 
-        
-        
         //If not cached
         if ($this->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {

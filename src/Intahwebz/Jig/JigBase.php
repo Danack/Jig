@@ -24,10 +24,16 @@ abstract class JigBase {
     function __construct(ViewModel $viewModel, $jigRender){
         $this->viewModel = $viewModel;
         $this->jigRender = $jigRender;
+        $this->init();
     }
 
     abstract function renderInternal();
 
+    function init() {
+        //Override stuff.
+    }
+    
+    
     /**
      * @param $view
      */
