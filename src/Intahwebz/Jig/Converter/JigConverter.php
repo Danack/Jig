@@ -333,7 +333,7 @@ class JigConverter {
         $matchCount = preg_match($pattern, $segmentText, $match);
 
         if ($matchCount == 0) {
-            throw new \Exception("Could not extract variable from [$segmentText] to check isset.");
+            throw new JigException("Could not extract variable from [$segmentText] to check isset.");
         }
 
         $code = 'if ($this->viewModel->isVariableSet(\''.addslashes($match[1]).'\') == true) {';
@@ -484,7 +484,9 @@ class JigConverter {
      */
     function processForeachStart($segmentText){
         //find the variable and replace it with new version
-        $pattern = '/foreach\s+(\$\w+)\s/u';
+        //$pattern = '/foreach\s+(\$\w+)\s/u';
+
+        $pattern = '/foreach\s+(\$\w+)(->\w+)*\s/u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches, PREG_OFFSET_CAPTURE);
         if ($matchCount == 0) {

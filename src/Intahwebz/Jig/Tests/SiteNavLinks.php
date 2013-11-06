@@ -6,7 +6,7 @@ namespace Intahwebz\Jig\Tests;
 
 class SiteNavLinks implements \IteratorAggregate{
 
-    protected $values = array();
+    public $links = array();
 
     public function __construct() {
 
@@ -22,7 +22,7 @@ class SiteNavLinks implements \IteratorAggregate{
     }
 
     public function getIterator() {
-        return new \ArrayIterator($this->values);
+        return new \ArrayIterator($this->links);
     }
 
 
