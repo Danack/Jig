@@ -40,6 +40,10 @@ class JigRender {
         $this->compileCheck = $jigConfig->compileCheck;
     }
 
+    function getTemplatePath() {
+        return $this->templatePath;
+    }
+
     function bindViewModel(ViewModel $viewModel) {
         $this->viewModel = $viewModel;
     }
@@ -54,7 +58,7 @@ class JigRender {
 
     /**
      * @param $templateString
-     * @param $templateID Must be a valid PHP class name i.e. cannot start with digit
+     * @param $templateID - Must be a valid PHP class name i.e. cannot start with digit
      * @return string
      */
     function captureRenderTemplateString($templateString, $templateID){
