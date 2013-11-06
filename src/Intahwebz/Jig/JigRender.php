@@ -171,10 +171,6 @@ class JigRender {
             $injectionValues[$name] = $this->provider->make($value);
         }
 
-        if (count($injectionValues) > 0) {
-            var_dump($injectionValues);
-        }
-
         $template->inject($injectionValues);
 
         $template->render($this->viewModel, $this);
