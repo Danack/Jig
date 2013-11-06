@@ -14,8 +14,6 @@ namespace Intahwebz\Tests\PHPTemplate{
 use Intahwebz\Jig\Converter;
 use Intahwebz\Jig\JigConfig;
 use Intahwebz\Jig\Tests\PlaceHolderView;
-use Intahwebz\Jig\Converter\JigConverter;
-use Intahwebz\Jig\Tests\JigTestException;
 use Intahwebz\Jig\Tests\PlaceHolderLogger;
 
 use Intahwebz\ViewModel;

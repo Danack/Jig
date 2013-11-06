@@ -51,7 +51,7 @@ class JigRender {
     /**
      * @param $compileCheck
      */
-    public function setCompileCheck($compileCheck) {
+    function setCompileCheck($compileCheck) {
         $this->compileCheck = $compileCheck;
     }
 
@@ -107,9 +107,8 @@ class JigRender {
         
         $proxiedClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, true);
 
-        //DONE - this was needed if dynamic extended classes are used out of order
-
         if (class_exists($proxiedClassName) == false) {
+            //this is needed if dynamic extended classes are used out of order
             $className = $this->getParsedTemplate($mappedClass, $this->mappedClasses, true);
         }
         
@@ -121,7 +120,7 @@ class JigRender {
      * @param $objectID
      * @throws \Exception
      */
-    public function renderTemplateFromString($templateString, $objectID){
+    function renderTemplateFromString($templateString, $objectID) {
         try{
             $className = $this->getParsedTemplateFromString($templateString, $objectID, $this->mappedClasses);
             
@@ -145,7 +144,7 @@ class JigRender {
      * @param bool $capture
      * @return string
      */
-    function renderTemplateFile($templateFilename, $capture = false){
+    function renderTemplateFile($templateFilename, $capture = false) {
         $contents = '';
 
         if ($capture == true) {
@@ -178,7 +177,6 @@ class JigRender {
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");   
     }
 
-    
     function isGeneratedFileOutOfDate($templateFilename, $extension) {
         $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
         $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
@@ -200,7 +198,7 @@ class JigRender {
      * @return \Intahwebz\Jig\Converter\ParsedTemplate
      * @throws JigException
      */
-    function prepareTemplateFromFile($templateFilename, $extension){
+    function prepareTemplateFromFile($templateFilename, $extension) {
         $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
         $fileLines = @file($templateFullFilename);
 
@@ -246,7 +244,6 @@ class JigRender {
                 }
             }
         }
-        
 
         $this->logger->info("Recompiling template ".$templateFilename.".");
 
@@ -299,7 +296,6 @@ class JigRender {
         $templateString = str_replace( "<?php", "&lt;php", $templateString);
         $templateString = str_replace( "?>", "?&gt;", $templateString);
 
-        //$this->forceCompile = true;
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
         $parsedTemplate->saveCompiledTemplate($this->compilePath, false);
