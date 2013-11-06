@@ -96,16 +96,6 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         //ob_end_clean();
     }
 
-    function testBasicConversion(){
-        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/basic');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
-        $this->assertContains("Basic test passed.", $contents);
-        $this->assertContains("Function was called.", $contents);
-    }
 
     function testDependencyInsertionConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
@@ -117,6 +107,19 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains("Twitter", $contents);
         $this->assertContains("Stackoverflow", $contents);
     }
+
+    function testBasicConversion(){
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('basic/basic');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("Basic test passed.", $contents);
+        $this->assertContains("Function was called.", $contents);
+    }
+
+
 
 
     function testBasicCapturingConversion() {
