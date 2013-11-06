@@ -11,16 +11,16 @@ use Intahwebz\ViewModel;
  */
 abstract class JigBase {
 
-	/**
-	 * @var ViewModel
-	 */
-	protected $viewModel;
+    /**
+     * @var ViewModel
+     */
+    protected $viewModel;
 
     /**
      * @var JigRender
      */
     protected   $jigRender;
-    
+
     function __construct(ViewModel $viewModel, $jigRender){
         $this->viewModel = $viewModel;
         $this->jigRender = $jigRender;
@@ -32,31 +32,36 @@ abstract class JigBase {
     function init() {
         //Override stuff.
     }
-    
-    
+
+    function inject($injectionValues) {
+        foreach ($injectionValues as $name => $value) {
+            $this->{$name} = $value;
+        }
+    }
+
     /**
      * @param $view
      */
     public function render() {
-		$this->renderInternal();
-	}
+        $this->renderInternal();
+    }
 
     /**
      * @param $name
      * @return mixed
      */
     function getVariable($name) {
-		return $this->viewModel->getVariable($name);
-	}
+        return $this->viewModel->getVariable($name);
+    }
 
     /**
      * @param array $functionArgs
      * @return mixed|void
      */
     function call($placeHolder) {
-		$functionArgs = func_get_args();
-		//todo - if this template has $functionName - call it?
-		return $this->viewModel->call($functionArgs);
-	}
+        $functionArgs = func_get_args();
+        //todo - if this template has $functionName - call it?
+        return $this->viewModel->call($functionArgs);
+    }
 }
 

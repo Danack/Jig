@@ -10,12 +10,6 @@ use Intahwebz\SafeAccess;
 \Intahwebz\MBExtra\Functions::load();
 
 
-
-/**
- * Class JigConverter
- *
- * @package Intahwebz\Jig\Converter
- */
 class JigConverter {
     
     use SafeAccess;
@@ -227,6 +221,9 @@ class JigConverter {
             else if (strncmp($segmentText, 'dynamicExtends ', mb_strlen('dynamicExtends ')) == 0){
                 $this->processDynamicExtends($segmentText);
             }
+            else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) == 0){
+                $this->processInject($segmentText);
+            }
             else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
                 $this->processInclude($segmentText);
             }
@@ -374,6 +371,33 @@ class JigConverter {
     }
 
 
+    function processInject($segmentText) {
+
+        $namePattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
+
+        $valuePattern = '#value=[\'"](.*)[\'"]#u';
+
+        $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
+
+        $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
+
+
+        if ($nameMatchCount == 0) {
+            throw new \Exception("Failed to get name for injection");
+        }
+
+
+        if ($valueMatchCount == 0) {
+            throw new \Exception("Failed to get value for injection");
+        }
+
+        $name = $nameMatches[1];
+        $value = $valueMatches[1];
+
+        $this->parsedTemplate->addInjection($name, $value);
+    }
+
+
     /**
      * @param $segmentText
      * @throws \Exception
@@ -392,7 +416,7 @@ class JigConverter {
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
         if ($matchCount != 0) {
-            $code = "\$file = \$this->viewModel->getVariable('".$matches[1]."');\n";
+            $code = "\$file = \$this->getVariable('".$matches[1]."');\n";
             $this->addCode($code);
             //TODO add error handling when file is null
             $code = "\$this->jigRender->includeFile(\$file)";
@@ -476,7 +500,7 @@ class JigConverter {
         }
         else{
             $cVar = substr($varName, 1);
-            $replace = "\$this->viewModel->getVariable('$cVar')";
+            $replace = "\$this->getVariable('$cVar')";
             $segmentText = str_replace($varName, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
         }

@@ -8,6 +8,9 @@ use Intahwebz\ViewModel\BasicViewModel;
 
 class PlaceHolderView extends BasicViewModel {
 
+
+    private $calledFunctions = array();
+
     function viewFunction($foo){
         echo "Function was called.";
     }

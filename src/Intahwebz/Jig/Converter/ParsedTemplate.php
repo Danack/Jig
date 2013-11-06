@@ -30,12 +30,18 @@ class ParsedTemplate {
 
     public $baseNamespace;
 
+    private $injections = array();
+
     public function __construct($baseNamespace){
         $this->baseNamespace = $baseNamespace;
     }
 
     function addTextLine($string){
         $this->textLines[] = $string;
+    }
+
+    function  addInjection($name, $value) {
+        $this->injections[$name] = $value;
     }
 
     /**
@@ -62,14 +68,14 @@ class ParsedTemplate {
         return $this->textLines;
     }
 
-    public function hasLocalVariable($variableName) {
+    function hasLocalVariable($variableName) {
         return in_array($variableName, $this->localVariables);
     }
 
     /**
      * @param $localVariable
      */
-    public function addLocalVariable($localVariable){
+    function addLocalVariable($localVariable) {
         $varName = $localVariable;
 
         if(strpos($varName, '$') === 0) {
@@ -81,21 +87,21 @@ class ParsedTemplate {
         }
     }
 
-    function addFunctionBlock($name, $block){
+    function addFunctionBlock($name, $block) {
         $this->functionBlocks[$name] = $block;
     }
 
     /**
      * @return array
      */
-    function getFunctionBlocks(){
+    function getFunctionBlocks() {
         return $this->functionBlocks;
     }
 
     /**
      * @param $filename
      */
-    public function setExtends($filename){
+    function setExtends($filename) {
         //TODO allow full qualified names. Maybe.
         //$this->extends = "Intahwebz\\PHPCompiledTemplate\\".$filename;
         $this->extends = $filename;
@@ -181,6 +187,9 @@ class $className extends $parentClassName {
 END;
 
         fwrite($outputFileHandle, $startSection);
+
+        $this->writeInjectionArray($outputFileHandle);
+        $this->writeInjectionFunctions($outputFileHandle);
 
         if ($this->dynamicExtends != null) {
             $this->writeMappedSection($outputFileHandle);
@@ -322,6 +331,70 @@ END;
         fwrite($outputFileHandle, "\n");
     }
 
+
+    function writeInjectionArray($outputFileHandle) {
+
+        $output = "    private \$injections = array(\n";
+        $separator = '';
+
+        foreach ($this->injections as $name => $value) {
+            $output .= $separator;
+            $output .= "        '$name' => '$value'\n";
+            $separator = ',';
+        }
+
+        $output .= "    );\n\n";
+
+        foreach ($this->injections as $name => $value) {
+            $output .= "    protected \$$name;\n";
+        }
+
+
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, $output);
+        fwrite($outputFileHandle, "\n");
+
+    }
+
+    function writeInjectionFunctions($outputFileHandle) {
+
+        $output = "    function getInjections() {
+            return \$this->injections;
+        }\n\n";
+
+
+        $output .= "   function getVariable(\$name) {
+
+            if (property_exists(\$this, \$name) == true) {
+                return \$this->{\$name};
+            }
+
+            return parent::getVariable(\$name);
+        }\n\n";
+
+
+//        $output = "    function inject(\n";
+//        $separator = '';
+//
+//        foreach ($this->injections as $name => $value) {
+//            $output .= $separator;
+//            $output .= "\\$value \$$name\n";
+//            $separator = ',';
+//        }
+//
+//        $output .= "    ) {\n";
+//
+//        foreach ($this->injections as $name => $value) {
+//            $output .= "    \$this->$name = \$$name;\n";
+//        }
+//
+//        $output .= "    }\n";
+
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, $output);
+        fwrite($outputFileHandle, "\n");
+
+    }
 
 
 }

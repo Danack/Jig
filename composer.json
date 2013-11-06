@@ -20,6 +20,13 @@
         }
     },
 
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Danack/Auryn"
+        }
+    ],
+
 
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
@@ -28,6 +35,7 @@
     "require":{
         "intahwebz/core": "dev-master",
         "intahwebz/mb_extra": "dev-master",
+        "rdlowrey/auryn": "dev-DanackMaster#42029e2a245c93a37f2284b88e5bbda6f8883485 as v0.8.1-dev",
         "nikic/php-parser": "v0.9.3",
         "psr/log": "~1.0"
     }

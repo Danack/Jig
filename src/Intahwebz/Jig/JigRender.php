@@ -28,16 +28,22 @@ class JigRender {
     public $templatePath = null;
     public $compilePath = null;
     private $extension = ".tpl";
+
+    /**
+     * @var \Auryn\Provider
+     */
+    private $provider;
     
     private $compileCheck;
 
-    function __construct(LoggerInterface $logger, JigConfig $jigConfig) {
+    function __construct(LoggerInterface $logger, JigConfig $jigConfig, \Auryn\Provider $provider) {
         $this->logger = $logger;
         $this->jigConverter = new JigConverter();
         $this->templatePath = $jigConfig->templateSourceDirectory;
         $this->compilePath = $jigConfig->templateCompileDirectory;
         $this->extension = $jigConfig->extension;
         $this->compileCheck = $jigConfig->compileCheck;
+        $this->provider = $provider;
     }
 
     function getTemplatePath() {
@@ -73,7 +79,7 @@ class JigRender {
     /**
      * @param $filename
      */
-    function includeFile($filename){
+    function includeFile($filename) {
         $this->renderTemplateFile($filename);
     }
 
@@ -154,7 +160,25 @@ class JigRender {
         $className = $this->getParsedTemplate($templateFilename, $this->mappedClasses);
 
         $template = new $className($this->viewModel, $this);
+        /** @var $template \Intahwebz\Jig\JigBase */
+
+
+        $injections = $template->getInjections();
+
+        $injectionValues = array();
+
+        foreach ($injections as $name => $value) {
+            $injectionValues[$name] = $this->provider->make($value);
+        }
+
+        if (count($injectionValues) > 0) {
+            var_dump($injectionValues);
+        }
+
+        $template->inject($injectionValues);
+
         $template->render($this->viewModel, $this);
+
 
         if ($capture == true) {
             $contents = ob_get_contents();

@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "1ee1add364b776660f1f8307ccbca7a3",
+    "hash": "9fd3029050e8298483e5124532b71264",
     "packages": [
         {
             "name": "intahwebz/core",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "1e2e2ea826b64f4f04a307aa2085991a50e1ec05"
+                "reference": "341ece34979d6a03786d9a20444d466b10d0816f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/1e2e2ea826b64f4f04a307aa2085991a50e1ec05",
-                "reference": "1e2e2ea826b64f4f04a307aa2085991a50e1ec05",
+                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/341ece34979d6a03786d9a20444d466b10d0816f",
+                "reference": "341ece34979d6a03786d9a20444d466b10d0816f",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-10-12 13:40:50"
+            "time": "2013-11-02 20:54:03"
         },
         {
             "name": "intahwebz/mb_extra",
@@ -166,6 +166,58 @@
                 "psr-3"
             ],
             "time": "2012-12-21 11:40:51"
+        },
+        {
+            "name": "rdlowrey/auryn",
+            "version": "dev-DanackMaster",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Danack/Auryn.git",
+                "reference": "42029e2a245c93a37f2284b88e5bbda6f8883485"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Danack/Auryn/zipball/4cc35401cb78b942842f56136ff33bbe3ac4db38",
+                "reference": "42029e2a245c93a37f2284b88e5bbda6f8883485",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Auryn": "src"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@gmail.com",
+                    "role": "Creator / Main Developer"
+                },
+                {
+                    "name": "Levi Morrison",
+                    "email": "levim@php.net",
+                    "homepage": "http://morrisonlevi.github.com/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Auryn is a Dependency Injection Container designed to wire together S.O.L.I.D., object-oriented PHP applications.",
+            "homepage": "https://github.com/rdlowrey/Auryn",
+            "keywords": [
+                "dependency injection",
+                "dic",
+                "ioc"
+            ],
+            "support": {
+                "source": "https://github.com/Danack/Auryn/tree/DanackMaster",
+                "issues": "https://github.com/Danack/Auryn/issues"
+            },
+            "time": "2013-09-24 01:28:50"
         }
     ],
     "packages-dev": [
@@ -415,16 +467,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.27",
+            "version": "3.7.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4b024e753e3421837afbcca962c8724c58b39376"
+                "reference": "3b97c8492bcafbabe6b6fbd2ab35f2f04d932a8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4b024e753e3421837afbcca962c8724c58b39376",
-                "reference": "4b024e753e3421837afbcca962c8724c58b39376",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3b97c8492bcafbabe6b6fbd2ab35f2f04d932a8d",
+                "reference": "3b97c8492bcafbabe6b6fbd2ab35f2f04d932a8d",
                 "shasum": ""
             },
             "require": {
@@ -485,7 +537,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2013-09-16 03:09:52"
+            "time": "2013-10-17 07:27:40"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -585,12 +637,18 @@
         }
     ],
     "aliases": [
-
+        {
+            "alias": "v0.8.1-dev",
+            "alias_normalized": "0.8.1.0-dev",
+            "version": "dev-DanackMaster",
+            "package": "rdlowrey/auryn"
+        }
     ],
     "minimum-stability": "stable",
     "stability-flags": {
         "intahwebz/core": 20,
-        "intahwebz/mb_extra": 20
+        "intahwebz/mb_extra": 20,
+        "rdlowrey/auryn": 20
     },
     "platform": [
 
