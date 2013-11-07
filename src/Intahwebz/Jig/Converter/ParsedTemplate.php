@@ -359,7 +359,11 @@ END;
     function writeInjectionFunctions($outputFileHandle) {
 
         $output = "    function getInjections() {
-            return \$this->injections;
+            //return \$this->injections;
+
+            \$parentInjections = parent::getInjections();
+
+            return array_merge(\$parentInjections, \$this->injections);
         }\n\n";
 
 
@@ -372,23 +376,6 @@ END;
             return parent::getVariable(\$name);
         }\n\n";
 
-
-//        $output = "    function inject(\n";
-//        $separator = '';
-//
-//        foreach ($this->injections as $name => $value) {
-//            $output .= $separator;
-//            $output .= "\\$value \$$name\n";
-//            $separator = ',';
-//        }
-//
-//        $output .= "    ) {\n";
-//
-//        foreach ($this->injections as $name => $value) {
-//            $output .= "    \$this->$name = \$$name;\n";
-//        }
-//
-//        $output .= "    }\n";
 
         fwrite($outputFileHandle, "\n");
         fwrite($outputFileHandle, $output);

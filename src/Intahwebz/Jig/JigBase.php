@@ -39,6 +39,10 @@ abstract class JigBase {
         }
     }
 
+    function getInjections() {
+        return [];
+    }
+
     /**
      * @param $view
      */

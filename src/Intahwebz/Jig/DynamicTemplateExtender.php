@@ -13,32 +13,49 @@ use Intahwebz\Jig\JigException;
 
 class DynamicTemplateExtender extends JigBase {
 
-	private $parentInstance = null;
+    /**
+     * @var JigBase
+     */
+    private $parentInstance = null;
 
-	public function setParentInstance($parentInstance) {
-		$this->parentInstance = $parentInstance;
-	}
+    public function setParentInstance(JigBase $parentInstance) {
+        $this->parentInstance = $parentInstance;
+    }
 
-	public function __call($name, array $arguments) {
-		if ($this->parentInstance == null) {
-			throw new JigException("Parent Instance is null in Proxied class in renderInternal.");
-		}
+    public function __call($name, array $arguments) {
+        if ($this->parentInstance == null) {
+            throw new JigException("Parent Instance is null in Proxied class in renderInternal.");
+        }
 
-		return call_user_func_array([$this->parentInstance, $name], $arguments);
-	}
+        return call_user_func_array([$this->parentInstance, $name], $arguments);
+    }
+
+    function getInjections() {
+
+        if ($this->parentInstance == null) {
+            throw new JigException("Parent Instance is null in Proxied class in renderInternal.");
+        }
+
+        return $this->parentInstance->getInjections();
+    }
+
+    function inject($injectionValues) {
+        parent::inject($injectionValues);
+        $this->parentInstance->inject($injectionValues);
+    }
 
 
     /**
      * @throws JigException
      */
     function renderInternal() {
-		if ($this->parentInstance == null) {
-			throw new JigException("Instance is null in Proxied class in renderInternal.");
-		}
+        if ($this->parentInstance == null) {
+            throw new JigException("Instance is null in Proxied class in renderInternal.");
+        }
 
-		//TODO if this.child has method renderInternal then call?
-		$this->parentInstance->renderInternal();
-	}
+        //TODO if this.child has method renderInternal then call?
+        $this->parentInstance->renderInternal();
+    }
 }
 
 
