@@ -6,7 +6,7 @@ namespace Intahwebz\Jig;
 use Intahwebz\ViewModel;
 
 use Intahwebz\Jig\Converter\JigConverter;
-use Psr\Log\LoggerInterface;
+//use Psr\Log\LoggerInterface;
 
 
 /**
@@ -36,8 +36,7 @@ class JigRender {
     
     private $compileCheck;
 
-    function __construct(LoggerInterface $logger, JigConfig $jigConfig, \Auryn\Provider $provider) {
-        $this->logger = $logger;
+    function __construct(JigConfig $jigConfig, \Auryn\Provider $provider) {
         $this->jigConverter = new JigConverter();
         $this->templatePath = $jigConfig->templateSourceDirectory;
         $this->compilePath = $jigConfig->templateCompileDirectory;
@@ -144,7 +143,6 @@ class JigRender {
         }
     }
 
-
     /**
      * @param $templateFilename
      * @param bool $capture
@@ -162,7 +160,6 @@ class JigRender {
         $template = new $className($this->viewModel, $this);
         /** @var $template \Intahwebz\Jig\JigBase */
 
-
         $injections = $template->getInjections();
 
         $injectionValues = array();
@@ -174,7 +171,6 @@ class JigRender {
         $template->inject($injectionValues);
 
         $template->render($this->viewModel, $this);
-
 
         if ($capture == true) {
             $contents = ob_get_contents();
@@ -256,7 +252,6 @@ class JigRender {
         }
 
         if ($this->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
-
             //Check file time here....
             if ($this->isGeneratedFileOutOfDate($templateFilename, $this->extension) == false) {
                 if (class_exists($className) == true) {
@@ -264,8 +259,6 @@ class JigRender {
                 }
             }
         }
-
-        $this->logger->info("Recompiling template ".$templateFilename.".");
 
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename, $this->extension);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
@@ -298,9 +291,6 @@ class JigRender {
         else {
             //Warn - file was compiled when class already exists?
         }
-        
-        //Save after generating the parents as the saving code requires the file.
-        //$fullClassName = $this->saveCompiledTemplate($this->compilePath, $proxied);
 
         return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
     }

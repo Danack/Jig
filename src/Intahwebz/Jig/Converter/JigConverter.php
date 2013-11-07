@@ -258,16 +258,8 @@ class JigConverter {
                 $this->processIssetStart($segmentText);
             }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
-              
-    
-//                $ifPos = strpos($origText, 'if');
-//                $text = substr($origText, 0, $ifPos);
-                //$text = "if (";
-                
                 $segment->text = substr($segmentText, 3);
-
                 $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
-
                 $this->addLineInternal('<?php if ('.$text.'){ ?>');
             }
             else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
@@ -301,7 +293,6 @@ class JigConverter {
                 //It's a line of code that needs to be included.
                 $this->addLineInternal($segment->getString($this->parsedTemplate));
             }
-            
         }
         catch(\Exception $e) {
             $message = "Could not parse template segment [{".$segmentText."}]: ".$e->getMessage();
@@ -374,18 +365,13 @@ class JigConverter {
     function processInject($segmentText) {
 
         $namePattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
-
         $valuePattern = '#value=[\'"](.*)[\'"]#u';
-
         $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
-
         $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
-
 
         if ($nameMatchCount == 0) {
             throw new \Exception("Failed to get name for injection");
         }
-
 
         if ($valueMatchCount == 0) {
             throw new \Exception("Failed to get value for injection");
@@ -484,9 +470,6 @@ class JigConverter {
      */
     function processForeachStart($segmentText){
         //find the variable and replace it with new version
-        //$pattern = '/foreach\s+(\$\w+)\s/u';
-
-        //$pattern = '/foreach\s+(\$\w+)(->\w+)*\s/u';
         $pattern = '/foreach\s+(\$\w+)[^\s\=]*\s/u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches, PREG_OFFSET_CAPTURE);
@@ -571,7 +554,6 @@ class JigConverter {
     function processLiteralEnd(){
         $this->setLiteralMode(false);
     }
-
 
     /**
      * @param $templateFilename

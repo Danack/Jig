@@ -29,7 +29,10 @@
 
 
     "require-dev": {
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "intahwebz/core": "dev-master",
+        "intahwebz/form": "dev-master",
+        "intahwebz/jig": "dev-master"
     },
 
     "require":{
