@@ -10,7 +10,7 @@ class SiteNavLinks implements \IteratorAggregate{
 
     public function __construct() {
 
-        $this->values = array(
+        $this->links = array(
             array( 'url' => 'http://flickr.com/danack/', 'description' => 'Flickr'),
             array( 'url' => 'http://youtube.com/BaseReality/', 'description' => 'Youtube'),
             array( 'url' => 'http://www.twitter.com/MrDanack', 'description' => 'Twitter'),

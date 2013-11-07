@@ -104,6 +104,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
         $contents = ob_get_contents();
         ob_end_clean();
+
         $this->assertContains("Twitter", $contents);
         $this->assertContains("Stackoverflow", $contents);
     }
@@ -188,21 +189,15 @@ END;
         $this->assertContains("Function was called.", $contents);
     }
 
+    function testNonExistentConversion(){
+        $this->setExpectedException('Intahwebz\Jig\JigException');
 
-
-
-    /**
-     * @expectedException     \Intahwebz\Jig\JigException
-     */
-    function testNonExistantConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         ob_start();
         $this->jigRenderer->renderTemplateFile('nonExistantFile');
         $contents = ob_get_contents();
         ob_end_clean();
     }
-
-
 
 
     function testMtimeCachesConversion(){
