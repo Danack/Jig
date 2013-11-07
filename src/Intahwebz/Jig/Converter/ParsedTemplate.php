@@ -3,7 +3,6 @@
 
 namespace Intahwebz\Jig\Converter;
 
-use Intahwebz\Jig\JigException;
 use Intahwebz\SafeAccess;
 
 
@@ -20,15 +19,15 @@ class ParsedTemplate {
 
     private $localVariables = array();
 
-    var $functionBlocks = array();
+    private $functionBlocks = array();
 
     private $className = null;
 
-    var $extends = null;
+    private $extends = null;
 
-    public $dynamicExtends = null;
+    private $dynamicExtends = null;
 
-    public $baseNamespace;
+    private $baseNamespace;
 
     private $injections = array();
 
@@ -44,6 +43,10 @@ class ParsedTemplate {
         $this->injections[$name] = $value;
     }
 
+    function getDynamicExtends() {
+        return $this->dynamicExtends;
+    }
+
     /**
      * @param $className
      */
@@ -55,9 +58,9 @@ class ParsedTemplate {
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function getClassName() {
+    function getClassName() {
         return $this->className;
     }
 
@@ -226,9 +229,9 @@ END;
     function writeEndSection($outputFileHandle) {
 
         $endSection = <<< END
-		}
+    }
 
-		?>
+        ?>
 END;
 
         fwrite($outputFileHandle, $endSection);
@@ -243,7 +246,7 @@ END;
         if ($lines > 0) {
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "\tfunction ".$functionName."() {\n");
+            fwrite($outputFileHandle, "    function ".$functionName."() {\n");
             fwrite($outputFileHandle, "?>\n");
             fwrite($outputFileHandle, "\n");
 
@@ -253,7 +256,7 @@ END;
 
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "<?php \n");
-            fwrite($outputFileHandle, "\t}\n");
+            fwrite($outputFileHandle, "    }\n");
             fwrite($outputFileHandle, "\n");
         }
     }
@@ -265,7 +268,7 @@ END;
 
         $dynamicExtends = $this->dynamicExtends;
 
-        //Todo just pass in parent class namen - or eve just parent instance
+        //Todo just pass in parent class name - or eve just parent instance
 $output = <<< END
 public function __construct(\$viewModel, \$jigRender) {
     \$this->viewModel = \$viewModel;
@@ -315,12 +318,12 @@ END;
 
             $output = <<< END
 
-			function $name() {
-				if (method_exists (\$this->childInstance, '$name') == true) {
-					return \$this->childInstance->$name();
-				}
-				parent::$name();
-			}
+            function $name() {
+                if (method_exists (\$this->childInstance, '$name') == true) {
+                    return \$this->childInstance->$name();
+                }
+                parent::$name();
+            }
 END;
 
             fwrite($outputFileHandle, "\n");
@@ -349,18 +352,14 @@ END;
             $output .= "    protected \$$name;\n";
         }
 
-
         fwrite($outputFileHandle, "\n");
         fwrite($outputFileHandle, $output);
         fwrite($outputFileHandle, "\n");
-
     }
 
     function writeInjectionFunctions($outputFileHandle) {
 
         $output = "    function getInjections() {
-            //return \$this->injections;
-
             \$parentInjections = parent::getInjections();
 
             return array_merge(\$parentInjections, \$this->injections);
@@ -368,7 +367,6 @@ END;
 
 
         $output .= "   function getVariable(\$name) {
-
             if (property_exists(\$this, \$name) == true) {
                 return \$this->{\$name};
             }
@@ -376,13 +374,10 @@ END;
             return parent::getVariable(\$name);
         }\n\n";
 
-
         fwrite($outputFileHandle, "\n");
         fwrite($outputFileHandle, $output);
         fwrite($outputFileHandle, "\n");
-
     }
-
 
 }
 

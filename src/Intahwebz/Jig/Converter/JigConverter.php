@@ -452,7 +452,7 @@ class JigConverter {
      *
      */
     function processBlockEnd() {
-        if ($this->parsedTemplate->extends == null) {
+        if ($this->parsedTemplate->getExtends() == null) {
             $this->parsedTemplate->addTextLine(" <?php \$this->".$this->activeBlockName."();  ?> ");
         }
 

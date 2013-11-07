@@ -278,12 +278,12 @@ class JigRender {
         if ($extendsClass) {
             $extendsParsedTemplate = $this->getParsedTemplate($extendsClass, $mappedClasses);
         }
-        else if ($parsedTemplate->dynamicExtends) {
-            if (array_key_exists($parsedTemplate->dynamicExtends, $mappedClasses) == false) {
-                throw new JigException("File $templateFilename is trying to proxy [".$parsedTemplate->dynamicExtends."] but that doesn't exist in the mappedClasses.");
+        else if ($parsedTemplate->getDynamicExtends()) {
+            if (array_key_exists($parsedTemplate->getDynamicExtends(), $mappedClasses) == false) {
+                throw new JigException("File $templateFilename is trying to proxy [".$parsedTemplate->getDynamicExtends()."] but that doesn't exist in the mappedClasses.");
             }
 
-            $dynamicExtendsClass = $mappedClasses[$parsedTemplate->dynamicExtends];
+            $dynamicExtendsClass = $mappedClasses[$parsedTemplate->getDynamicExtends()];
 
             //Generate this twice - once for reals, once as a proxy.
             $dynamicExtendsParsedTemplate = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);
