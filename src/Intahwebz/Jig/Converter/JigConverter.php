@@ -486,7 +486,8 @@ class JigConverter {
         //find the variable and replace it with new version
         //$pattern = '/foreach\s+(\$\w+)\s/u';
 
-        $pattern = '/foreach\s+(\$\w+)(->\w+)*\s/u';
+        //$pattern = '/foreach\s+(\$\w+)(->\w+)*\s/u';
+        $pattern = '/foreach\s+(\$\w+)[^\s\=]*\s/u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches, PREG_OFFSET_CAPTURE);
         if ($matchCount == 0) {
