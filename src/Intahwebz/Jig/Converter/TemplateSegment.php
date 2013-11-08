@@ -10,13 +10,13 @@ namespace Intahwebz\Jig\Converter;
  */
 abstract class TemplateSegment {
 
-	public $text;
+    public $text;
 
-	function __construct($text) {
-		$this->text = $text;
-	}
+    function __construct($text) {
+        $this->text = $text;
+    }
 
-	abstract function getString(ParsedTemplate $parsedTemplate, $extraFilters = array());
-	abstract function getRawString();
+    abstract function getString(ParsedTemplate $parsedTemplate, $extraFilters = array());
+    abstract function getRawString();
 }
 

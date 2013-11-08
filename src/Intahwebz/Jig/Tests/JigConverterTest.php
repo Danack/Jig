@@ -47,16 +47,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         echo "This is a class function.";
     }
 
-    function testFunctionCall() {
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/functionCall');
-        $contents = ob_get_contents();
-        ob_end_clean();
 
-        $hasBeenCalled = $this->viewModel->hasBeenCalled('someFunction', '$("#myTable").tablesorter();');
-        $this->assertTrue($hasBeenCalled);
-        $this->assertContains("checkRole works", $contents);
-    }
 
     /**
      * @var \Intahwebz\Jig\JigRender
@@ -81,7 +72,6 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $provider = new \Auryn\Provider();
 
         $this->jigRenderer = new JigRender(
-            new PlaceHolderLogger(),
             $jigConfig,
             $provider
         );
@@ -97,6 +87,37 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+    function testBasicConversion(){
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('basic/basic');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("Basic test passed.", $contents);
+        $this->assertContains("Function was called.", $contents);
+    }
+
+
+    function testForeachConversion(){
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
+        ob_start();
+
+        $this->viewModel->setVariable('colors', ['red', 'green', 'blue']);
+
+        $this->viewModel->bindFunction('getColors', function (){ return ['red', 'green', 'blue'];});
+
+        $this->jigRenderer->renderTemplateFile('basic/foreachTest');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $this->assertContains("directredgreenblue", $contents);
+        $this->assertContains("assignedredgreenblue", $contents);
+        $this->assertContains("fromfunctionredgreenblue", $contents);
+    }
+
+
+
     function testDependencyInsertionConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
         ob_start();
@@ -109,17 +130,16 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains("Stackoverflow", $contents);
     }
 
-    function testBasicConversion(){
-        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+    function testFunctionCall() {
         ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/basic');
-
+        $this->jigRenderer->renderTemplateFile('basic/functionCall');
         $contents = ob_get_contents();
         ob_end_clean();
-        $this->assertContains("Basic test passed.", $contents);
-        $this->assertContains("Function was called.", $contents);
-    }
 
+        $hasBeenCalled = $this->viewModel->hasBeenCalled('someFunction', '$("#myTable").tablesorter();');
+        $this->assertTrue($hasBeenCalled);
+        $this->assertContains("checkRole works", $contents);
+    }
 
 
 
@@ -210,7 +230,6 @@ END;
         );
 
         $jigRenderer = new JigRender(
-            new PlaceHolderLogger(),
             $jigConfig,
             new \Auryn\Provider()
         );

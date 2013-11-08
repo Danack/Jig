@@ -22,6 +22,9 @@ class JigRender {
     const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
     const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
 
+    /**
+     * @var ViewModel
+     */
     private $viewModel;
 
     private $mappedClasses = array();
@@ -165,8 +168,10 @@ class JigRender {
 
         $injectionValues = array();
 
+        $lowried = $this->viewModel->getMergedParams();
+
         foreach ($injections as $name => $value) {
-            $injectionValues[$name] = $this->provider->make($value);
+            $injectionValues[$name] = $this->provider->make($value, $lowried);
         }
 
         $template->inject($injectionValues);

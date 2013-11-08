@@ -17,6 +17,21 @@ class JigConverter {
     //TODO this is duplicated in ParsedTemplate
     const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
     const FILENAME_PATTERN = "[\.\w\\/]+";
+
+
+    //Suppress escaping HTML output
+    const FILTER_NONE = 'nofilter';
+
+    // Don't output any return from the function
+    const FILTER_NO_OUTPUT = 'nooutput';
+
+    // Suppress wrapping generated code with <?php ? > to allow modification
+    // of the generated code.
+    const FILTER_NO_PHP = 'nophp';
+
+
+
+
     
     const jigExtension = '';
 
@@ -469,29 +484,31 @@ class JigConverter {
      * @throws \Intahwebz\Jig\JigException
      */
     function processForeachStart($segmentText){
+
         //find the variable and replace it with new version
-        $pattern = '/foreach\s+(\$\w+)[^\s\=]*\s/u';
+        $pattern = '/foreach\s+(\$?\w+[^\s\=]*)\s/u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches, PREG_OFFSET_CAPTURE);
+
         if ($matchCount == 0) {
             throw new JigException("Could not extract variable to foreach over from [$segmentText].");
         }
 
-        $varName = $matches[1][0];
+        $foreachItem = $matches[1][0];
         $varPosition = $matches[1][1];
         $segmentText = str_replace('foreach', 'foreach (', $segmentText);
 
-        if ($this->parsedTemplate->hasLocalVariable($varName) == true) {
+        if ($this->parsedTemplate->hasLocalVariable($foreachItem) == true) {
             $this->addLineInternal( $segmentText.'){' );
         }
         else{
-            $cVar = substr($varName, 1);
-            $replace = "\$this->getVariable('$cVar')";
-            $segmentText = str_replace($varName, $replace, $segmentText);
+            $segment = new PHPTemplateSegment($foreachItem);
+            $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+            $segmentText = str_replace($foreachItem, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
         }
 
-        $dependentVariablesPosition = $varPosition + strlen($varName);
+        $dependentVariablesPosition = $varPosition + strlen($foreachItem);
 
         $pattern = '/\s+(\$\w+)\s?/u';
 
@@ -501,6 +518,7 @@ class JigConverter {
             $this->parsedTemplate->addLocalVariable($variableName);
         }
     }
+
 
     /**
      *

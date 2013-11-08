@@ -4,7 +4,7 @@
 namespace Intahwebz\Jig\Tests;
 
 
-class SiteNavLinks implements \IteratorAggregate{
+class SiteNavLinks implements \IteratorAggregate {
 
     public $links = array();
 

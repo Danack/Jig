@@ -247,8 +247,7 @@ END;
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "    function ".$functionName."() {\n");
-            fwrite($outputFileHandle, "?>\n");
-            fwrite($outputFileHandle, "\n");
+            fwrite($outputFileHandle, "?>");
 
             foreach ($lines as $line) {
                 fwrite($outputFileHandle, $line);
