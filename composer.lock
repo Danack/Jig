@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "0f4eb0267858d892094eb9686b564d1d",
+    "hash": "7a07bb33bc0ebfc01fc62d10b005ffb2",
     "packages": [
         {
             "name": "intahwebz/core",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "29f0ef70fdf9b9040b5b848e5641a6dee1190d76"
+                "reference": "cc8178444f28adfb1b29d30ae0d43bed11df0e61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/29f0ef70fdf9b9040b5b848e5641a6dee1190d76",
-                "reference": "29f0ef70fdf9b9040b5b848e5641a6dee1190d76",
+                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/cc8178444f28adfb1b29d30ae0d43bed11df0e61",
+                "reference": "cc8178444f28adfb1b29d30ae0d43bed11df0e61",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-11-07 18:03:52"
+            "time": "2013-11-08 01:48:34"
         },
         {
             "name": "intahwebz/mb_extra",
@@ -273,6 +273,36 @@
                 "library"
             ],
             "time": "2013-11-02 20:54:44"
+        },
+        {
+            "name": "intahwebz/routing",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Danack/intahwebz-routing.git",
+                "reference": "e3525a9770c9a371728e7ad0833dc6b23a3619d6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Danack/intahwebz-routing/zipball/e3525a9770c9a371728e7ad0833dc6b23a3619d6",
+                "reference": "e3525a9770c9a371728e7ad0833dc6b23a3619d6",
+                "shasum": ""
+            },
+            "require": {
+                "intahwebz/core": "dev-master"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Intahwebz\\PHPCompiledTemplate": "var/src/",
+                    "Intahwebz\\Routing": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "time": "2013-11-08 02:23:12"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -902,7 +932,7 @@
         "intahwebz/mb_extra": 20,
         "rdlowrey/auryn": 20,
         "intahwebz/form": 20,
-        "intahwebz/jig": 20
+        "intahwebz/routing": 20
     },
     "platform": [
 

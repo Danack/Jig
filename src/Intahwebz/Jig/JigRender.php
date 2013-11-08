@@ -16,7 +16,7 @@ use Intahwebz\Jig\Converter\JigConverter;
  */
 class JigRender {
 
-    const COMPILED_NAMESPACE = "Intahwebz\\PHPCompiledTemplate";
+    const COMPILED_NAMESPACE    = "Intahwebz\\PHPCompiledTemplate";
 
     const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
     const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
@@ -37,6 +37,7 @@ class JigRender {
     private $compileCheck;
 
     function __construct(JigConfig $jigConfig, \Auryn\Provider $provider) {
+
         $this->jigConverter = new JigConverter();
         $this->templatePath = $jigConfig->templateSourceDirectory;
         $this->compilePath = $jigConfig->templateCompileDirectory;
