@@ -30,17 +30,27 @@ Function call With output disabled:<br/>
 
 <div>
 
-    {$colors = getColors()}
-
-    <?php  var_dump($colors); ?>
-
-
+    Foreach from a function call:
 
     {foreach getColors() as $key => $color}
-        hmm
+        <span style='color: {$color}'>{$color}</span>
     {/foreach}
+</div>
+
+<div>
+
+    Same as previous, but as inline PHP.<br/>
+
+<?php
+
+    foreach ($this->call('getColors') as $key => $color) {
+        echo "<span style='color: $color'>$color</span>";
+    }
+
+?>
 
 </div>
+
 
 
 
