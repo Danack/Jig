@@ -25,18 +25,14 @@ Features
 How it works
 ============
 
-
+Please see the examples in the example directory.
 
 
 TODO
 ====
 
-* Add test case for dynamic include.
-
-* Add more Typehints to function calls as some are missing.
-
 * Replace the preg_match_all with a sane parser.
 
-* Add more examples.
+* Allow functions + block level elements to use a plugin system, to be extendable.
 
-* Write some documentation.
+* Allow spoiler to be customisable.

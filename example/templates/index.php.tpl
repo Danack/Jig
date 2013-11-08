@@ -1,12 +1,16 @@
-
 {include file='pageStart'}
 
-{block name='content'}
+    This is the index page.<br/>
 
-    This is the index page.
+    <h2>Examples</h2>
 
-{/block}
+    <a href='/syntaxExample'>Basic Syntax</a><br/>
 
+    <a href='/functionExample'>Function</a><br/>
+
+    <a href='/blockExample'>Blocks</a><br/>
+
+    <a href='/dataExample'>Data binding</a><br/>
 
 {include file='pageEnd'}
 
