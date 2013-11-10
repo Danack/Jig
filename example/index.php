@@ -4,6 +4,13 @@ require_once realpath(__DIR__).'/../vendor/autoload.php';
 
 spl_autoload_register('loader');
 
+if (strrpos($_SERVER['PHP_SELF'] ,'.css') === (strlen($_SERVER['PHP_SELF']) - strlen('.css')) ||
+    strrpos($_SERVER['PHP_SELF'] ,'.js') === (strlen($_SERVER['PHP_SELF']) - strlen('.js'))) {
+    return false;
+}
+
+
+
 $provider = setupProvider();
 
 try{
@@ -34,6 +41,7 @@ function setupProvider() {
         Intahwebz\Response::class => Intahwebz\Routing\HTTPResponse::class,
         Intahwebz\ViewModel::class => Intahwebz\ViewModel\BasicViewModel::class,
         Intahwebz\Domain::class => Intahwebz\DomainExample::class,
+        Intahwebz\Session::class => Intahwebz\Session\Session::class,
     ];
 
     foreach ($standardSharedObjects as $interfaceName => $implementationName) {
@@ -41,9 +49,18 @@ function setupProvider() {
         $provider->share($interfaceName);
     }
 
+    $standardLogger = new Intahwebz\Logger\NullLogger();
+
+    $provider->alias(Psr\Log\LoggerInterface::class, get_class($standardLogger));
+    $provider->share($standardLogger);
+
     $provider->alias(Intahwebz\ObjectCache::class, Intahwebz\Cache\NullObjectCache::class);
 
     $provider->define(Intahwebz\DomainExample::class, [':domainName' => 'basereality.test']);
+    $provider->share(Intahwebz\DomainExample::class);
+
+    $provider->define(Intahwebz\Session\Session::class, [':sessionName' => 'jigtest']);
+    $provider->share(Intahwebz\Session\Session::class);
 
     $provider->define(
         Intahwebz\Routing\HTTPRequest::class,
@@ -58,11 +75,10 @@ function setupProvider() {
 
     $routerParams = array(
         ':routeCollectionName' => 'jigrouting.test',
-        ':pathToRouteInfo' => realpath(__DIR__)."/routing/jigrouting.php"
+        ':pathToRouteInfo' => realpath(__DIR__)."/data/jigrouting.php"
     );
 
     $provider->define(\Intahwebz\Routing\Router::class, $routerParams);
-
     $provider->share($provider);
 
     return $provider;
@@ -137,3 +153,4 @@ function loader($class) {
         return true;
     }
 }
+

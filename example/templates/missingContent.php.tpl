@@ -1,7 +1,15 @@
 {include file='pageStart'}
 
-Oh noes! Some of the content is missing!
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
 
-{include file='panels/blogPostList'}
+        Oh noes! Some of the content is missing!
+
+        {include file='panels/blogPostList'}
+
+        </div>
+    </div>
+</div>
 
 {include file='pageEnd'}

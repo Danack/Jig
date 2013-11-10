@@ -3,24 +3,24 @@
 namespace Controller;
 
 use Intahwebz\ViewModel;
-use Mapper\BlogPostList;
+use Mapper\BlogPostMapper;
 
 class BlogPostExample {
 
     private $viewModel;
 
-    private $blogPostList;
+    private $blogPostMapper;
 
     private $provider;
 
-    function __construct(ViewModel $viewModel, BlogPostList $blogPostList, \Auryn\Provider $provider) {
+    function __construct(ViewModel $viewModel, BlogPostMapper $blogPostMapper, \Auryn\Provider $provider) {
         $this->viewModel = $viewModel;
-        $this->blogPostList = $blogPostList;
+        $this->blogPostMapper = $blogPostMapper;
         $this->provider = $provider;
     }
 
     function display($blogPostID) {
-        $blogPost = $this->blogPostList->getBlogPost($blogPostID);
+        $blogPost = $this->blogPostMapper->getBlogPost($blogPostID);
 
         if ($blogPost == null) {
             $this->viewModel->setTemplate('missingContent');

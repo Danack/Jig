@@ -21,7 +21,6 @@ class FunctionExample {
         return "The template set for the view model is: ".$this->viewModel->getTemplate();
     }
 
-
     function display() {
 
         $this->viewModel->bindFunction('closureFunction', function () {

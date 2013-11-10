@@ -1,45 +1,56 @@
 {include file='pageStart'}
 
-<div>
 
-This string is automatically filtered:<br/>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
 
-{$htmlString}
+<h4>Strings are automatically HTML filtered</h4>
 
-</div>
-
-<div>
-
-    With the filtering disabled:<br/>
-
-{$htmlString | nofilter}
-
-</div>
+<p>
+    {$htmlString}
+</p>
 
 
-<div>
-    Function call with output enabled:<br/>
+<h4>The HTML filtering can be disabled</h4>
+<p>
+    {$htmlString | nofilter}
+</p>
+
+
+<h4>Function call with output enabled</h4>
+<p>
     {greet('john')}
-</div>
+</p>
 
-<div>
-Function call With output disabled:<br/>
+
+<h3>Function call With output disabled</h4>
+<p>
 {greet('john') | nooutput}
-</div>
+</p>
 
 
-<div>
+<h4>Foreach variable </h4>
+<p>
+    {$colors = getColors()}
 
-    Foreach from a function call:
+    {foreach $colors as $key => $color}
+        <span style='color: {$color}'>{$color}</span>
+    {/foreach}
+</p>
 
+
+<h4>Foreach from a function call</h4>
+<p>
     {foreach getColors() as $key => $color}
         <span style='color: {$color}'>{$color}</span>
     {/foreach}
-</div>
+</p>
 
-<div>
 
-    Same as previous, but as inline PHP.<br/>
+<h4>Same as previous, but as inline PHP.</h4>
+
+<p>
 
 <?php
 
@@ -49,9 +60,10 @@ Function call With output disabled:<br/>
 
 ?>
 
+</p>
+
+        </div>
+    </div>
 </div>
-
-
-
 
 {include file='pageEnd'}

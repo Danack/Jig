@@ -1,16 +1,16 @@
 {include file='pageStart'}
 
-    This is the index page.<br/>
+{inject name='navItems' value='Model\NavItems'}
 
-    <h2>Examples</h2>
+<div class="container">
 
-    <a href='/syntaxExample'>Basic Syntax</a><br/>
+<h3>Examples</h3>
 
-    <a href='/functionExample'>Function</a><br/>
+{foreach $navItems as $navItem}
+    <a href="{$navItem->url}">{$navItem->description}</a> <br/>
+{/foreach}
 
-    <a href='/blockExample'>Blocks</a><br/>
-
-    <a href='/dataExample'>Data binding</a><br/>
+</div>
 
 {include file='pageEnd'}
 

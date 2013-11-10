@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "a1427052a1599e794556fdf1b67516e7b3a4f560"
+                "reference": "90a0811860e6c02e53459330dd9be2866fac8686"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/a1427052a1599e794556fdf1b67516e7b3a4f560",
-                "reference": "a1427052a1599e794556fdf1b67516e7b3a4f560",
+                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/90a0811860e6c02e53459330dd9be2866fac8686",
+                "reference": "90a0811860e6c02e53459330dd9be2866fac8686",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-11-08 03:15:39"
+            "time": "2013-11-09 18:55:08"
         },
         {
             "name": "intahwebz/mb_extra",
@@ -227,12 +227,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-forms.git",
-                "reference": "b3196e5ce68eb02e256e5998878868051de67f45"
+                "reference": "e6b2ecdfd4d12814aeb4ef5cce2745a93e811e17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-forms/zipball/b3196e5ce68eb02e256e5998878868051de67f45",
-                "reference": "b3196e5ce68eb02e256e5998878868051de67f45",
+                "url": "https://api.github.com/repos/Danack/intahwebz-forms/zipball/e6b2ecdfd4d12814aeb4ef5cce2745a93e811e17",
+                "reference": "e6b2ecdfd4d12814aeb4ef5cce2745a93e811e17",
                 "shasum": ""
             },
             "require": {
@@ -251,7 +251,8 @@
             "autoload": {
                 "psr-0": {
                     "Intahwebz\\Form": "src/",
-                    "Intahwebz\\FormElement": "src/"
+                    "Intahwebz\\FormElement": "src/",
+                    "Intahwebz\\Validator": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -272,7 +273,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-11-02 20:54:44"
+            "time": "2013-11-10 17:01:23"
         },
         {
             "name": "intahwebz/routing",

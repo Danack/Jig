@@ -5,7 +5,7 @@ namespace Controller;
 use Intahwebz\ViewModel;
 
 
-class DataExample {
+class BindingDataExample {
 
     private $viewModel;
 

@@ -19,11 +19,11 @@ return array(
     ),
 
     array(
-        'name' => 'dataExample',
-        'pattern' => '/dataExample',
-        'template' => 'dataExample',
+        'name' => 'bindingDataExample',
+        'pattern' => '/bindingDataExample',
+        'template' => 'BindingDataExample',
         'mapping' => array(
-            'Controller\\DataExample', 'display'
+            'Controller\\BindingDataExample', 'display'
         ),
     ),
 
@@ -52,6 +52,17 @@ return array(
             'Controller\\SyntaxExample', 'display'
         ),
     ),
+
+
+    array(
+        'name' => 'formExample',
+        'pattern' => '/formExample',
+        'template' => 'formExample',
+        'mapping' => array(
+            'Controller\\FormExample', 'display'
+        ),
+    ),
+
 
     array(
         'name' => 'index',

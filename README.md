@@ -28,6 +28,12 @@ How it works
 Please see the examples in the example directory.
 
 
+Running example
+===============
+
+php -S 0.0.0.0:8000 index.php
+
+
 TODO
 ====
 

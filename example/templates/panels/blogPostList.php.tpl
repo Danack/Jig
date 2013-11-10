@@ -2,7 +2,7 @@
 
 {inject name='blogPostList' value='Mapper\BlogPostList'}
 
-<h2>Blog posts</h2>
+<h4>Blog posts</h4>
 
 {foreach $blogPostList as $blogPost}
 
