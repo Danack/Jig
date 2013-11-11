@@ -30,11 +30,6 @@ class JigConverter {
     const FILTER_NO_PHP = 'nophp';
 
 
-
-
-    
-    const jigExtension = '';
-
     private $literalMode = false;
     public  $proxied = false;
 
@@ -625,7 +620,7 @@ class JigConverter {
             }
         }
 
-        return self::COMPILED_NAMESPACE."\\".$className.self::jigExtension;
+        return self::COMPILED_NAMESPACE."\\".$className;
     }
 
     /**

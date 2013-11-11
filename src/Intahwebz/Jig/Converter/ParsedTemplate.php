@@ -8,8 +8,6 @@ use Intahwebz\SafeAccess;
 
 class ParsedTemplate {
 
-    const jigExtension = '';
-    
     use SafeAccess;
 
     /**
@@ -54,7 +52,7 @@ class ParsedTemplate {
         $className = str_replace("/", "\\", $className);
         $className = str_replace("-", "", $className);
 
-        $this->className = $className.self::jigExtension;
+        $this->className = $className;
     }
 
     /**
