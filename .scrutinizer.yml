@@ -1,0 +1,18 @@
+before_commands:
+    - "composer install --dev --prefer-source"
+tools:
+    php_code_coverage:
+        enabled: true
+        test_command: phpunit -c phpunit.xml.dist
+        filter:
+            paths: ["src/*"]
+    php_loc:
+        enabled: true
+    php_mess_detector:
+        enabled: true
+        filter:
+            paths: ["src/*"]
+    php_analyzer: true
+    php_analyzer:
+        filter:
+            paths: ["src/*"]
