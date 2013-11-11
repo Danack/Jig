@@ -21,9 +21,25 @@ return array(
     array(
         'name' => 'bindingDataExample',
         'pattern' => '/bindingDataExample',
-        'template' => 'BindingDataExample',
+        'template' => 'bindingDataExample',
         'mapping' => array(
             'Controller\\BindingDataExample', 'display'
+        ),
+    ),
+
+    array(
+        'name' => 'extendExample',
+        'pattern' => '/extend',
+        'template' => 'extend',
+    ),
+
+
+    array(
+        'name' => 'reuseExample',
+        'pattern' => '/reuseExample',
+        'template' => 'reuse',
+        'mapping' => array(
+            'Controller\\ReuseExample', 'display'
         ),
     ),
 

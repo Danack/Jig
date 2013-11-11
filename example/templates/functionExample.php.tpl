@@ -28,6 +28,18 @@
 </p>
 
 
+
+<h4>View Model functions</h4>
+
+<p>
+    Any public function of the ViewModel can be called by the template without that function being bound.
+    <br/>
+
+    Current template is '{getTemplate()}'
+
+</p>
+
+
 </div>
 
 {include file='pageEnd'}

@@ -26,9 +26,7 @@
     {literal}
 
     {foreach $colors as $name => $value}  <br/>
-
         &nbsp;&nbsp;&nbsp;&lt;span style='color: {$value}'&gt;{$name}&lt;/span&gt;<br/>
-
     {/foreach}<br/>
 
 
@@ -37,11 +35,9 @@
 </p>
 
 <p>
-
     {foreach $colors as $name => $value}
         <span style='color: {$value}'>{$name}</span>
     {/foreach}
-
 </p>
 
 
@@ -56,7 +52,7 @@
     </code>
     <br/>
 
-    Will create an instance of the class `Mapper\BlogPostList` as the variable `blogPostList` directly in the template without needing to set it up within the controller. This allows your controllers to be very light weight.
+    Will create an instance of the class `Mapper\BlogPostList` as the variable `blogPostList` directly in the template without needing to set it up within the controller. This allows your controllers to be very light weight as your views are able to load the objects they require without any action by the controller.
 </p>
 
 {include file='panels/blogPostList'}

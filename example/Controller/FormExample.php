@@ -28,8 +28,7 @@ class FormExample {
             $form->addRowValues('new', []);
         }
 
-
-        $this->viewModel->setVariable('signupForm', $form);
+        $this->viewModel->setVariable('form', $form);
     }
 }
 

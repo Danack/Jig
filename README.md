@@ -42,3 +42,26 @@ TODO
 * Allow functions + block level elements to use a plugin system, to be extendable.
 
 * Allow spoiler to be customisable.
+
+* Include example, extend example
+
+
+
+public function render(array $context)
+    {
+        $level = ob_get_level();
+        ob_start();
+        try {
+            $this->display($context);
+        } catch (Exception $e) {
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+
+            throw $e;
+        }
+
+        return ob_get_clean();
+    }
+
+phpunit --coverage-html /tmp/JigCoverage

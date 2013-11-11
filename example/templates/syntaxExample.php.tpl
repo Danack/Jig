@@ -5,28 +5,19 @@
     <div class="row">
         <div class="col-md-8">
 
-<h4>Strings are automatically HTML filtered</h4>
+<h4>Output is automatically filtered</h4>
 
 <p>
-    {$htmlString}
+    By default all output is filtered to escape HTML entities.<br/>
+    String output: {$htmlString} <br/>
+    Function output: {greet('<b>john</b>')} <br/>
 </p>
 
 
-<h4>The HTML filtering can be disabled</h4>
+<h4>Output filtering can be disabled</h4>
 <p>
-    {$htmlString | nofilter}
-</p>
-
-
-<h4>Function call with output enabled</h4>
-<p>
-    {greet('john')}
-</p>
-
-
-<h3>Function call With output disabled</h4>
-<p>
-{greet('john') | nooutput}
+    String output: {$htmlString | nofilter}<br/>
+    Function output: {greet('<b>john</b>') | nofilter}<br/>
 </p>
 
 
@@ -48,20 +39,24 @@
 </p>
 
 
-<h4>Same as previous, but as inline PHP.</h4>
+<h4>Inline PHP</h4>
 
 <p>
 
+    If you really, really need to, you can embed standard PHP into the template. This should only be used in extremis, for example to debug something that is otherwise impossible to debug. If you're using this on a regular basis you are definitely doing something horribly wrong.<br/>
+
+
+    {$colors = getColors()}
+
 <?php
 
-    foreach ($this->call('getColors') as $key => $color) {
+    foreach ($colors as $key => $color) {
         echo "<span style='color: $color'>$color</span>";
     }
 
 ?>
 
 </p>
-
         </div>
     </div>
 </div>

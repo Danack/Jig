@@ -15,6 +15,7 @@ class NavItems  implements \IteratorAggregate  {
             new NavItem('/functionExample', 'Functions'),
             new NavItem('/blockExample', 'Blocks'),
             new NavItem('/bindingDataExample', 'Binding data'),
+            new NavItem('/reuseExample', 'Reusing templates'),
             new NavItem('/formExample', 'Form'),
         ];
     }
