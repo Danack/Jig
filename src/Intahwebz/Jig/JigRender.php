@@ -99,6 +99,7 @@ class JigRender {
 
     /**
      * @param $className
+     * @throws JigException
      * @return mixed
      */
     function getProxiedClass($className) {
@@ -111,14 +112,14 @@ class JigRender {
 
         $originalClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, false);
         if (class_exists($originalClassName) == false) {
-            $originalClassName = $this->getParsedTemplate($mappedClass, $this->mappedClasses, false);
+            $this->getParsedTemplate($mappedClass, $this->mappedClasses, false);
         }
         
         $proxiedClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, true);
 
         if (class_exists($proxiedClassName) == false) {
             //this is needed if dynamic extended classes are used out of order
-            $className = $this->getParsedTemplate($mappedClass, $this->mappedClasses, true);
+            $this->getParsedTemplate($mappedClass, $this->mappedClasses, true);
         }
         
         return $proxiedClassName;
@@ -134,6 +135,7 @@ class JigRender {
             $className = $this->getParsedTemplateFromString($templateString, $objectID, $this->mappedClasses);
             
             $template = new $className($this->viewModel, $this);
+            /** @var $template \Intahwebz\Jig\JigBase */
             $template->render($this->viewModel);
         }
         catch(JigException $je) {
@@ -214,11 +216,12 @@ class JigRender {
 
         return false;
     }
-    
+
     /**
      * @param $templateFilename
-     * @return \Intahwebz\Jig\Converter\ParsedTemplate
+     * @param $extension
      * @throws JigException
+     * @return \Intahwebz\Jig\Converter\ParsedTemplate
      */
     function prepareTemplateFromFile($templateFilename, $extension) {
         $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
@@ -244,6 +247,9 @@ class JigRender {
      * @param $templateFilename
      * //TODO rename this to a better name.
      * //TODO this duplicates a significant portion of getParsedTemplateFromString
+     * @param $mappedClasses
+     * @param bool $proxied
+     * @throws JigException
      * @return string The full classname of the generated file
      */
     function getParsedTemplate($templateFilename, $mappedClasses, $proxied = false) {
@@ -275,7 +281,7 @@ class JigRender {
         $extendsClass = $parsedTemplate->getExtends();
 
         if ($extendsClass) {
-            $extendsParsedTemplate = $this->getParsedTemplate($extendsClass, $mappedClasses);
+            $this->getParsedTemplate($extendsClass, $mappedClasses);
         }
         else if ($parsedTemplate->getDynamicExtends()) {
             if (array_key_exists($parsedTemplate->getDynamicExtends(), $mappedClasses) == false) {
@@ -285,10 +291,10 @@ class JigRender {
             $dynamicExtendsClass = $mappedClasses[$parsedTemplate->getDynamicExtends()];
 
             //Generate this twice - once for reals, once as a proxy.
-            $dynamicExtendsParsedTemplate = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);
+            $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);
             
             //TODO - once the proxy generating is working, this can be removed?
-            $dynamicExtendsParsedTemplateProxy = $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, true);
+            $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, true);
         }
 
         if (class_exists($className) == false) {
@@ -306,6 +312,7 @@ class JigRender {
      * This is an entry point
      * @param $templateString
      * @param $cacheName
+     * @param $mappedClasses
      * @return mixed
      */
     function getParsedTemplateFromString($templateString, $cacheName, $mappedClasses) {
@@ -318,7 +325,7 @@ class JigRender {
         $extendsFilename = $parsedTemplate->getExtends();
 
         if ($extendsFilename) {
-            $parentTemplate = $this->getParsedTemplate($extendsFilename, $mappedClasses);
+            $this->getParsedTemplate($extendsFilename, $mappedClasses);
         }
 
         return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();

@@ -13,10 +13,6 @@ use \PHPParser_Parser;
  */
 class PHPTemplateSegment extends TemplateSegment {
 
-//    public static $knownFilters = [
-//        'nofilter', 'nophp', 'nooutput', 'urlencode'
-//    ];
-//    
     /**
      * The pattern matcher strips off the enclosing tags - we re-add them here
      * for literal mode parsing.
@@ -76,7 +72,7 @@ class PHPTemplateSegment extends TemplateSegment {
         if ($filterCount != 0) {
             foreach($matches as $match) {
                 $filters[] = $match[1][0];
-                $length = strlen($match[0][0]);
+                //$length = strlen($match[0][0]);
                 $position = $match[0][1];
                 if ($chomp == false || $position < $chomp) {
                     $chomp = $position;

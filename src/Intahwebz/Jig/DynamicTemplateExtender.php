@@ -3,8 +3,6 @@
 
 namespace Intahwebz\Jig;
 
-use Intahwebz\Jig\JigException;
-
 /**
  * Class DynamicTemplateExtender All templates that dynamicExtends do so through this file, coupled with
  * a Proxied version of the class they are extending. e.g. var/src/Intahwebz/JigTemplate/standardContentPanel var/src/Intahwebz/JigTemplate/ProxiedstandardContentPanel

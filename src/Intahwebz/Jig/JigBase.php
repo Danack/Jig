@@ -44,7 +44,7 @@ abstract class JigBase {
     }
 
     /**
-     * @param $view
+     * @internal param $view
      */
     public function render() {
         $this->renderInternal();
@@ -59,7 +59,8 @@ abstract class JigBase {
     }
 
     /**
-     * @param array $functionArgs
+     * @param $placeHolder
+     * @internal param array $functionArgs
      * @return mixed|void
      */
     function call($placeHolder) {

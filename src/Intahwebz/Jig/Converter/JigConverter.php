@@ -48,6 +48,7 @@ class JigConverter {
 
     /**
      * @param $fileLines
+     * @throws \Exception
      * @return ParsedTemplate
      */
     function createFromLines($fileLines) {
@@ -220,6 +221,7 @@ class JigConverter {
 
     /**
      * @param TemplateSegment $segment
+     * @throws \Intahwebz\Jig\JigException
      */
     function parseJigSegment(TemplateSegment $segment){
         $segmentText = $segment->text;
@@ -476,6 +478,7 @@ class JigConverter {
 
     /**
      * @param $segmentText
+     * @throws \RuntimeException
      * @throws \Intahwebz\Jig\JigException
      */
     function processForeachStart($segmentText){
@@ -508,6 +511,10 @@ class JigConverter {
         $pattern = '/\s+(\$\w+)\s?/u';
 
         $matchCount = preg_match_all($pattern, $segmentText, $matches, PREG_PATTERN_ORDER, $dependentVariablesPosition);
+
+        if ($matchCount == 0) {
+            throw new \RuntimeException("Failed to parse foreach correctly.");
+        }
 
         foreach ($matches[1] as $variableName) {
             $this->parsedTemplate->addLocalVariable($variableName);
@@ -570,6 +577,7 @@ class JigConverter {
 
     /**
      * @param $templateFilename
+     * @return string
      */
     function setClassNameFromFilename($templateFilename){
         return self::getClassNameFromFileName($templateFilename);
@@ -602,6 +610,7 @@ class JigConverter {
 
     /**
      * @param $templateFilename
+     * @param bool $proxied
      * @return string
      */
     function getNamespacedClassNameFromFileName($templateFilename, $proxied = false) {
