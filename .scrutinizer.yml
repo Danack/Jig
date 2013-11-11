@@ -14,7 +14,9 @@ tools:
         enabled: true
         filter:
             paths: ["src/*"]
+            excluded_paths:       ["*/Tests/*"]
     php_analyzer: true
     php_analyzer:
         filter:
             paths: ["src/*"]
+            excluded_paths:       ["*/Tests/*"]
