@@ -6,8 +6,10 @@ tools:
         test_command: phpunit -c phpunit.xml.dist
         filter:
             paths: ["src/*"]
+            excluded_paths:       ["*/Tests/*"]
     php_loc:
         enabled: true
+        excluded_dirs:        ["*/Tests/*"]
     php_mess_detector:
         enabled: true
         filter:
