@@ -43,7 +43,7 @@
 <h4>Dynamic extending</h4>
 
 <p>
-
+Dynamic extending is kind of dumb - but useful!
 
 </p>
 
