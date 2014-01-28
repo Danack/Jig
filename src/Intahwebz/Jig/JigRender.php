@@ -290,7 +290,7 @@ class JigRender {
 
             $dynamicExtendsClass = $mappedClasses[$parsedTemplate->getDynamicExtends()];
 
-            //Generate this twice - once for reals, once as a proxy.
+            //Generate this twice - once for real, once as a proxy.
             $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);
             
             //TODO - once the proxy generating is working, this can be removed?
@@ -298,6 +298,7 @@ class JigRender {
         }
 
         if (class_exists($className) == false) {
+            /** @noinspection PhpIncludeInspection */
             require($outputFilename);
         }
         else {

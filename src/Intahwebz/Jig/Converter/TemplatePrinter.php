@@ -54,35 +54,43 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     // Magic Constants
 
-    public function pScalar_ClassConst(\PHPParser_Node_Scalar_ClassConst $node) {
+    public function pScalar_ClassConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_ClassConst $node) {
         return '__CLASS__';
     }
 
-    public function pScalar_TraitConst(\PHPParser_Node_Scalar_TraitConst $node) {
+    public function pScalar_TraitConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_TraitConst $node) {
         return '__TRAIT__';
     }
 
-    public function pScalar_DirConst(\PHPParser_Node_Scalar_DirConst $node) {
+    public function pScalar_DirConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_DirConst $node) {
         return '__DIR__';
     }
 
-    public function pScalar_FileConst(\PHPParser_Node_Scalar_FileConst $node) {
+    public function pScalar_FileConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_FileConst $node) {
         return '__FILE__';
     }
 
-    public function pScalar_FuncConst(\PHPParser_Node_Scalar_FuncConst $node) {
+    public function pScalar_FuncConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_FuncConst $node) {
         return '__FUNCTION__';
     }
 
-    public function pScalar_LineConst(\PHPParser_Node_Scalar_LineConst $node) {
+    public function pScalar_LineConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_LineConst $node) {
         return '__LINE__';
     }
 
-    public function pScalar_MethodConst(\PHPParser_Node_Scalar_MethodConst $node) {
+    public function pScalar_MethodConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_MethodConst $node) {
         return '__METHOD__';
     }
 
-    public function pScalar_NSConst(\PHPParser_Node_Scalar_NSConst $node) {
+    public function pScalar_NSConst(/** @noinspection PhpUnusedParameterInspection */
+        \PHPParser_Node_Scalar_NSConst $node) {
         return '__NAMESPACE__';
     }
 
@@ -110,6 +118,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
     // Assignments
 
     public function pExpr_Assign(\PHPParser_Node_Expr_Assign $node) {
+        /** @noinspection PhpUndefinedFieldInspection */
         $this->addLocalVariable($node->var->name);
         $this->hasAssignment = true;
         return $this->pInfixOp('Expr_Assign', $node->var, ' = ', $node->expr);

@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "7a07bb33bc0ebfc01fc62d10b005ffb2",
+    "hash": "df100f110e452b8add2675b728a78934",
     "packages": [
         {
             "name": "intahwebz/core",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "90a0811860e6c02e53459330dd9be2866fac8686"
+                "reference": "2289355f06fa8ed94f7ebfd9582f8adb76c42e9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/90a0811860e6c02e53459330dd9be2866fac8686",
-                "reference": "90a0811860e6c02e53459330dd9be2866fac8686",
+                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/2289355f06fa8ed94f7ebfd9582f8adb76c42e9a",
+                "reference": "2289355f06fa8ed94f7ebfd9582f8adb76c42e9a",
                 "shasum": ""
             },
             "require": {
@@ -36,7 +36,8 @@
                 {
                     "name": "Dan Ackroyd",
                     "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com"
+                    "homepage": "http://www.basereality.com",
+                    "role": "Developer"
                 }
             ],
             "description": "Core library that defines common interfaces used by the rest of the intahwebz..",
@@ -45,7 +46,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-11-09 18:55:08"
+            "time": "2014-01-25 00:59:11"
         },
         {
             "name": "intahwebz/mb_extra",
@@ -169,16 +170,16 @@
         },
         {
             "name": "rdlowrey/auryn",
-            "version": "dev-DanackMaster",
+            "version": "dev-PluginExperiment2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/Auryn.git",
-                "reference": "42029e2a245c93a37f2284b88e5bbda6f8883485"
+                "reference": "51a81bc675abdb19921e2b6a1fd8235d0e543d62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/Auryn/zipball/4cc35401cb78b942842f56136ff33bbe3ac4db38",
-                "reference": "42029e2a245c93a37f2284b88e5bbda6f8883485",
+                "url": "https://api.github.com/repos/Danack/Auryn/zipball/51a81bc675abdb19921e2b6a1fd8235d0e543d62",
+                "reference": "51a81bc675abdb19921e2b6a1fd8235d0e543d62",
                 "shasum": ""
             },
             "require": {
@@ -187,7 +188,7 @@
             "type": "library",
             "autoload": {
                 "psr-0": {
-                    "Auryn": "src"
+                    "Auryn": "lib"
                 }
             },
             "license": [
@@ -206,7 +207,7 @@
                     "role": "Developer"
                 }
             ],
-            "description": "Auryn is a Dependency Injection Container designed to wire together S.O.L.I.D., object-oriented PHP applications.",
+            "description": "Auryn is a dependency injector for bootstrapping object-oriented PHP applications.",
             "homepage": "https://github.com/rdlowrey/Auryn",
             "keywords": [
                 "dependency injection",
@@ -214,10 +215,10 @@
                 "ioc"
             ],
             "support": {
-                "source": "https://github.com/Danack/Auryn/tree/DanackMaster",
+                "source": "https://github.com/Danack/Auryn/tree/PluginExperiment2",
                 "issues": "https://github.com/Danack/Auryn/issues"
             },
-            "time": "2013-09-24 01:28:50"
+            "time": "2014-01-04 21:36:02"
         }
     ],
     "packages-dev": [
@@ -227,12 +228,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-forms.git",
-                "reference": "e6b2ecdfd4d12814aeb4ef5cce2745a93e811e17"
+                "reference": "3303b23f67786093719300960fa95db1b0e06913"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-forms/zipball/e6b2ecdfd4d12814aeb4ef5cce2745a93e811e17",
-                "reference": "e6b2ecdfd4d12814aeb4ef5cce2745a93e811e17",
+                "url": "https://api.github.com/repos/Danack/intahwebz-forms/zipball/3303b23f67786093719300960fa95db1b0e06913",
+                "reference": "3303b23f67786093719300960fa95db1b0e06913",
                 "shasum": ""
             },
             "require": {
@@ -263,7 +264,8 @@
                 {
                     "name": "Dan Ackroyd",
                     "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com"
+                    "homepage": "http://www.basereality.com",
+                    "role": "Developer"
                 }
             ],
             "description": "Form library for the intahwebz.",
@@ -273,7 +275,7 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-11-10 17:01:23"
+            "time": "2013-11-10 18:39:28"
         },
         {
             "name": "intahwebz/routing",
@@ -281,19 +283,23 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-routing.git",
-                "reference": "9b03152386adb012164e34cbc5888acb4715d345"
+                "reference": "b848bb8d8e27ef485aa8844e0b8b4853162a5782"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-routing/zipball/9b03152386adb012164e34cbc5888acb4715d345",
-                "reference": "9b03152386adb012164e34cbc5888acb4715d345",
+                "url": "https://api.github.com/repos/Danack/intahwebz-routing/zipball/b848bb8d8e27ef485aa8844e0b8b4853162a5782",
+                "reference": "b848bb8d8e27ef485aa8844e0b8b4853162a5782",
                 "shasum": ""
             },
             "require": {
-                "intahwebz/core": "dev-master"
+                "intahwebz/core": "dev-master",
+                "intahwebz/mb_extra": "dev-master"
             },
             "require-dev": {
-                "phpunit/phpunit": "3.7.*"
+                "intahwebz/jig": "dev-master",
+                "phpunit/phpunit": "3.7.*",
+                "rdlowrey/auryn": "dev-PluginExperiment2",
+                "zendframework/zend-permissions-acl": ">=2.1.0"
             },
             "type": "library",
             "autoload": {
@@ -303,7 +309,7 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "time": "2013-11-08 03:16:32"
+            "time": "2014-01-25 02:59:23"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -551,16 +557,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.28",
+            "version": "3.7.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "3b97c8492bcafbabe6b6fbd2ab35f2f04d932a8d"
+                "reference": "faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3b97c8492bcafbabe6b6fbd2ab35f2f04d932a8d",
-                "reference": "3b97c8492bcafbabe6b6fbd2ab35f2f04d932a8d",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac",
+                "reference": "faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac",
                 "shasum": ""
             },
             "require": {
@@ -621,7 +627,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2013-10-17 07:27:40"
+            "time": "2014-01-15 06:46:38"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -674,17 +680,17 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.3.6",
+            "version": "v2.4.1",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3"
+                "reference": "4e1a237fc48145fae114b96458d799746ad89aa0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
-                "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/4e1a237fc48145fae114b96458d799746ad89aa0",
+                "reference": "4e1a237fc48145fae114b96458d799746ad89aa0",
                 "shasum": ""
             },
             "require": {
@@ -693,7 +699,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.4-dev"
                 }
             },
             "autoload": {
@@ -717,7 +723,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-09-22 18:04:39"
+            "time": "2013-12-28 08:12:03"
         },
         {
             "name": "zendframework/zend-filter",
@@ -920,12 +926,7 @@
         }
     ],
     "aliases": [
-        {
-            "alias": "v0.8.1-dev",
-            "alias_normalized": "0.8.1.0-dev",
-            "version": "dev-DanackMaster",
-            "package": "rdlowrey/auryn"
-        }
+
     ],
     "minimum-stability": "stable",
     "stability-flags": {

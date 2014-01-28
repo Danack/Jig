@@ -462,7 +462,8 @@ class JigConverter {
     /**
      * @param $segmentText
      */
-    function processTrimStart($segmentText){
+    function processTrimStart(/** @noinspection PhpUnusedParameterInspection */
+        $segmentText){
         $this->addCode("ob_start();");
     }
 
@@ -523,7 +524,7 @@ class JigConverter {
 
 
     /**
-     *
+     * @TODO - remove this and allow block function plugins.
      */
     function processSpoilerBlockStart(){
         $spoiler = "<div>";
