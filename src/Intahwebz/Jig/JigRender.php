@@ -3,6 +3,7 @@
 
 namespace Intahwebz\Jig;
 
+use Intahwebz\SafeAccess;
 use Intahwebz\ViewModel;
 
 use Intahwebz\Jig\Converter\JigConverter;
@@ -15,6 +16,8 @@ use Intahwebz\Jig\Converter\JigConverter;
  * @package Intahwebz\Jig
  */
 class JigRender {
+    
+    use SafeAccess;
 
     const COMPILED_NAMESPACE    = "Intahwebz\\PHPCompiledTemplate";
 
@@ -33,6 +36,11 @@ class JigRender {
     private $extension = ".tpl";
 
     /**
+     * @var Converter\JigConverter
+     */
+    private $jigConverter;
+
+    /**
      * @var \Auryn\Provider
      */
     private $provider;
@@ -45,6 +53,7 @@ class JigRender {
         $this->templatePath = $jigConfig->templateSourceDirectory;
         $this->compilePath = $jigConfig->templateCompileDirectory;
         $this->extension = $jigConfig->extension;
+        //TODO - don't copy vars around
         $this->compileCheck = $jigConfig->compileCheck;
         $this->provider = $provider;
     }
@@ -70,7 +79,10 @@ class JigRender {
      * @param $templateID - Must be a valid PHP class name i.e. cannot start with digit
      * @return string
      */
-    function captureRenderTemplateString($templateString, $templateID){
+    function captureRenderTemplateString($templateString, $templateID) {
+        
+        //TODO - check templateID doesn't start with a digit
+        
         ob_start();
         $this->renderTemplateFromString($templateString, $templateID);
         $contents = ob_get_contents();
@@ -134,9 +146,9 @@ class JigRender {
         try{
             $className = $this->getParsedTemplateFromString($templateString, $objectID, $this->mappedClasses);
             
-            $template = new $className($this->viewModel, $this);
+            $template = new $className($this, $this->viewModel);
             /** @var $template \Intahwebz\Jig\JigBase */
-            $template->render($this->viewModel);
+            $template->render();
         }
         catch(JigException $je) {
             //Just rethrow it to keep the stack trace the same
@@ -163,7 +175,7 @@ class JigRender {
 
         $className = $this->getParsedTemplate($templateFilename, $this->mappedClasses);
 
-        $template = new $className($this->viewModel, $this);
+        $template = new $className($this, $this->viewModel);
         /** @var $template \Intahwebz\Jig\JigBase */
 
         $injections = $template->getInjections();
@@ -178,7 +190,7 @@ class JigRender {
 
         $template->inject($injectionValues);
 
-        $template->render($this->viewModel, $this);
+        $template->render();
 
         if ($capture == true) {
             $contents = ob_get_contents();
@@ -297,7 +309,8 @@ class JigRender {
             $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, true);
         }
 
-        if (class_exists($className) == false) {
+        if (class_exists($className, false) == false) {
+            opcache_invalidate($outputFilename);
             /** @noinspection PhpIncludeInspection */
             require($outputFilename);
         }
@@ -331,4 +344,30 @@ class JigRender {
 
         return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
     }
+
+
+    function startProcessedBlock($blockName) {
+        $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
+
+            
+        $startFunctionCallable = $blockFunction[0];
+
+        if ($startFunctionCallable) {
+            return call_user_func($startFunctionCallable);
+        }
+
+        return null;
+    }
+
+    function endProcessedBlock($blockName) {
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
+
+        $endFunctionCallable = $blockFunction[1];
+
+        return call_user_func($endFunctionCallable, $contents);
+    }
+    
 }

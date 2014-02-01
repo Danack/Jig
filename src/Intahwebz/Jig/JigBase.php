@@ -21,7 +21,7 @@ abstract class JigBase {
      */
     protected   $jigRender;
 
-    function __construct(ViewModel $viewModel, $jigRender){
+    function __construct(JigRender $jigRender, ViewModel $viewModel = null){
         $this->viewModel = $viewModel;
         $this->jigRender = $jigRender;
         $this->init();
@@ -55,7 +55,11 @@ abstract class JigBase {
      * @return mixed
      */
     function getVariable($name) {
-        return $this->viewModel->getVariable($name);
+        if ($this->viewModel) {
+            return $this->viewModel->getVariable($name);
+        }
+        
+        return null;
     }
 
     /**
@@ -66,7 +70,12 @@ abstract class JigBase {
     function call($placeHolder) {
         $functionArgs = func_get_args();
         //todo - if this template has $functionName - call it?
-        return $this->viewModel->call($functionArgs);
+        
+        if ($this->viewModel) { 
+            return $this->viewModel->call($functionArgs);
+        }
+
+        return null;
     }
 }
 

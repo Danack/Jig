@@ -48,7 +48,7 @@ class ParsedTemplate {
     /**
      * @param $className
      */
-    public function setClassName($className){
+    public function setClassName($className) {
         $className = str_replace("/", "\\", $className);
         $className = str_replace("-", "", $className);
 
@@ -267,14 +267,14 @@ END;
 
         //Todo just pass in parent class name - or eve just parent instance
 $output = <<< END
-public function __construct(\$viewModel, \$jigRender) {
+public function __construct(\$jigRender, \$viewModel) {
     \$this->viewModel = \$viewModel;
     \$this->jigRender = \$jigRender;
     \$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
     //\$fullclassName = "\\\\Intahwebz\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
     \$fullclassName = \$classInstanceName;
 
-    \$parentInstance = new \$fullclassName(\$viewModel, \$jigRender, \$this);
+    \$parentInstance = new \$fullclassName(\$jigRender, \$viewModel, \$this);
     \$this->setParentInstance(\$parentInstance);
 }
 END;
@@ -299,7 +299,7 @@ END;
 		var \$viewModel = null;
 		var \$jigRender = null; 
 
-		function __construct(\$viewModel, \$jigRender, \$childInstance){
+		function __construct(\$jigRender, \$viewModel, \$childInstance){
 			\$this->viewModel = \$viewModel;
 			\$this->jigRender = \$jigRender;
 			\$this->childInstance = \$childInstance;
