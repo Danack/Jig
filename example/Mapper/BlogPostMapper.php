@@ -63,7 +63,6 @@ class BlogPostMapper {
 
         $filename = $this->getNextFilename();
 
-
         $written = file_put_contents($filename, json_encode($blogPost));
 
         if ($written == false) {

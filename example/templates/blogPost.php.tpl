@@ -27,15 +27,13 @@ The first blogPost is loaded in the controller, and then set in the view model b
 
 <h4>Injecting the object</h4>
 
-{inject name='blogPostInjected' value='Mapper\BlogPost'}
+
 
 <p>
 The second instance is directly inserted into the template via a 'Mapper\BlogPost' object.
-
 </p>
 
-
-
+{inject name='blogPostInjected' value='Mapper\BlogPost'}
 
 <div class="panel panel-default">
     <div class="panel-heading">

@@ -354,7 +354,7 @@ END;
     function testBlockEscaping() {
         $this->viewModel->setVariable('variable1', "This is a variable");
 
-        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode','htmlEntityDecode');
+        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
         ob_start();
         $this->jigRenderer->renderTemplateFile('binding/blocks');
         $contents = ob_get_contents();
@@ -367,7 +367,7 @@ END;
 
         $string = file_get_contents(__DIR__."/templates/binding/blocks.php.tpl");
 
-        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', 'htmlEntityDecode');
+        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
         ob_start();
         $this->jigRenderer->renderTemplateFromString($string, 'Foo1');
         $contents = ob_get_contents();

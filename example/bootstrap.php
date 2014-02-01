@@ -69,19 +69,13 @@ function setupProvider() {
 function processRequest(\Auryn\Provider $provider) {
 
     $viewModel = $provider->make('Intahwebz\ViewModel\BasicViewModel');
-
-    /** @var  $router \Intahwebz\Request */
     $request = $provider->make('Intahwebz\Request');
-
-    /** @var  $router \Intahwebz\Router */
     $router = $provider->make('Intahwebz\Router');
 
     $provider->share($router);
 
-    /** @var  $response \Intahwebz\Response */
     $response = $provider->make('Intahwebz\Response');
 
-    /** @var $jigRenderer Intahwebz\Jig\JigRender */
     $jigRenderer = $provider->make('Intahwebz\Jig\JigRender');
 
     $jigRenderer->bindViewModel($viewModel);
@@ -91,39 +85,22 @@ function processRequest(\Auryn\Provider $provider) {
     $route = $matchedRoute->getRoute();
     $mapping = $route->get('mapping');
 
-    $viewModel->setTemplate($matchedRoute->getRoute()->get('template'));
+    $template = $matchedRoute->getRoute()->get('template');
+
 
     if ($mapping != null) {
 
         while ($route != null) {
-
-            $routeTemplate = $route->get('template');
-            if ($routeTemplate != null) {
-                $viewModel->setTemplate($routeTemplate);
-            }
-
+            $template = $route->get('template');
             $mergedParams = $matchedRoute->getMergedParameters($request);
-            $lowried = array();
-            foreach ($mergedParams as $key => $value) {
-                $lowried[':'.$key] = $value;
-            }
+            $viewModel->setMergedParams($mergedParams);
 
-            $viewModel->setMergedParams($lowried);
-
-            //var_dump($mapping);
-
-//            if (count($mapping) == 2) {
-//                $classPath = $mapping[0];
-//                $method = $mapping[1];
-//                $controller = $provider->make($classPath);
-                /** @var $route \Intahwebz\Route */
-                //$route = $provider->execute(array($controller, $method), $lowried);
-                $route = $provider->execute($mapping, $lowried);
-            //}
+            /** @var $route \Intahwebz\Route */
+            $route = $provider->execute($mapping, $mergedParams);
         }
     }
 
-    $jigRenderer->renderTemplateFile($viewModel->getTemplate());
+    $jigRenderer->renderTemplateFile($template);
 }
 
 
