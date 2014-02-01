@@ -348,8 +348,6 @@ class JigRender {
 
     function startProcessedBlock($blockName) {
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
-
-            
         $startFunctionCallable = $blockFunction[0];
 
         if ($startFunctionCallable) {

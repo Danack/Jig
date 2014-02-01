@@ -200,13 +200,7 @@ class JigConverter {
         foreach ($this->processedBlockFunctions as $blockName => $blockFunctions) {
 
             if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
-
-                $this->addCode("\$this->jigRender->endProcessedBlock('$segmentText');");
-
-//                $this->addCode(" \$contents = ob_get_contents();
-//		ob_end_clean();
-//		\$this->viewModel->".$endFunctionCallable."(\$contents);
-//		");
+                $this->addCode("\$this->jigRender->endProcessedBlock('$blockName');");
                 return;
             }
         }
