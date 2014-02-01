@@ -310,7 +310,9 @@ class JigRender {
         }
 
         if (class_exists($className, false) == false) {
-            opcache_invalidate($outputFilename);
+            if (function_exists('opcache_invalidate') == true) {
+                opcache_invalidate($outputFilename);
+            }
             /** @noinspection PhpIncludeInspection */
             require($outputFilename);
         }
