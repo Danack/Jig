@@ -7,7 +7,6 @@ use Intahwebz\SafeAccess;
 use Intahwebz\ViewModel;
 
 use Intahwebz\Jig\Converter\JigConverter;
-//use Psr\Log\LoggerInterface;
 
 
 /**
@@ -48,7 +47,6 @@ class JigRender {
     private $compileCheck;
 
     function __construct(JigConfig $jigConfig, \Auryn\Provider $provider) {
-
         $this->jigConverter = new JigConverter();
         $this->templatePath = $jigConfig->templateSourceDirectory;
         $this->compilePath = $jigConfig->templateCompileDirectory;
@@ -79,10 +77,8 @@ class JigRender {
      * @param $templateID - Must be a valid PHP class name i.e. cannot start with digit
      * @return string
      */
-    function captureRenderTemplateString($templateString, $templateID) {
-        
+    function captureRenderTemplateString($templateString, $templateID) {        
         //TODO - check templateID doesn't start with a digit
-        
         ob_start();
         $this->renderTemplateFromString($templateString, $templateID);
         $contents = ob_get_contents();
@@ -210,9 +206,15 @@ class JigRender {
 
     function clearCompiledFile(){
         //TODO - implement this.
-        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");   
+        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        throw new \Exception("clearCompiledFile has not been implemented yet.");
     }
 
+    /**
+     * @param $templateFilename
+     * @param $extension
+     * @return bool
+     */
     function isGeneratedFileOutOfDate($templateFilename, $extension) {
         $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
         $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
@@ -348,6 +350,10 @@ class JigRender {
     }
 
 
+    /**
+     * @param $blockName
+     * @return mixed|null
+     */
     function startProcessedBlock($blockName) {
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
         $startFunctionCallable = $blockFunction[0];
@@ -359,6 +365,10 @@ class JigRender {
         return null;
     }
 
+    /**
+     * @param $blockName
+     * @return mixed
+     */
     function endProcessedBlock($blockName) {
         $contents = ob_get_contents();
         ob_end_clean();

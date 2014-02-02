@@ -71,9 +71,14 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
         $provider = new \Auryn\Provider();
 
-        $this->jigRenderer = new JigRender(
-            $jigConfig,
-            $provider
+        $provider->share($jigConfig);
+        $provider->share($provider);
+
+        $this->jigRenderer = $provider->make(
+            '\Intahwebz\Jig\Tests\ExtendedJigRender',
+            [':jigConfig' , $jigConfig,
+             ':provider',   $provider
+            ]
         );
 
         $this->jigRenderer->bindViewModel($this->viewModel);
@@ -104,9 +109,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         ob_start();
 
         $this->viewModel->setVariable('colors', ['red', 'green', 'blue']);
-
         $this->viewModel->bindFunction('getColors', function (){ return ['red', 'green', 'blue'];});
-
         $this->jigRenderer->renderTemplateFile('basic/foreachTest');
 
         $contents = ob_get_contents();
@@ -407,6 +410,20 @@ END;
 
         $this->assertContains('test is 5', $contents);
     }
+
+
+    function testBlockPostProcess(){
+        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
+        ob_start();
+        $this->jigRenderer->renderTemplateFile('block/DependencyInsertion');
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertContains("Twitter", $contents);
+        $this->assertContains("Stackoverflow", $contents);
+    }
+
 
 }
 
