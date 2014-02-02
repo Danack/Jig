@@ -254,12 +254,12 @@ class JigConverter {
             else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0){
                 $this->processBlockEnd();
             }
-            else if (strncmp($segmentText, 'spoiler', mb_strlen('spoiler ')) == 0){
-                $this->processSpoilerBlockStart();
-            }
-            else if (strncmp($segmentText, '/spoiler', mb_strlen('/spoiler')) == 0){
-                $this->processSpoilerBlockEnd();
-            }
+//            else if (strncmp($segmentText, 'spoiler', mb_strlen('spoiler ')) == 0){
+//                $this->processSpoilerBlockStart();
+//            }
+//            else if (strncmp($segmentText, '/spoiler', mb_strlen('/spoiler')) == 0){
+//                $this->processSpoilerBlockEnd();
+//            }
             else if (strncmp($segmentText, 'trim ', mb_strlen('trim')) == 0){
                 $this->processTrimStart($segmentText);
             }
@@ -384,7 +384,6 @@ class JigConverter {
 
 
     function processInject($segmentText) {
-
         $namePattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
         $valuePattern = '#value=[\'"](.*)[\'"]#u';
         $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
@@ -531,26 +530,6 @@ class JigConverter {
         }
     }
 
-
-    /**
-     * @TODO - remove this and allow block function plugins.
-     */
-    function processSpoilerBlockStart(){
-        $spoiler = "<div>";
-        $spoiler .= "<span class='clickyButton' onclick='showHide(this, \"spoilerHidden\");'>Spoiler</span>";
-        $spoiler .= "<div class='spoilerBlock' style=''>";
-        $spoiler .= "<div class='spoilerHidden' style='display: none;'>";
-        $this->addLineInternal($spoiler);
-    }
-
-    /**
-     *
-     */
-    function processSpoilerBlockEnd(){
-        $this->addLineInternal("<div style='clear: both;'></div>");
-        $this->addLineInternal("</div>");
-        $this->addLineInternal("</div></div>");
-    }
 
     /**
      *
