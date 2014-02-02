@@ -55,7 +55,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     private $jigRenderer = null;
 
     /**
-     * @var \Intahwebz\ViewModel
+     * @var \Intahwebz\Jig\Tests\PlaceHolderView
      */
     private $viewModel;
 
@@ -382,7 +382,6 @@ END;
 
 
     function testDynamicInclude(){
-
         $this->viewModel->setVariable('dynamicInclude', "includeFile/includedFile");
 
         ob_start();
@@ -415,13 +414,13 @@ END;
     function testBlockPostProcess(){
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
         ob_start();
-        $this->jigRenderer->renderTemplateFile('block/DependencyInsertion');
+        $this->jigRenderer->renderTemplateFile('block/spoiler');
 
         $contents = ob_get_contents();
         ob_end_clean();
 
-        $this->assertContains("Twitter", $contents);
-        $this->assertContains("Stackoverflow", $contents);
+        $this->assertContains("is in a spoiler", $contents);
+        //$this->assertContains("Stackoverflow", $contents);
     }
 
 

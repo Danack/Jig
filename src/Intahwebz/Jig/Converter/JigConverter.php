@@ -36,6 +36,7 @@ class JigConverter {
     private $blockFunctions = array();
 
     /**
+     * These block function operate after the block has been converted.
      * TODO - Steal the callable class from Auryn.
      * @var array
      */
@@ -48,6 +49,11 @@ class JigConverter {
 
     private $activeBlock = null;
     private $activeBlockName = null;
+
+    
+    function __construct() {
+        $this->bindProcessedBlock('trim', [$this, 'processTrimEnd']);
+    }
 
 
     function getProcessedBlockFunction($blockName) {
@@ -260,12 +266,6 @@ class JigConverter {
             else if (strncmp($segmentText, '/spoiler', mb_strlen('/spoiler')) == 0){
                 $this->processSpoilerBlockEnd();
             }
-            else if (strncmp($segmentText, 'trim ', mb_strlen('trim')) == 0){
-                $this->processTrimStart($segmentText);
-            }
-            else if (strncmp($segmentText, '/trim', mb_strlen('/trim')) == 0){
-                $this->processTrimEnd();
-            }
             else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0){
                 $this->processForeachStart($segmentText);
             }
@@ -469,20 +469,10 @@ class JigConverter {
     }
 
     /**
-     * @param $segmentText
-     */
-    function processTrimStart(/** @noinspection PhpUnusedParameterInspection */
-        $segmentText){
-        $this->addCode("ob_start();");
-    }
-
-    /**
      *
      */
-    function processTrimEnd() {
-        $this->addCode('$output = ob_get_contents();');
-        $this->addCode('ob_end_clean();');
-        $this->addCode('echo trim($output);');
+    function processTrimEnd($content) {
+        return trim($content);
     }
 
 

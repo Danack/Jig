@@ -29,7 +29,7 @@ class ExtendedJigRender extends \Intahwebz\Jig\JigRender  {
         $spoiler .= "<div class='spoilerBlock' style=''>";
         $spoiler .= "<div class='spoilerHidden' style='display: none;'>";
 
-        return $spoiler;
+        echo $spoiler;
     }
 
     /**
@@ -40,7 +40,7 @@ class ExtendedJigRender extends \Intahwebz\Jig\JigRender  {
         $spoiler .= "<div style='clear: both;'></div>";
         $spoiler .= "</div>";
         $spoiler .="</div></div>";
-        return $spoiler;
+        echo $spoiler;
     }
     
 }
