@@ -3,17 +3,17 @@
 
 
 
-direct{foreach $colors as $color}{trim}
+Direct: {foreach $colors as $color}{trim}
 {$color}
 {/trim}{/foreach}
 
 
-assigned{foreach $colors as $color}{trim}
+Assigned: {foreach $colors as $color}{trim}
 {$color}
 {/trim}{/foreach}
 
 
-fromfunction{foreach getColors() as $color}{trim}
+Fromfunction {foreach getColors() as $color}{trim}
 {$color}
 {/trim}{/foreach}
 

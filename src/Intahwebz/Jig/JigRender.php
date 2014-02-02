@@ -355,14 +355,13 @@ class JigRender {
      * @return mixed|null
      */
     function startProcessedBlock($blockName) {
+        ob_start();
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
         $startFunctionCallable = $blockFunction[0];
 
         if ($startFunctionCallable) {
-            return call_user_func($startFunctionCallable);
+            echo call_user_func($startFunctionCallable);
         }
-
-        return null;
     }
 
     /**
@@ -377,7 +376,7 @@ class JigRender {
 
         $endFunctionCallable = $blockFunction[1];
 
-        return call_user_func($endFunctionCallable, $contents);
+        echo call_user_func($endFunctionCallable, $contents);
     }
     
 }
