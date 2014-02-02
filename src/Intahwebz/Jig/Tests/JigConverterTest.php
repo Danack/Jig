@@ -114,9 +114,9 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
         $contents = ob_get_contents();
         ob_end_clean();
-        $this->assertContains("directredgreenblue", $contents);
-        $this->assertContains("assignedredgreenblue", $contents);
-        $this->assertContains("fromfunctionredgreenblue", $contents);
+        $this->assertContains("Direct: redgreenblue", $contents);
+        $this->assertContains("Assigned: redgreenblue", $contents);
+        $this->assertContains("Fromfunction: redgreenblue", $contents);
     }
 
 

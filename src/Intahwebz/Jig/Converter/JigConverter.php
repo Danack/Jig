@@ -232,8 +232,6 @@ class JigConverter {
         }
     }
 
-
-    
     /**
      * @param TemplateSegment $segment
      * @throws \Intahwebz\Jig\JigException

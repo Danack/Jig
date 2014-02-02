@@ -13,7 +13,7 @@ Assigned: {foreach $colors as $color}{trim}
 {/trim}{/foreach}
 
 
-Fromfunction {foreach getColors() as $color}{trim}
+Fromfunction: {foreach getColors() as $color}{trim}
 {$color}
 {/trim}{/foreach}
 

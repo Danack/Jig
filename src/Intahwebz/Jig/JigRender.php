@@ -158,6 +158,8 @@ class JigRender {
     }
 
     /**
+     * TODO - remove this or at least remove the capture. It should always be captured
+     * and returned, and the calling function can display it if it completes.
      * @param $templateFilename
      * @param bool $capture
      * @return string
