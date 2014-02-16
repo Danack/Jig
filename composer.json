@@ -29,14 +29,13 @@
 
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "intahwebz/core": "dev-master",
-        "intahwebz/form": "dev-master",
-        "intahwebz/routing": "dev-master"
+        "intahwebz/form": "0.5.1",
+        "intahwebz/routing": "~0.9"
     },
 
     "require":{
-        "intahwebz/core": "dev-master",
-        "intahwebz/mb_extra": "dev-master",
+        "intahwebz/core": "*",
+        "intahwebz/mb_extra": "1.0.0",
         "rdlowrey/auryn": "dev-PluginExperiment2",
         "nikic/php-parser": "v0.9.3",
         "psr/log": "~1.0"

@@ -3,20 +3,20 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "df100f110e452b8add2675b728a78934",
+    "hash": "1f5b20809013c03d4d4e0e540c66fe3f",
     "packages": [
         {
             "name": "intahwebz/core",
-            "version": "dev-master",
+            "version": "0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "2289355f06fa8ed94f7ebfd9582f8adb76c42e9a"
+                "reference": "4f4ae14191825d22e0be81f5258926ddb7004a79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/2289355f06fa8ed94f7ebfd9582f8adb76c42e9a",
-                "reference": "2289355f06fa8ed94f7ebfd9582f8adb76c42e9a",
+                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/4f4ae14191825d22e0be81f5258926ddb7004a79",
+                "reference": "4f4ae14191825d22e0be81f5258926ddb7004a79",
                 "shasum": ""
             },
             "require": {
@@ -46,11 +46,11 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2014-01-25 00:59:11"
+            "time": "2014-02-04 15:23:09"
         },
         {
             "name": "intahwebz/mb_extra",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/mb_extra.git",
@@ -79,7 +79,8 @@
                 {
                     "name": "Dan Ackroyd",
                     "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com"
+                    "homepage": "http://www.basereality.com",
+                    "role": "Creator / Main Developer / Cake baker"
                 }
             ],
             "description": "A collection of PHP multi-byte string functions that are not present in the mb_string extension.",
@@ -224,20 +225,20 @@
     "packages-dev": [
         {
             "name": "intahwebz/form",
-            "version": "dev-master",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-forms.git",
-                "reference": "3303b23f67786093719300960fa95db1b0e06913"
+                "reference": "f9215e41d93eb8e96213f63559cab0786389a097"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-forms/zipball/3303b23f67786093719300960fa95db1b0e06913",
-                "reference": "3303b23f67786093719300960fa95db1b0e06913",
+                "url": "https://api.github.com/repos/Danack/intahwebz-forms/zipball/f9215e41d93eb8e96213f63559cab0786389a097",
+                "reference": "f9215e41d93eb8e96213f63559cab0786389a097",
                 "shasum": ""
             },
             "require": {
-                "intahwebz/core": "dev-master",
+                "intahwebz/core": "*",
                 "php": ">=5.4",
                 "psr/log": "~1.0",
                 "zendframework/zend-filter": ">=2.1.5",
@@ -265,7 +266,7 @@
                     "name": "Dan Ackroyd",
                     "email": "Danack@basereality.com",
                     "homepage": "http://www.basereality.com",
-                    "role": "Developer"
+                    "role": "Creator / Main Developer / Cake baker"
                 }
             ],
             "description": "Form library for the intahwebz.",
@@ -275,25 +276,25 @@
                 "intahwebz",
                 "library"
             ],
-            "time": "2013-11-10 18:39:28"
+            "time": "2014-02-16 01:30:13"
         },
         {
             "name": "intahwebz/routing",
-            "version": "dev-master",
+            "version": "0.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/intahwebz-routing.git",
-                "reference": "b848bb8d8e27ef485aa8844e0b8b4853162a5782"
+                "reference": "fabfd697e43f2a9a04ce739a4999a54a7629a977"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-routing/zipball/b848bb8d8e27ef485aa8844e0b8b4853162a5782",
-                "reference": "b848bb8d8e27ef485aa8844e0b8b4853162a5782",
+                "url": "https://api.github.com/repos/Danack/intahwebz-routing/zipball/fabfd697e43f2a9a04ce739a4999a54a7629a977",
+                "reference": "fabfd697e43f2a9a04ce739a4999a54a7629a977",
                 "shasum": ""
             },
             "require": {
-                "intahwebz/core": "dev-master",
-                "intahwebz/mb_extra": "dev-master"
+                "intahwebz/core": "*",
+                "intahwebz/mb_extra": "*"
             },
             "require-dev": {
                 "intahwebz/jig": "dev-master",
@@ -309,26 +310,26 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "time": "2014-01-25 02:59:23"
+            "time": "2014-02-16 01:26:29"
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "1.2.13",
+            "version": "1.2.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "466e7cd2554b4e264c9e3f31216d25ac0e5f3d94"
+                "reference": "6ba4ed2895d538a039d5d5866edc4ec0424c7852"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/466e7cd2554b4e264c9e3f31216d25ac0e5f3d94",
-                "reference": "466e7cd2554b4e264c9e3f31216d25ac0e5f3d94",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6ba4ed2895d538a039d5d5866edc4ec0424c7852",
+                "reference": "6ba4ed2895d538a039d5d5866edc4ec0424c7852",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
                 "phpunit/php-file-iterator": ">=1.3.0@stable",
-                "phpunit/php-text-template": ">=1.1.1@stable",
+                "phpunit/php-text-template": ">=1.2.0@stable",
                 "phpunit/php-token-stream": ">=1.1.3@stable"
             },
             "require-dev": {
@@ -370,7 +371,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2013-09-10 08:14:32"
+            "time": "2014-02-03 07:44:47"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -419,16 +420,16 @@
         },
         {
             "name": "phpunit/php-text-template",
-            "version": "1.1.4",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
-                "url": "git://github.com/sebastianbergmann/php-text-template.git",
-                "reference": "1.1.4"
+                "url": "https://github.com/sebastianbergmann/php-text-template.git",
+                "reference": "206dfefc0ffe9cebf65c413e3d0e809c82fbf00a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/sebastianbergmann/php-text-template/zipball/1.1.4",
-                "reference": "1.1.4",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/206dfefc0ffe9cebf65c413e3d0e809c82fbf00a",
+                "reference": "206dfefc0ffe9cebf65c413e3d0e809c82fbf00a",
                 "shasum": ""
             },
             "require": {
@@ -459,7 +460,7 @@
             "keywords": [
                 "template"
             ],
-            "time": "2012-10-31 11:15:28"
+            "time": "2014-01-30 17:20:04"
         },
         {
             "name": "phpunit/php-timer",
@@ -557,16 +558,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.29",
+            "version": "3.7.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac"
+                "reference": "d24e9877331039582497052cc3c4d9f465b88210"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac",
-                "reference": "faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d24e9877331039582497052cc3c4d9f465b88210",
+                "reference": "d24e9877331039582497052cc3c4d9f465b88210",
                 "shasum": ""
             },
             "require": {
@@ -627,7 +628,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-01-15 06:46:38"
+            "time": "2014-02-03 07:46:27"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -680,17 +681,17 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.4.1",
+            "version": "v2.4.2",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "4e1a237fc48145fae114b96458d799746ad89aa0"
+                "reference": "bb6ddaf8956139d1b8c360b4b713ed0138e876b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/4e1a237fc48145fae114b96458d799746ad89aa0",
-                "reference": "4e1a237fc48145fae114b96458d799746ad89aa0",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/bb6ddaf8956139d1b8c360b4b713ed0138e876b3",
+                "reference": "bb6ddaf8956139d1b8c360b4b713ed0138e876b3",
                 "shasum": ""
             },
             "require": {
@@ -714,7 +715,9 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Symfony Community",
@@ -723,7 +726,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-12-28 08:12:03"
+            "time": "2014-01-07 13:28:54"
         },
         {
             "name": "zendframework/zend-filter",
@@ -930,11 +933,7 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "intahwebz/core": 20,
-        "intahwebz/mb_extra": 20,
-        "rdlowrey/auryn": 20,
-        "intahwebz/form": 20,
-        "intahwebz/routing": 20
+        "rdlowrey/auryn": 20
     },
     "platform": [
 

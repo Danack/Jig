@@ -208,7 +208,7 @@ class JigRender {
 
     function clearCompiledFile(){
         //TODO - implement this.
-        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        // @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         throw new \Exception("clearCompiledFile has not been implemented yet.");
     }
 
