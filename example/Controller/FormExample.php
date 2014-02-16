@@ -14,7 +14,7 @@ class FormExample {
     }
 
     function display(\Form\CreateBlogPostForm $form, BlogPostMapper $blogPostMapper) {
-        if ($form->useDataAvailable() == true) {
+        if ($form->initForm() == true) {
             $valid = $form->validate();
             if ($valid) {
                 $values = $form->getRowValues('new');
