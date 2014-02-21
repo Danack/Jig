@@ -30,8 +30,8 @@ class JigRender {
     private $viewModel;
 
     private $mappedClasses = array();
-    public $templatePath = null;
-    public $compilePath = null;
+    private $templatePath = null;
+    private $compilePath = null;
     private $extension = ".tpl";
 
     /**
@@ -56,10 +56,16 @@ class JigRender {
         $this->provider = $provider;
     }
 
+    /**
+     * @return null
+     */
     function getTemplatePath() {
         return $this->templatePath;
     }
 
+    /**
+     * @param ViewModel $viewModel
+     */
     function bindViewModel(ViewModel $viewModel) {
         $this->viewModel = $viewModel;
     }
@@ -151,7 +157,7 @@ class JigRender {
             throw $je;
         }
         catch(\Exception $e){
-            //Catch all exceptions, but throw as a JigException to allow only code to only
+            //Catch all exceptions, but throw as a JigException to allow code to only
             //catch the template errors.
             throw new JigException("Failed to render template: ".$e->getMessage(), $e->getCode(), $e);
         }
@@ -198,15 +204,28 @@ class JigRender {
         return $contents;
     }
 
+    /**
+     * @param $blockName
+     * @param callable $startCallback
+     * @param callable $endCallback
+     */
     function bindBlock($blockName, Callable $startCallback, Callable $endCallback) {
         $this->jigConverter->bindBlock($blockName, $startCallback, $endCallback);
     }
 
+    /**
+     * @param $blockName
+     * @param $endFunctionName
+     * @param null $startFunctionName
+     */
     function bindProcessedBlock($blockName, $endFunctionName, $startFunctionName = null) {
         $this->jigConverter->bindProcessedBlock($blockName, $endFunctionName, $startFunctionName);
     }
 
-    function clearCompiledFile(){
+    /**
+     * @throws \Exception
+     */
+    function clearCompiledFile() {
         //TODO - implement this.
         // @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         throw new \Exception("clearCompiledFile has not been implemented yet.");

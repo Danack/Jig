@@ -24,14 +24,9 @@ abstract class JigBase {
     function __construct(JigRender $jigRender, ViewModel $viewModel = null){
         $this->viewModel = $viewModel;
         $this->jigRender = $jigRender;
-        $this->init();
     }
 
     abstract function renderInternal();
-
-    function init() {
-        //Override stuff.
-    }
 
     function inject($injectionValues) {
         foreach ($injectionValues as $name => $value) {
