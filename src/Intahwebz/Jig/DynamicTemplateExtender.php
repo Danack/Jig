@@ -52,7 +52,7 @@ class DynamicTemplateExtender extends JigBase {
         }
 
         //TODO if this.child has method renderInternal then call?
-        $this->parentInstance->renderInternal();
+        return $this->parentInstance->renderInternal();
     }
 }
 

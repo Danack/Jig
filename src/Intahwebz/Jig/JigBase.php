@@ -26,14 +26,23 @@ abstract class JigBase {
         $this->jigRender = $jigRender;
     }
 
+    /**
+     * @return mixed
+     */
     abstract function renderInternal();
 
+    /**
+     * @param $injectionValues
+     */
     function inject($injectionValues) {
         foreach ($injectionValues as $name => $value) {
             $this->{$name} = $value;
         }
     }
 
+    /**
+     * @return array
+     */
     function getInjections() {
         return [];
     }
@@ -42,7 +51,7 @@ abstract class JigBase {
      * @internal param $view
      */
     public function render() {
-        $this->renderInternal();
+        return $this->renderInternal();
     }
 
     /**

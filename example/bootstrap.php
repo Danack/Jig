@@ -100,7 +100,8 @@ function processRequest(\Auryn\Provider $provider) {
         }
     }
 
-    $jigRenderer->renderTemplateFile($template);
+    $output = $jigRenderer->renderTemplateFile($template);
+    echo $output;
 }
 
 

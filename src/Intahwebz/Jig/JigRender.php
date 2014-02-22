@@ -8,6 +8,7 @@ use Intahwebz\ViewModel;
 
 use Intahwebz\Jig\Converter\JigConverter;
 
+class Hack {}
 
 /**
  * Class JigRender
@@ -77,27 +78,12 @@ class JigRender {
         $this->compileCheck = $compileCheck;
     }
 
-
-    /**
-     * @param $templateString
-     * @param $templateID - Must be a valid PHP class name i.e. cannot start with digit
-     * @return string
-     */
-    function captureRenderTemplateString($templateString, $templateID) {        
-        //TODO - check templateID doesn't start with a digit
-        ob_start();
-        $this->renderTemplateFromString($templateString, $templateID);
-        $contents = ob_get_contents();
-        ob_end_clean();
-
-        return $contents;
-    }
-
     /**
      * @param $filename
      */
     function includeFile($filename) {
-        $this->renderTemplateFile($filename);
+        $contents = $this->renderTemplateFile($filename);
+        return $contents;
     }
 
     /**
@@ -142,21 +128,28 @@ class JigRender {
     /**
      * @param $templateString
      * @param $objectID
+     * @return string
      * @throws \Exception
      */
     function renderTemplateFromString($templateString, $objectID) {
+        
+        ob_start();
         try{
             $className = $this->getParsedTemplateFromString($templateString, $objectID, $this->mappedClasses);
-            
             $template = new $className($this, $this->viewModel);
             /** @var $template \Intahwebz\Jig\JigBase */
             $template->render();
+            $contents = ob_get_contents();
+            ob_end_clean();
+            return $contents;
         }
         catch(JigException $je) {
+            ob_end_clean();
             //Just rethrow it to keep the stack trace the same
             throw $je;
         }
         catch(\Exception $e){
+            ob_end_clean();
             //Catch all exceptions, but throw as a JigException to allow code to only
             //catch the template errors.
             throw new JigException("Failed to render template: ".$e->getMessage(), $e->getCode(), $e);
@@ -164,42 +157,42 @@ class JigRender {
     }
 
     /**
-     * TODO - remove this or at least remove the capture. It should always be captured
-     * and returned, and the calling function can display it if it completes.
      * @param $templateFilename
      * @param bool $capture
      * @return string
      */
-    function renderTemplateFile($templateFilename, $capture = false) {
+    function renderTemplateFile($templateFilename, Hack $capture = null) {
         $contents = '';
 
-        if ($capture == true) {
-            ob_start();
-        }
-
-        $className = $this->getParsedTemplate($templateFilename, $this->mappedClasses);
-
-        $template = new $className($this, $this->viewModel);
-        /** @var $template \Intahwebz\Jig\JigBase */
-
-        $injections = $template->getInjections();
-
-        $injectionValues = array();
-
-        $lowried = $this->viewModel->getMergedParams();
-
-        foreach ($injections as $name => $value) {
-            $injectionValues[$name] = $this->provider->make($value, $lowried);
-        }
-
-        $template->inject($injectionValues);
-
-        $template->render();
-
-        if ($capture == true) {
+        ob_start();
+        
+        try {
+            $className = $this->getParsedTemplate($templateFilename, $this->mappedClasses);
+    
+            $template = new $className($this, $this->viewModel);
+            /** @var $template \Intahwebz\Jig\JigBase */
+    
+            $injections = $template->getInjections();
+            $injectionValues = array();
+            $lowried = $this->viewModel->getMergedParams();
+            //TODO - there replace this with $provider->execute
+            foreach ($injections as $name => $value) {
+                $injectionValues[$name] = $this->provider->make($value, $lowried);
+            }
+    
+            $template->inject($injectionValues);
+            $foo = $template->render();
             $contents = ob_get_contents();
-            ob_end_clean();
         }
+        catch(\Exception $e) {
+            throw new JigException(
+                "Failed to render template: ".$e->getMessage(), 
+                $e->getCode(), 
+                $e
+            ); 
+        }
+        
+        ob_end_clean();
 
         return $contents;
     }

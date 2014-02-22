@@ -375,7 +375,6 @@ END;
         fwrite($outputFileHandle, $output);
         fwrite($outputFileHandle, "\n");
     }
-
 }
 
 

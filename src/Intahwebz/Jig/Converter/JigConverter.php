@@ -180,7 +180,8 @@ class JigConverter {
      * @param $filename
      */
     public function setInclude($filename){
-        $code = "\$this->jigRender->includeFile('$filename')";
+        //TODO - duplicate of   processInclude($segmentText)?
+        $code = "echo \$this->jigRender->includeFile('$filename')";
         $this->addCode($code);
     }
 
@@ -417,7 +418,7 @@ class JigConverter {
             $code = "\$file = \$this->getVariable('".$matches[1]."');\n";
             $this->addCode($code);
             //TODO add error handling when file is null
-            $code = "\$this->jigRender->includeFile(\$file)";
+            $code = "echo \$this->jigRender->includeFile(\$file)";
             $this->addCode($code);
             return;
         }

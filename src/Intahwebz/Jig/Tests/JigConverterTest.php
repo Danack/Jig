@@ -94,11 +94,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testBasicConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/basic');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
     }
@@ -106,14 +102,9 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testForeachConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
-        ob_start();
-
         $this->viewModel->setVariable('colors', ['red', 'green', 'blue']);
         $this->viewModel->bindFunction('getColors', function (){ return ['red', 'green', 'blue'];});
-        $this->jigRenderer->renderTemplateFile('basic/foreachTest');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('basic/foreachTest');
         $this->assertContains("Direct: redgreenblue", $contents);
         $this->assertContains("Assigned: redgreenblue", $contents);
         $this->assertContains("Fromfunction: redgreenblue", $contents);
@@ -123,34 +114,21 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testDependencyInsertionConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/DependencyInsertion');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
-
+        $contents = $this->jigRenderer->renderTemplateFile('basic/DependencyInsertion');
         $this->assertContains("Twitter", $contents);
         $this->assertContains("Stackoverflow", $contents);
     }
 
     function testFunctionCall() {
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/functionCall');
-        $contents = ob_get_contents();
-        ob_end_clean();
-
+        $contents = $this->jigRenderer->renderTemplateFile('basic/functionCall');
         $hasBeenCalled = $this->viewModel->hasBeenCalled('someFunction', '$("#myTable").tablesorter();');
         $this->assertTrue($hasBeenCalled);
         $this->assertContains("checkRole works", $contents);
     }
 
-
-
     function testBasicCapturingConversion() {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-
-        $contents = $this->jigRenderer->renderTemplateFile('basic/basic', true);
-
+        $contents = $this->jigRenderer->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
     }
@@ -159,11 +137,10 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $templateString = 'Hello there {$title} {$user} !!!!';
 
         $title = 'Mr';
-        $user = 'Ackers';
+        $user = 'Ackersgaah';
         $this->viewModel->setVariable('title', $title);
         $this->viewModel->setVariable('user', $user);
-
-        $renderedText = $this->jigRenderer->captureRenderTemplateString($templateString, "test123");
+        $renderedText = $this->jigRenderer->renderTemplateFromString($templateString, "test123");
 
         $this->assertContains('Mr', $renderedText);
         $this->assertContains($user, $renderedText);
@@ -187,39 +164,25 @@ END;
 //        $this->viewModel->setVariable('title', $title);
 //        $this->viewModel->setVariable('user', $user);
 
-        $renderedText = $this->jigRenderer->captureRenderTemplateString($templateString, "testStringExtendsConversion123");
+        $renderedText = $this->jigRenderer->renderTemplateFromString($templateString, "testStringExtendsConversion123");
 
 //        $this->assertContains('Mr', $renderedText);
 //        $this->assertContains($user, $renderedText);
     }
 
-
-
-
     function testBasicCoversExistsConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-
         $renderer = clone $this->jigRenderer;
-
         $renderer->setCompileCheck(JigRender::COMPILE_CHECK_EXISTS);
-
-        $renderer->renderTemplateFile('basic/basic');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $renderer->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
     }
 
     function testNonExistentConversion(){
         $this->setExpectedException('Intahwebz\Jig\JigException');
-
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('nonExistantFile');
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('nonExistantFile');
     }
 
 
@@ -241,11 +204,9 @@ END;
         $jigRenderer->bindViewModel($viewModel);
 
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $jigRenderer->renderTemplateFile('basic/basic');
-        $jigRenderer->renderTemplateFile('basic/basic');
-        $contents = ob_get_contents();
-        ob_end_clean();
+
+        $contents = $jigRenderer->renderTemplateFile('basic/basic');
+        //$jigRenderer->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
     }
@@ -253,43 +214,27 @@ END;
 
     function testBasicComment() {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('basic/comments');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('basic/comments');
         $this->assertContains("Basic comment test passed.", $contents);
     }
 
     function testIncludeConversion(){
-        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('includeFile/includeTest');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('includeFile/includeTest');
         $this->assertContains("Include test passed.", $contents);
     }
 
-
     function testStandardExtends(){
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('extendTest/child');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('extendTest/child');
         $this->assertContains("This is the second child block.", $contents);
     }
 
     function testDynamicExtends1() {
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
+        
         $this->jigRenderer->mapClasses(array('parent' => 'dynamicExtend/parent1'));
-        $this->jigRenderer->renderTemplateFile('dynamicExtend/dynamicChild');
+        $contents = $this->jigRenderer->renderTemplateFile('dynamicExtend/dynamicChild');
 
-        $contents = ob_get_contents();
-        ob_end_clean();
         $this->assertContains("This is the child content.", $contents);
         $this->assertContains("This is the parent 1 start.", $contents);
         $this->assertContains("This is the parent 1 end.", $contents);
@@ -297,14 +242,10 @@ END;
 
     function testDynamicExtends2() {
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
+
         $this->jigRenderer->mapClasses(array('parent' => 'dynamicExtend/parent2'));
-        $this->jigRenderer->renderTemplateFile('dynamicExtend/dynamicChild');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('dynamicExtend/dynamicChild');
         $this->assertContains("This is the child content.", $contents);
-
         $this->assertContains("This is the parent 2 start.", $contents);
         $this->assertContains("This is the parent 2 end.", $contents);
     }
@@ -318,13 +259,7 @@ END;
             echo "This is a closure function.";
         });
 
-
-        ob_start();
-
-        $this->jigRenderer->renderTemplateFile('binding/binding');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('binding/binding');
         $this->assertContains("This is a global function.", $contents);
         $this->assertContains("This is a class function.", $contents);
         $this->assertContains("This is a closure function.", $contents);
@@ -343,12 +278,7 @@ END;
         $this->viewModel->setVariable('variableArray', $variableArray);
         $this->viewModel->setVariable('variableObject', $variableObject);
 
-        ob_start();
-
-        $this->jigRenderer->renderTemplateFile('assigning/assigning');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('assigning/assigning');
         $this->assertContains($variable1, $contents);
         $this->assertContains($variableArray['index1'], $contents);
         $this->assertContains($objectMessage, $contents);
@@ -356,71 +286,41 @@ END;
 
     function testBlockEscaping() {
         $this->viewModel->setVariable('variable1', "This is a variable");
-
         $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('binding/blocks');
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('binding/blocks');
         $this->assertContains("€¥™<>", $contents);
         $this->assertContains("This is a variable", $contents);
     }
 
     function testBlockEscapingFromString() {
-
         $string = file_get_contents(__DIR__."/templates/binding/blocks.php.tpl");
-
         $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
-        ob_start();
-        $this->jigRenderer->renderTemplateFromString($string, 'Foo1');
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFromString($string, 'Foo1');
         $this->assertContains("€¥™<>", $contents);
     }
 
-
-
-
     function testDynamicInclude(){
         $this->viewModel->setVariable('dynamicInclude', "includeFile/includedFile");
-
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('includeFile/dynamicIncludeTest');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = $this->jigRenderer->renderTemplateFile('includeFile/dynamicIncludeTest');
         $this->assertContains("This is the included file.", $contents);
     }
 
 
     function testCoverageConversion(){
-
         $this->viewModel->setVariable('filteredVar', '<b>bold</b>');
-
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('coverageTesting/coverage');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
-
+        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/coverage');
         $this->assertContains('comment inside', $contents);
         $this->assertContains('<b>bold</b>', $contents);
-
         $this->assertContains('test is 5', $contents);
     }
 
 
     function testBlockPostProcess(){
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
-        ob_start();
-        $this->jigRenderer->renderTemplateFile('block/spoiler');
-
-        $contents = ob_get_contents();
-        ob_end_clean();
-
+        
+        $contents = $this->jigRenderer->renderTemplateFile('block/spoiler');
         $this->assertContains("is in a spoiler", $contents);
-        //$this->assertContains("Stackoverflow", $contents);
     }
 
 
