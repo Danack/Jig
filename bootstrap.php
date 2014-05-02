@@ -1,14 +1,10 @@
 <?php
 
 
-require_once("vendor/autoload.php");
+$autoloader = require('./vendor/autoload.php');
 
-function loader($class)
-{
-    $file = $class . '.php';
-    if (file_exists($file)) {
-        require $file;
-    }
-}
-
-spl_autoload_register('loader');
+$autoloader->add('Intahwebz', [realpath('./').'/test/']);
+$autoloader->add(
+    "Intahwebz\\PHPCompiledTemplate",
+    [realpath('./').'/test/Intahwebz/Jig/Tests/generatedTemplates/']
+);
