@@ -43,6 +43,8 @@ function testCallableFunction() {
 
 class JigTest extends \PHPUnit_Framework_TestCase {
 
+    private $startOBLevel;
+    
     function classBoundFunction() {
         echo "This is a class function.";
     }
@@ -60,6 +62,9 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     private $viewModel;
 
     protected function setUp() {
+
+        $this->startOBLevel = ob_get_level();
+        
         $this->viewModel = new PlaceHolderView();
 
         $jigConfig = new JigConfig(
@@ -89,6 +94,9 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     protected function tearDown(){
         //ob_end_clean();
+        $level = ob_get_level();
+        
+        $this->assertEquals($this->startOBLevel, $level, "Output buffer was left active by somethng");
     }
 
 
@@ -181,11 +189,13 @@ END;
 
 
     /**
-     * @preserveGlobalState disabled
+     * @ preserveGlobal State disabled
      */
     function testNonExistentConversion(){
         $this->setExpectedException('Intahwebz\Jig\JigException');
-        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+//        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
+        
+        
         $contents = $this->jigRenderer->renderTemplateFile('nonExistantFile');
     }
 
@@ -325,8 +335,6 @@ END;
         $contents = $this->jigRenderer->renderTemplateFile('block/spoiler');
         $this->assertContains("is in a spoiler", $contents);
     }
-
-
 }
 
 }//end namespace

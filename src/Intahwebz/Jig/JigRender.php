@@ -189,13 +189,18 @@ class JigRender {
             $contents = ob_get_contents();
         }
         catch(\Exception $e) {
+
+            //TODO - should put the bit that gave an error somewhere?
+            //$contents = ob_get_contents();
+            ob_end_clean();
+            
             throw new JigException(
                 "Failed to render template: ".$e->getMessage(), 
                 $e->getCode(), 
                 $e
             ); 
         }
-        
+
         ob_end_clean();
 
         return $contents;
@@ -373,7 +378,6 @@ class JigRender {
      * @return mixed|null
      */
     function startProcessedBlock($blockName) {
-        ob_start();
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
         $startFunctionCallable = $blockFunction[0];
 

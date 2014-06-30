@@ -205,9 +205,9 @@ class JigConverter {
         }
 
         foreach ($this->processedBlockFunctions as $blockName => $blockFunctions) {
-
             if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
                 $this->addCode("\$this->jigRender->endProcessedBlock('$blockName');");
+                //$this->addCode("ob_end_clean();");
                 return;
             }
         }
@@ -298,8 +298,8 @@ class JigConverter {
                         if ($startFunctionName != null) { 
                             $this->addCode("\$this->jigRender->startProcessedBlock('$segmentText');");
                         }
+                        $this->addCode("ob_start();");
 
-                        $this->addCode(" ob_start(); ");
                         return;
                     }
                 }

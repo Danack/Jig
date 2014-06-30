@@ -36,7 +36,7 @@
     "require":{
         "intahwebz/core": "*",
         "intahwebz/mb_extra": "1.0.0",
-        "rdlowrey/auryn": "dev-PluginExperiment2",
+        "danack/auryn": "~0.9.5",
         "nikic/php-parser": "v0.9.3",
         "psr/log": "~1.0"
     }
