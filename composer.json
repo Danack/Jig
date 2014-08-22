@@ -15,30 +15,17 @@
 
     "autoload": {
         "psr-0": {
-            "Intahwebz": "src/",
-            "Intahwebz\\PHPCompiledTemplate": "src/Intahwebz/Jig/Tests/generatedTemplates/"
+            "Jig": "src/"
         }
     },
-
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Danack/Auryn"
-        }
-    ],
 
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "intahwebz/form": "0.5.1",
-        "intahwebz/routing": "~0.9"
+        "mockery/mockery": "0.9.1"
     },
 
     "require":{
-        "intahwebz/core": "*",
-        "intahwebz/mb_extra": "1.0.0",
-        "danack/auryn": "~0.9.5",
-        "nikic/php-parser": "v0.9.3",
-        "psr/log": "~1.0"
+        "rdlowrey/auryn": "~0.14.0",
+        "nikic/php-parser": "v0.9.3"
     }
-
 }

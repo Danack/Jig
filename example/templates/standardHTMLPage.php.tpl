@@ -23,6 +23,5 @@
 
 </footer>
 
-
- {include file='pageEnd'}
+{include file='pageEnd'}
 
