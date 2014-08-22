@@ -18,6 +18,16 @@ class JigConfig {
         $this->extension = $extension;
         $this->compileCheck = $compileCheck;
     }
+    
+    function getTemplatePath($templateName) {
+        return $this->templateSourceDirectory.$templateName.'.'.$this->extension;
+    }
+
+    function getCompiledFilename($namespace, $className) {
+        $classPath = $this->templateCompileDirectory.'/'.$namespace.'/'.$className.'.php';
+        
+        return $classPath;
+    }
 }
 
 

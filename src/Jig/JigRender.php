@@ -24,10 +24,10 @@ class JigRender {
      */
     private $viewModel;
 
+    /**
+     * @var array The class map for dynamically extending classes
+     */
     private $mappedClasses = array();
-    private $templatePath = null;
-    private $compilePath = null;
-    private $extension = ".tpl";
 
     /**
      * @var Converter\JigConverter
@@ -38,25 +38,13 @@ class JigRender {
      * @var \Auryn\Provider
      */
     private $provider;
-    
-    private $compileCheck;
 
     function __construct(JigConfig $jigConfig, \Auryn\Provider $provider) {
+        $this->jigConfig = clone $jigConfig;
         $this->jigConverter = new JigConverter();
-        $this->templatePath = $jigConfig->templateSourceDirectory;
-        $this->compilePath = $jigConfig->templateCompileDirectory;
-        $this->extension = $jigConfig->extension;
-        //TODO - don't copy vars around
-        $this->compileCheck = $jigConfig->compileCheck;
         $this->provider = $provider;
     }
 
-    /**
-     * @return null
-     */
-    function getTemplatePath() {
-        return $this->templatePath;
-    }
 
     /**
      * @param ViewModel $viewModel
@@ -65,13 +53,6 @@ class JigRender {
         $this->viewModel = $viewModel;
     }
     
-    /**
-     * @param $compileCheck
-     */
-    function setCompileCheck($compileCheck) {
-        $this->compileCheck = $compileCheck;
-    }
-
     /**
      * @param $filename
      */
@@ -232,12 +213,11 @@ class JigRender {
      * @param $extension
      * @return bool
      */
-    function isGeneratedFileOutOfDate($templateFilename, $extension) {
-        $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
+    function isGeneratedFileOutOfDate($templateFilename) {
+        $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
         $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
-        $classPath = $this->compilePath.'/'.self::COMPILED_NAMESPACE.'/'.$className.'.php';
+        $classPath = $this->jigConfig->getCompiledFilename(self::COMPILED_NAMESPACE, $className);
         $classPath = str_replace('\\', '/', $classPath);
-        
         $templateTime = @filemtime($templateFullFilename);
         $classTime = @filemtime($classPath);
         
@@ -254,8 +234,11 @@ class JigRender {
      * @throws JigException
      * @return \Jig\Converter\ParsedTemplate
      */
-    function prepareTemplateFromFile($templateFilename, $extension) {
-        $templateFullFilename = $this->templatePath.$templateFilename.'.'.$extension;
+    function prepareTemplateFromFile($templateFilename) {
+        //$templateFullFilename = $this->jigConfig->templateSourceDirectory.$templateFilename.'.'.$extension;
+        $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
+        
+        
         $fileLines = @file($templateFullFilename);
 
         if ($fileLines === false) {
@@ -287,25 +270,28 @@ class JigRender {
 
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
 
-        //If not cached
-        if ($this->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
+        if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
                 return $className;
             }
         }
 
-        if ($this->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
-            //Check file time here....
-            if ($this->isGeneratedFileOutOfDate($templateFilename, $this->extension) == false) {
+        if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
+            if ($this->isGeneratedFileOutOfDate($templateFilename) == false) {
                 if (class_exists($className) == true) {
                     return $className;
                 }
             }
         }
 
-        $parsedTemplate = $this->prepareTemplateFromFile($templateFilename, $this->extension);
+        //Either class file did not exist or it was out of date. 
+        return $this->parseTemplate($className, $templateFilename, $proxied, $mappedClasses);
+    }
+
+    function parseTemplate($className, $templateFilename, $proxied, $mappedClasses) {
+        $parsedTemplate = $this->prepareTemplateFromFile($templateFilename);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
-            $this->compilePath,
+            $this->jigConfig->templateCompileDirectory,
             $proxied
         );
 
@@ -316,14 +302,16 @@ class JigRender {
         }
         else if ($parsedTemplate->getDynamicExtends()) {
             if (array_key_exists($parsedTemplate->getDynamicExtends(), $mappedClasses) == false) {
-                throw new JigException("File $templateFilename is trying to proxy [".$parsedTemplate->getDynamicExtends()."] but that doesn't exist in the mappedClasses.");
+                throw new JigException("File $templateFilename is trying to proxy [".$parsedTemplate->getDynamicExtends(
+                    )."] but that doesn't exist in the mappedClasses."
+                );
             }
 
             $dynamicExtendsClass = $mappedClasses[$parsedTemplate->getDynamicExtends()];
 
             //Generate this twice - once for real, once as a proxy.
             $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, false);
-            
+
             //TODO - once the proxy generating is working, this can be removed?
             $this->getParsedTemplate($dynamicExtendsClass, $mappedClasses, true);
         }
@@ -341,6 +329,7 @@ class JigRender {
 
         return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
     }
+    
 
     /**
      *
@@ -356,7 +345,10 @@ class JigRender {
 
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
-        $parsedTemplate->saveCompiledTemplate($this->compilePath, false);
+        $parsedTemplate->saveCompiledTemplate(
+            $this->jigConfig->templateCompileDirectory,
+            false
+        );
         $extendsFilename = $parsedTemplate->getExtends();
 
         if ($extendsFilename) {

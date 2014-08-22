@@ -14,10 +14,6 @@ namespace Tests\PHPTemplate{
 use Jig\Converter;
 use Jig\JigConfig;
 use Jig\Tests\PlaceHolderView;
-use Jig\Tests\PlaceHolderLogger;
-
-use ViewModel;
-
 use Jig\JigRender;
 
 class VariableTest{
@@ -62,9 +58,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     private $viewModel;
 
     protected function setUp() {
-
         $this->startOBLevel = ob_get_level();
-        
         $this->viewModel = new PlaceHolderView();
 
         $jigConfig = new JigConfig(
@@ -75,7 +69,6 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         );
 
         $provider = new \Auryn\Provider();
-
         $provider->share($jigConfig);
         $provider->share($provider);
 
@@ -87,7 +80,6 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         );
 
         $this->jigRenderer->bindViewModel($this->viewModel);
-
         $this->viewModel->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
     }
 
@@ -99,6 +91,22 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($this->startOBLevel, $level, "Output buffer was left active by somethng");
     }
 
+    function testWithoutView() {
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_ALWAYS
+        );
+
+        $provider = new \Auryn\Provider();
+        $provider->share($jigConfig);
+        $provider->share($provider);
+        $contents = $this->jigRenderer->renderTemplateFile('basic/templateWithoutView');
+        $this->assertContains("This is the simplest template.", $contents);
+    }
+    
+    
 
     function testBasicConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
@@ -180,8 +188,30 @@ END;
 
     function testBasicCoversExistsConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $renderer = clone $this->jigRenderer;
-        $renderer->setCompileCheck(JigRender::COMPILE_CHECK_EXISTS);
+//        $renderer = clone $this->jigRenderer;
+//        $renderer->setCompileCheck(JigRender::COMPILE_CHECK_EXISTS);
+
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_CHECK_EXISTS
+        );
+
+        $provider = new \Auryn\Provider();
+        $provider->share($jigConfig);
+        $provider->share($provider);
+
+        $renderer = $provider->make(
+            '\Jig\Tests\ExtendedJigRender',
+            [':jigConfig' , $jigConfig,
+                ':provider',   $provider
+            ]
+        );
+
+        $renderer->bindViewModel($this->viewModel);
+        $this->viewModel->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
+
         $contents = $renderer->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
