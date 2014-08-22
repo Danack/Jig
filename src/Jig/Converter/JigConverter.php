@@ -4,19 +4,17 @@
 namespace Jig\Converter;
 
 use Jig\JigException;
-
-
-//\Intahwebz\Functions::load();
-//\Intahwebz\MBExtra\Functions::load();
+use Jig\JigConfig;
 
 
 class JigConverter {
-    
 
-    //TODO this is duplicated in ParsedTemplate
-    const COMPILED_NAMESPACE = "Jig\\PHPCompiledTemplate";
-    const FILENAME_PATTERN = "[\.\w\\/]+";
+    /**
+     * @var \Jig\JigConfig
+     */
+    private $jigConfig;
 
+    const FILENAME_PATTERN = '[\.\w\\/]+';
 
     //Suppress escaping HTML output
     const FILTER_NONE = 'nofilter';
@@ -27,8 +25,7 @@ class JigConverter {
     // Suppress wrapping generated code with <?php ? > to allow modification
     // of the generated code.
     const FILTER_NO_PHP = 'nophp';
-
-
+    
     private $literalMode = false;
     public  $proxied = false;
 
@@ -36,7 +33,7 @@ class JigConverter {
 
     /**
      * These block function operate after the block has been converted.
-     * TODO - Steal the callable class from Auryn.
+     * @TODO - Steal the callable class from Auryn.
      * @var array
      */
     private $processedBlockFunctions = array();
@@ -46,15 +43,29 @@ class JigConverter {
      */
     public $parsedTemplate = null;
 
+
+    /**
+     * @var null|array Holds the lines in a block, so that they can be processed
+     * at the end of the block.
+     */
     private $activeBlock = null;
+
+    /**
+     * @var null|string The name of the active block if there is one. 
+     */
     private $activeBlockName = null;
 
     
-    function __construct() {
+    function __construct(JigConfig $jigConfig) {
         $this->bindProcessedBlock('trim', [$this, 'processTrimEnd']);
+        $this->jigConfig = $jigConfig;
     }
 
 
+    /**
+     * @param $blockName
+     * @return null
+     */
     function getProcessedBlockFunction($blockName) {
         if (array_key_exists($blockName, $this->processedBlockFunctions)) {
             return $this->processedBlockFunctions[$blockName];
@@ -74,7 +85,7 @@ class JigConverter {
             throw new \Exception("Trying to convert template while in the middle of converting another one.");
         }
         
-        $this->parsedTemplate = new ParsedTemplate(self::COMPILED_NAMESPACE);
+        $this->parsedTemplate = new ParsedTemplate($this->jigConfig->compiledNamespace);
 
         foreach ($fileLines as $fileLine) {
             $nextSegments = $this->getLineSegments($fileLine);
@@ -94,7 +105,7 @@ class JigConverter {
      * @param $fileLine
      * @return TemplateSegment[]
      */
-    function getLineSegments($fileLine){
+    function getLineSegments($fileLine) {
         $segments = array();
         $matches = array();
 
@@ -177,9 +188,9 @@ class JigConverter {
 
     /**
      * @param $filename
+     * @TODO - duplicate of   processInclude($segmentText)?
      */
-    public function setInclude($filename){
-        //TODO - duplicate of   processInclude($segmentText)?
+    public function setInclude($filename) {
         $code = "echo \$this->jigRender->includeFile('$filename')";
         $this->addCode($code);
     }
@@ -188,7 +199,7 @@ class JigConverter {
      * @param TemplateSegment $segment
      * @throws \Exception
      */
-    function  addSegment(TemplateSegment $segment){
+    function addSegment(TemplateSegment $segment) {
         $segmentText = $segment->text;
 
         if (strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0){
@@ -600,14 +611,13 @@ class JigConverter {
             }
         }
 
-        return self::COMPILED_NAMESPACE."\\".$className;
+        return $this->jigConfig->getFullClassname($className);
     }
 
     /**
      * @return string
      */
     function getFullNameSpaceClassName() {
-        $fullClassName = self::COMPILED_NAMESPACE."\\".$this->parsedTemplate->getClassName();
-        return $fullClassName;
+        return $this->jigConfig->getFullClassname($this->parsedTemplate->getClassName());
     }
 }

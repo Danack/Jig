@@ -6,6 +6,9 @@ namespace Jig;
 
 /**
  * Class JigBase
+ * This is the base class that all compiled templates are extended from.
+ * There should be no reason to touch this class, unless you're debugging why
+ * a template isn't working.
  */
 abstract class JigBase {
 

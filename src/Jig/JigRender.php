@@ -12,8 +12,6 @@ JigFunctions::load();
  *
  */
 class JigRender {
-    
-    const COMPILED_NAMESPACE    = "Jig\\PHPCompiledTemplate";
 
     const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
     const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
@@ -41,10 +39,9 @@ class JigRender {
 
     function __construct(JigConfig $jigConfig, \Auryn\Provider $provider) {
         $this->jigConfig = clone $jigConfig;
-        $this->jigConverter = new JigConverter();
+        $this->jigConverter = new JigConverter($this->jigConfig);
         $this->provider = $provider;
     }
-
 
     /**
      * @param ViewModel $viewModel
@@ -68,7 +65,7 @@ class JigRender {
      *
      * @param $classMap
      */
-    function mapClasses($classMap){
+    function mapClasses($classMap) {
         $this->mappedClasses = array_merge($this->mappedClasses, $classMap);
     }
 
@@ -216,7 +213,7 @@ class JigRender {
     function isGeneratedFileOutOfDate($templateFilename) {
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
         $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
-        $classPath = $this->jigConfig->getCompiledFilename(self::COMPILED_NAMESPACE, $className);
+        $classPath = $this->jigConfig->getCompiledFilename($className);
         $classPath = str_replace('\\', '/', $classPath);
         $templateTime = @filemtime($templateFullFilename);
         $classTime = @filemtime($classPath);
@@ -326,8 +323,8 @@ class JigRender {
         else {
             //Warn - file was compiled when class already exists?
         }
-
-        return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
+        
+        return $this->jigConfig->getFullClassname($parsedTemplate->getClassName());
     }
     
 
@@ -354,7 +351,7 @@ class JigRender {
             $this->getParsedTemplate($extendsFilename);
         }
 
-        return self::COMPILED_NAMESPACE."\\".$parsedTemplate->getClassName();
+        return $this->jigConfig->getFullClassname($parsedTemplate->getClassName());
     }
 
 
