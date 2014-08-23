@@ -1,8 +1,10 @@
 
-{include file='includeFile/includeEnd'}
+
+{include file='includeFile/includeStart'}
 
 This is an include test.
 
 Include test passed.
 
-{include file='includeFile/includeStart'}
+{include file='includeFile/includeEnd'}
+

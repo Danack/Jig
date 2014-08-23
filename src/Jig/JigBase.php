@@ -49,13 +49,15 @@ abstract class JigBase {
     }
 
     /**
-     * @internal param $view
+     * Render this template
+     * @return mixed
      */
     public function render() {
         return $this->renderInternal();
     }
 
     /**
+     * Get a variable or null if it is not set.
      * @param $name
      * @return mixed
      */
@@ -71,11 +73,11 @@ abstract class JigBase {
      * @param $placeHolder
      * @internal param array $functionArgs
      * @return mixed|void
+     * @todo - if this template has $functionName - call it?
      */
     function call($placeHolder) {
         $functionArgs = func_get_args();
-        //todo - if this template has $functionName - call it?
-        
+
         if ($this->viewModel) { 
             return $this->viewModel->call($functionArgs);
         }

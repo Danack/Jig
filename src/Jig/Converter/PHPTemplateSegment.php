@@ -109,7 +109,7 @@ class PHPTemplateSegment extends TemplateSegment {
         $segmentText = substr($segmentText, 0, strrpos($segmentText, ';'));
 
         if (in_array('nofilter', $filters) == false) {
-            $segmentText =  "\safeTextObject(".$segmentText.", ENT_QUOTES)";
+            $segmentText =  '\safeTextObject('.$segmentText.", ENT_QUOTES)";
         }
 
         if (in_array('nooutput', $filters) == false) {

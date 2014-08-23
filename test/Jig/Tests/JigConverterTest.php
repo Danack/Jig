@@ -100,13 +100,30 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         );
 
         $provider = new \Auryn\Provider();
-        $provider->share($jigConfig);
-        $provider->share($provider);
-        $contents = $this->jigRenderer->renderTemplateFile('basic/templateWithoutView');
+        $renderer = new JigRender($jigConfig, $provider);
+        
+        $contents = $renderer->renderTemplateFile('basic/templateWithoutView');
         $this->assertContains("This is the simplest template.", $contents);
     }
-    
-    
+
+
+    function testFilter() {
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_ALWAYS
+        );
+
+        $provider = new \Auryn\Provider();
+        $renderer = new JigRender($jigConfig, $provider);
+
+        $contents = $renderer->renderTemplateFile('basic/filterTest');
+        //$this->assertContains("This is the simplest template.", $contents);
+    }
+
+
+
 
     function testBasicConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
