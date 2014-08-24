@@ -56,8 +56,10 @@ class JigConfig {
      * @return string
      */
     function getFullClassname($className) {
-        return  $this->compiledNamespace."\\".$className;
+        $classname =   $this->compiledNamespace."\\".$className;
+        $classname = str_replace('/', '\\', $classname);
 
+        return $classname;
     }
 }
 

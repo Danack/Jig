@@ -130,9 +130,9 @@ class ParsedTemplate {
     }
 
     /**
-     * @return null
+     * @return null|string
      */
-    function getExtends(){
+    function getExtends() {
         return $this->extends;
     }
 

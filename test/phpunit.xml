@@ -14,10 +14,6 @@
     <filter>
         <whitelist>
             <directory>../src/Jig</directory>
-            <!-- <exclude>
-                <directory>./src/Intahwebz/Jig/Tests</directory>
-                <file>./src/Intahwebz/Jig/Converter/TemplatePrinter.php</file>
-            </exclude> -->
         </whitelist>
     </filter>
 

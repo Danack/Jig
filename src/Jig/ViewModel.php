@@ -12,31 +12,36 @@ interface ViewModel {
      */
     function call(array $functionArgs);
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     function getVariable($name);
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     function isVariableSet($name);
 
+    /**
+     * @param $name
+     * @param $value
+     * @return mixed
+     */
     function setVariable($name, $value);
 
-//    function setTemplate($templateFile);
-//        
-//    function getTemplate();
-//    
+    /**
+     * @param array $variable
+     * @return mixed
+     */
+    function setVariables(array $variable);
 
+    /**
+     * Bind a callable to be usable in a template 
+     * @param string $functionName The name the function should be called by. 
+     * @param callable $callable 
+     * @return mixed
+     */
     function bindFunction($functionName, callable $callable);
-
-    function setMergedParams(array $array);
-
-    /** @return array */
-    function getMergedParams();
-
-//    /**
-//     * @param $message
-//     * @return mixed
-//     */
-//    function addStatusMessage($message);
-//
-//    function getStatusMessages();
-
-    function setResponse($data);
 }

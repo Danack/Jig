@@ -20,10 +20,19 @@ class DynamicTemplateExtender extends JigBase {
      */
     private $parentInstance = null;
 
+    /**
+     * @param JigBase $parentInstance
+     */
     public function setParentInstance(JigBase $parentInstance) {
         $this->parentInstance = $parentInstance;
     }
 
+    /**
+     * @param $name
+     * @param array $arguments
+     * @return mixed
+     * @throws JigException
+     */
     public function __call($name, array $arguments) {
         if ($this->parentInstance == null) {
             throw new JigException("Parent Instance is null in Proxied class in renderInternal.");
@@ -32,6 +41,10 @@ class DynamicTemplateExtender extends JigBase {
         return call_user_func_array([$this->parentInstance, $name], $arguments);
     }
 
+    /**
+     * @return array
+     * @throws JigException
+     */
     function getInjections() {
 
         if ($this->parentInstance == null) {
@@ -55,7 +68,6 @@ class DynamicTemplateExtender extends JigBase {
             throw new JigException("Instance is null in Proxied class in renderInternal.");
         }
 
-        //TODO if this.child has method renderInternal then call?
         return $this->parentInstance->renderInternal();
     }
 }

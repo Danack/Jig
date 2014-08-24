@@ -15,12 +15,6 @@ class BasicViewModel implements \Jig\ViewModel {
 
     protected $template;
 
-    protected $routeParams = array();
-
-    protected $response = null;
-
-    private $mergedParams = array();
-
     /**
      * @var array Stores the variables available in the ViewModel
      */
@@ -56,6 +50,15 @@ class BasicViewModel implements \Jig\ViewModel {
     }
 
     /**
+     * @inheritDoc
+     */
+    function setVariables(array $variables) {
+        foreach ($variables as $name => $value) {
+            $this->variables[$name] = $value;
+        }
+    }
+
+    /**
      * @param $functionName
      * @param callable $callable
      */
@@ -83,47 +86,6 @@ class BasicViewModel implements \Jig\ViewModel {
         }
 
         throw new ViewModelException("No method [$functionName]");
-    }
-
-    
-    function setTemplate($templateFile) {
-        $this->template = $templateFile;
-    }
-
-    function getTemplate() {
-        return $this->template;
-    }
-
-    /**
-     * @param $message
-     * @return mixed
-     */
-    function addStatusMessage($message) {
-        //does nothing - for now.
-    }
-
-    function getStatusMessages() {
-        return array();
-    }
-
-    function setRouteParams(array $params){
-        $this->routeParams = $params;
-    }
-
-    /**
-     * @param $data
-     */
-    function setResponse($data){
-        $this->response = $data;
-    }
-    
-    function setMergedParams(array $array) {
-        $this->mergedParams = $array;
-    }
-
-    /** @return array */
-    function getMergedParams() {
-        return $this->mergedParams;
     }
 }
 

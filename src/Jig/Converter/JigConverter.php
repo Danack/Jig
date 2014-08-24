@@ -7,6 +7,9 @@ use Jig\JigException;
 use Jig\JigConfig;
 
 
+/**
+ * Class JigConverter The actual class that converts templates into PHP. 
+ */
 class JigConverter {
 
     /**
@@ -64,7 +67,7 @@ class JigConverter {
 
     /**
      * @param $blockName
-     * @return null
+     * @return null|callable
      */
     function getProcessedBlockFunction($blockName) {
         if (array_key_exists($blockName, $this->processedBlockFunctions)) {
@@ -122,7 +125,7 @@ class JigConverter {
 
         //U = ungreedy
         //u = utf
-        $pattern = "/\{([^\s]+.*[^\s]+)\}/Uu";
+        $pattern = '/\{([^\s]+.*[^\s]+)\}/Uu';
         //TODO preg is the wrong way of doing this.
 
         //http://stackoverflow.com/questions/524548/regular-expression-to-detect-semi-colon-terminated-c-for-while-loops/524624#524624
@@ -188,7 +191,6 @@ class JigConverter {
 
     /**
      * @param $filename
-     * @TODO - duplicate of   processInclude($segmentText)?
      */
     public function setInclude($filename) {
         $code = "echo \$this->jigRender->includeFile('$filename')";
@@ -580,7 +582,7 @@ class JigConverter {
 
     /**
      *
-     * //TODO - this is a global function?
+     * 
      * @param $templateFilename
      * @return string
      */
@@ -591,6 +593,7 @@ class JigConverter {
     }
 
     /**
+     * Generate the full class name for teh compiled version of a template.
      * @param $templateFilename
      * @param bool $proxied
      * @return string
@@ -612,12 +615,5 @@ class JigConverter {
         }
 
         return $this->jigConfig->getFullClassname($className);
-    }
-
-    /**
-     * @return string
-     */
-    function getFullNameSpaceClassName() {
-        return $this->jigConfig->getFullClassname($this->parsedTemplate->getClassName());
     }
 }

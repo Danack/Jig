@@ -37,6 +37,12 @@ class JigRender {
      */
     private $provider;
 
+    /**
+     * @var JigConfig
+     */
+    private $jigConfig;
+    
+
     function __construct(JigConfig $jigConfig, \Auryn\Provider $provider) {
         $this->jigConfig = clone $jigConfig;
         $this->jigConverter = new JigConverter($this->jigConfig);
@@ -54,7 +60,7 @@ class JigRender {
      * @param $filename
      */
     function includeFile($filename) {
-        $contents = $this->renderTemplateFile($filename);
+        $contents = $this->renderTemplateFile($filename, $this->viewModel);
         return $contents;
     }
 
@@ -75,27 +81,26 @@ class JigRender {
      * @return mixed
      */
     function getProxiedClass($className) {
-
         if (array_key_exists($className, $this->mappedClasses) == false) {
             throw new JigException("Class '$className' not listed in mappedClasses, cannot proxy.");
         }
 
         $mappedClass = $this->mappedClasses[$className];
-
         $originalClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, false);
         if (class_exists($originalClassName) == false) {
-            $this->getParsedTemplate($mappedClass, false);
+            $this->checkTemplateCompiled($mappedClass, false);
         }
         
         $proxiedClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, true);
 
         if (class_exists($proxiedClassName) == false) {
             //this is needed if dynamic extended classes are used out of order
-            $this->getParsedTemplate($mappedClass, true);
+            $this->checkTemplateCompiled($mappedClass, true);
         }
         
         return $proxiedClassName;
     }
+
 
     /**
      * @param $templateString
@@ -133,35 +138,35 @@ class JigRender {
      * @param bool $capture
      * @return string
      */
-    function renderTemplateFile($templateFilename) {
+    public function renderTemplateFile($templateFilename) {
         $contents = '';
 
         ob_start();
         
         try {
-            $className = $this->getParsedTemplate($templateFilename);
-    
+            $this->checkTemplateCompiled($templateFilename);
+            $className = $this->jigConfig->getFullClassname($templateFilename);
             $template = new $className($this, $this->viewModel);
             /** @var $template \Jig\JigBase */
             $injections = $template->getInjections();
             $injectionValues = array();
             $lowried = [];
 
-            if ($this->viewModel) {
-                $lowried = $this->viewModel->getMergedParams();
-            }
+//            if ($this->viewModel) {
+//                $lowried = $this->viewModel->getMergedParams();
+//            }
 
-            //TODO - there replace this with $provider->execute
+            //TODO - This whole code block could be refactored to
+            //do the injection in one step, which would be cleaner.
             foreach ($injections as $name => $value) {
                 $injectionValues[$name] = $this->provider->make($value, $lowried);
             }
     
             $template->inject($injectionValues);
-            $foo = $template->render();
+            $template->render();
             $contents = ob_get_contents();
         }
         catch(\Exception $e) {
-
             //TODO - should put the bit that gave an error somewhere?
             //$contents = ob_get_contents();
             ob_end_clean();
@@ -197,17 +202,20 @@ class JigRender {
     }
 
     /**
-     * @throws \Exception
+     * Delete the compiled version of a template.
+     * @param $templateName
+     * @return bool
      */
-    function clearCompiledFile() {
-        //TODO - implement this.
-        // @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        throw new \Exception("clearCompiledFile has not been implemented yet.");
+    function deleteCompiledFile($templateName) {
+        $className = $this->jigConverter->getClassNameFromFilename($templateName);
+        $compileFilename = $this->jigConfig->getCompiledFilename($className);
+        $deleted = @unlink($compileFilename);
+
+        return $deleted;
     }
 
     /**
      * @param $templateFilename
-     * @param $extension
      * @return bool
      */
     function isGeneratedFileOutOfDate($templateFilename) {
@@ -232,10 +240,7 @@ class JigRender {
      * @return \Jig\Converter\ParsedTemplate
      */
     function prepareTemplateFromFile($templateFilename) {
-        //$templateFullFilename = $this->jigConfig->templateSourceDirectory.$templateFilename.'.'.$extension;
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
-        
-        
         $fileLines = @file($templateFullFilename);
 
         if ($fileLines === false) {
@@ -261,41 +266,44 @@ class JigRender {
      * @param $mappedClasses
      * @param bool $proxied
      * @throws JigException
-     * @return string The full classname of the generated file
      */
-    function getParsedTemplate($templateFilename, $proxied = false) {
-
+    function checkTemplateCompiled($templateFilename, $proxied = false) {
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
-
         if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
-                return $className;
+                return ;
             }
         }
 
         if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
             if ($this->isGeneratedFileOutOfDate($templateFilename) == false) {
                 if (class_exists($className) == true) {
-                    return $className;
+                    return;
                 }
             }
         }
 
         //Either class file did not exist or it was out of date. 
-        return $this->parseTemplate($className, $templateFilename, $proxied);
+        $this->compileTemplate($className, $templateFilename, $proxied);
     }
 
-    function parseTemplate($className, $templateFilename, $proxied) {
+    /**
+     * @param $className
+     * @param $templateFilename
+     * @param $proxied
+     * @throws JigException
+     */
+    function compileTemplate($className, $templateFilename, $proxied) {
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
             $this->jigConfig->templateCompileDirectory,
             $proxied
         );
 
-        $extendsClass = $parsedTemplate->getExtends();
+        $extendsTemplate = $parsedTemplate->getExtends();
 
-        if ($extendsClass) {
-            $this->getParsedTemplate($extendsClass);
+        if ($extendsTemplate) {
+            $this->checkTemplateCompiled($extendsTemplate);
         }
         else if ($parsedTemplate->getDynamicExtends()) {
             if (array_key_exists($parsedTemplate->getDynamicExtends(), $this->mappedClasses) == false) {
@@ -307,10 +315,10 @@ class JigRender {
             $dynamicExtendsClass = $this->mappedClasses[$parsedTemplate->getDynamicExtends()];
 
             //Generate this twice - once for real, once as a proxy.
-            $this->getParsedTemplate($dynamicExtendsClass, false);
+            $this->checkTemplateCompiled($dynamicExtendsClass, false);
 
             //TODO - once the proxy generating is working, this can be removed?
-            $this->getParsedTemplate($dynamicExtendsClass, true);
+            $this->checkTemplateCompiled($dynamicExtendsClass, true);
         }
 
         if (class_exists($className, false) == false) {
@@ -323,8 +331,6 @@ class JigRender {
         else {
             //Warn - file was compiled when class already exists?
         }
-        
-        return $this->jigConfig->getFullClassname($parsedTemplate->getClassName());
     }
     
 
@@ -348,7 +354,7 @@ class JigRender {
         $extendsFilename = $parsedTemplate->getExtends();
 
         if ($extendsFilename) {
-            $this->getParsedTemplate($extendsFilename);
+            $this->checkTemplateCompiled($extendsFilename);
         }
 
         return $this->jigConfig->getFullClassname($parsedTemplate->getClassName());
@@ -375,11 +381,8 @@ class JigRender {
     function endProcessedBlock($blockName) {
         $contents = ob_get_contents();
         ob_end_clean();
-
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
-
         $endFunctionCallable = $blockFunction[1];
-
         echo call_user_func($endFunctionCallable, $contents);
     }
     

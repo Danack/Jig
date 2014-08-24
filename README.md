@@ -41,12 +41,11 @@ Or to put it another way, a jig allows you to work fast with sharp tools without
 Features 
 ========
 
-* Compiles to PHP class and uses APC/APCu class caching for super-duper performance.
+* Compiles to PHP class for super-duper performance.
 
-* Dynamic inheritance.
+* Dependency injection of objects in the view, 
 
 * Super lightweight. Zero overhead when templates are already compiled when used with APC/OPCache
-
 
 
 How it works
@@ -61,34 +60,5 @@ Running example
 php -S 0.0.0.0:8000 index.php
 
 
-TODO
-====
-
-* Replace the preg_match_all with a sane parser.
-
-* Allow functions + block level elements to use a plugin system, to be extendable.
-
-* Allow spoiler to be customisable.
-
-* Include example, extend example
-
-
-
-public function render(array $context)
-    {
-        $level = ob_get_level();
-        ob_start();
-        try {
-            $this->display($context);
-        } catch (Exception $e) {
-            while (ob_get_level() > $level) {
-                ob_end_clean();
-            }
-
-            throw $e;
-        }
-
-        return ob_get_clean();
-    }
 
 phpunit --coverage-html /tmp/JigCoverage
