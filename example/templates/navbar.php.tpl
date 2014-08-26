@@ -1,5 +1,5 @@
 
-{inject name='navItems' value='Model\NavItems'}
+{inject name='navItems' value='JigDemo\Model\NavItems'}
 
 
 <div class="container">

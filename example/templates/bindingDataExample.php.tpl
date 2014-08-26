@@ -41,21 +41,7 @@
 </p>
 
 
-<h3>Injecting data</h3>
-<p>
-    The much better way to way to bind data is to inject it as a variable from within the template. e.g.<br/>
 
-    <code>
-        {literal}
-            {inject name='blogPostList' value='Mapper\BlogPostList'}
-        {/literal}
-    </code>
-    <br/>
-
-    Will create an instance of the class `Mapper\BlogPostList` as the variable `blogPostList` directly in the template without needing to set it up within the controller. This allows your controllers to be very light weight as your views are able to load the objects they require without any action by the controller.
-</p>
-
-{include file='panels/blogPostList'}
 
         </div>
     </div>

@@ -35,7 +35,7 @@
     Any public function of the ViewModel can be called by the template without that function being bound.
     <br/>
 
-    Current template is '{getTemplate()}'
+    The company motto is '{showCompanyMotto()}'
 
 </p>
 

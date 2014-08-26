@@ -16,10 +16,13 @@
 </p>
 
 
-<h4>Spoiler block</h4>
+<h4>Processed block</h4>
 <p>
 
-Spoiler alert! {spoiler}This text can be hidden by CSS. {/spoiler}
+Warning block! 
+    {warning}
+    This text is wrapped by a processed block.
+    {/warning}
 
 </p>
 

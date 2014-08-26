@@ -1,122 +1,147 @@
 <?php
 
-require_once realpath(__DIR__).'/../vendor/autoload.php';
-spl_autoload_register('loader');
+
+$autoloader = require_once realpath(__DIR__).'/../vendor/autoload.php';
+
+$autoloader->add('JigDemo', [realpath(__DIR__).'/']);
+$autoloader->add('Jig', [realpath(__DIR__).'/compile/']);
 
 
+use Jig\JigConfig;
+use Jig\JigRender;
+use JigDemo\Response\StandardHTTPResponse;
 
+function bootstrapInjector() {
 
-function setupProvider() {
-
-    $jigConfig = new Intahwebz\Jig\JigConfig(
+    $jigConfig = new JigConfig(
         __DIR__."/templates/",
         __DIR__."/compile/",
         'php.tpl',
-        \Intahwebz\Jig\JigRender::COMPILE_CHECK_MTIME
+        //JigRender::COMPILE_CHECK_MTIME
+        //JigRender::COMPILE_ALWAYS
+        JigRender::COMPILE_CHECK_EXISTS
     );
 
     $provider = new Auryn\Provider();
     $provider->share($jigConfig);
-
-    $standardSharedObjects = [
-        'Intahwebz\Router'      => 'Intahwebz\Routing\Router',
-        'Intahwebz\Request'     => 'Intahwebz\Routing\HTTPRequest',
-        'Intahwebz\Response'    => 'Intahwebz\Routing\HTTPResponse',
-        'Intahwebz\ViewModel'   => 'Intahwebz\ViewModel\BasicViewModel',
-        'Intahwebz\Domain'      => 'Intahwebz\DomainExample',
-        'Intahwebz\Session'     => 'Intahwebz\Session\Session',
-    ];
-
-    foreach ($standardSharedObjects as $interfaceName => $implementationName) {
-        $provider->alias($interfaceName, $implementationName);
-        $provider->share($interfaceName);
-    }
-
-    $standardLogger = new Intahwebz\Logger\NullLogger();
-
-    $provider->alias('Psr\Log\LoggerInterface', get_class($standardLogger));
-    $provider->share($standardLogger);
-
-    $provider->alias('Intahwebz\ObjectCache', 'Intahwebz\Cache\NullObjectCache');
-    $provider->define('Intahwebz\DomainExample', [':domainName' => 'basereality.test']);
-    $provider->share('Intahwebz\DomainExample');
-    $provider->define('Intahwebz\Session\Session', [':sessionName' => 'jigtest']);
-    $provider->share('Intahwebz\Session\Session');
-
-    $provider->define(
-        'Intahwebz\Routing\HTTPRequest',
-        array(
-            ':server' => $_SERVER,
-            ':get' => $_GET,
-            ':post' => $_POST,
-            ':files' => $_FILES,
-            ':cookie' => $_COOKIE
-        )
-    );
-
-    $routerParams = array(
-        ':routeCollectionName' => 'jigrouting.test',
-        ':pathToRouteInfo' => realpath(__DIR__)."/data/jigrouting.php"
-    );
-
-    $provider->define('Intahwebz\Routing\Router', $routerParams);
+    $provider->alias('Jig\ViewModel', 'Jig\ViewModel\BasicViewModel');
     $provider->share($provider);
 
     return $provider;
 }
 
 
-function processRequest(\Auryn\Provider $provider) {
+/**
+ * @param \Auryn\Provider $injector
+ * @param $handler
+ * @param $vars
+ * @return \JigDemo\Response\Response $response;
+ */
+function process(\Auryn\Provider $injector, $handler, $vars) {
 
-    $viewModel = $provider->make('Intahwebz\ViewModel\BasicViewModel');
-    $request = $provider->make('Intahwebz\Request');
-    $router = $provider->make('Intahwebz\Router');
-
-    $provider->share($router);
-
-    $response = $provider->make('Intahwebz\Response');
-
-    $jigRenderer = $provider->make('Intahwebz\Jig\JigRender');
-
-    $jigRenderer->bindViewModel($viewModel);
-
-    $matchedRoute = $router->matchRouteForRequest($request);
-
-    $route = $matchedRoute->getRoute();
-    $mapping = $route->get('mapping');
-
-    $template = $matchedRoute->getRoute()->get('template');
-
-
-    if ($mapping != null) {
-
-        while ($route != null) {
-            $template = $route->get('template');
-            $mergedParams = $matchedRoute->getMergedParameters($request);
-            $viewModel->setMergedParams($mergedParams);
-
-            /** @var $route \Intahwebz\Route */
-            $route = $provider->execute($mapping, $mergedParams);
-        }
+    $lowried = [];
+    foreach ($vars as $key => $value) {
+        $lowried[':'.$key] = $value;
     }
 
-    $output = $jigRenderer->renderTemplateFile($template);
-    echo $output;
+    $response = $injector->execute($handler, $lowried);
+
+    return $response;
 }
 
 
-function loader($class) {
 
-    $file = realpath(__DIR__).'/'.str_replace('\\', '/', $class).'.php';
+function servePage(\Auryn\Provider $injector, $routesFunction) {
 
-    if (file_exists($file)) {
-        require $file;
+    $dispatcher = FastRoute\simpleDispatcher($routesFunction);
 
-        if(class_exists($class, false) == false) {
-            echo "failed to load class $class";
-            exit(0);
+    $httpMethod = 'GET'; //yay hard coding.
+    $uri = '/';
+    $uri = '/syntaxExample';
+    
+    
+    if (array_key_exists('REQUEST_URI', $_SERVER)) {
+        $uri = $_SERVER['REQUEST_URI'];
+    }
+    
+    $path = $uri;
+    $queryPosition = strpos($path, '?');
+    if ($queryPosition !== false) {
+        $path = substr($path, 0, $queryPosition);
+    }
+
+    $routeInfo = $dispatcher->dispatch($httpMethod, $path);
+
+    switch ($routeInfo[0]) {
+        case FastRoute\Dispatcher::NOT_FOUND: {
+            return new StandardHTTPResponse(404, $uri, "Not found");
         }
 
-        return true;
+        case FastRoute\Dispatcher::METHOD_NOT_ALLOWED: {
+            $allowedMethods = $routeInfo[1];
+            // ... 405 Method Not Allowed
+            return new StandardHTTPResponse(405, $uri, "Not allowed");
+        }
+
+        case FastRoute\Dispatcher::FOUND: {
+            $handler = $routeInfo[1];
+            $vars = $routeInfo[2];
+            //TODO - support head?
+            return process($injector, $handler, $vars);
+        }
+            
+        default: {
+            //Not supported
+            //return new StandardHTTPResponse(404, $uri, "Not found");
+            return null;
+            break;
+        }
     }
 }
+
+
+$routesFunction = function(FastRoute\RouteCollector $r) {
+    //Category indices
+    $r->addRoute(
+        'GET',
+        "/",
+        ['JigDemo\Controller\Index', 'display']
+    );
+
+    $r->addRoute(
+        'GET',
+        "/bindingDataExample",
+        ['JigDemo\Controller\BindingDataExample', 'display']
+    );
+    
+    $r->addRoute(
+        'GET',
+        "/extend",
+        ['JigDemo\Controller\Extend', 'display']
+    );
+    
+    $r->addRoute(
+        'GET',
+        "/reuseExample",
+        ['JigDemo\Controller\ReuseExample', 'display']
+    );
+    
+    $r->addRoute(
+        'GET',
+        "/functionExample",
+        ['JigDemo\Controller\FunctionExample', 'display']
+    );
+    
+    $r->addRoute(
+        'GET',
+        "/blockExample",
+        ['JigDemo\Controller\BlockExample', 'display']
+    );
+    
+    $r->addRoute(
+        'GET',
+        "/syntaxExample",
+        ['JigDemo\Controller\SyntaxExample', 'display']
+    );
+};
+

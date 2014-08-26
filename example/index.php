@@ -12,13 +12,18 @@ if (php_sapi_name() == "cli-server") {
     }
 }
 
-$provider = setupProvider();
+$injector = bootstrapInjector();
 
-try{
-    processRequest($provider);
+try {
+    $response = servePage($injector, $routesFunction);
+
+    if ($response != null) {
+        $response->send();
+    }
+}
+catch(Jig\JigException $je) {
+    echo "Error rendering template: ".$je->getMessage();
 }
 catch(\Exception $e) {
-    echo "Exception caught: ".$e->getMessage()."\n";
-    echo $e->getTraceAsString();
+    echo "Somethings fucky: " .$e->getMessage();
 }
-
