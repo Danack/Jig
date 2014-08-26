@@ -7,7 +7,7 @@ php:
 before_script:
   - composer --no-dev install
   
-script: phpunit --configuration phpunit.xml.dist --coverage-text
+script: php vendor/bin/phpunit -c test/phpunit.xml --coverage-text
 
 notifications:
   email:
