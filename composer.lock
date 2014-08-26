@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "f63cd6e21fa2f79ade1ba5e7ac017b05",
+    "hash": "20ed337a5b5b5d75c6ec75dca8263088",
     "packages": [
         {
             "name": "nikic/php-parser",
@@ -169,6 +169,49 @@
                 "testing"
             ],
             "time": "2014-05-02 12:16:45"
+        },
+        {
+            "name": "nikic/fast-route",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikic/FastRoute.git",
+                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nikic/FastRoute/zipball/7dc9a43cb856debc22fe158a1144018e16f7a637",
+                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FastRoute\\": "src/"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nikita Popov",
+                    "email": "nikic@php.net"
+                }
+            ],
+            "description": "Fast request router for PHP",
+            "keywords": [
+                "router",
+                "routing"
+            ],
+            "time": "2014-05-17 11:33:04"
         },
         {
             "name": "phpunit/php-code-coverage",
