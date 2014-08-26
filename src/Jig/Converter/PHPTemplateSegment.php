@@ -3,9 +3,10 @@
 
 namespace Jig\Converter;
 
-use \PHPParser_Lexer;
-use \PHPParser_Parser;
-
+use Jig\JigException;
+use PHPParser_Lexer;
+use PHPParser_Parser;
+use PHPParser_Error;
 
 /**
  * Class PHPTemplateSegment
@@ -100,15 +101,33 @@ class PHPTemplateSegment extends TemplateSegment {
 
         $parser = new PHPParser_Parser(new PHPParser_Lexer);
 
-        $statements = $parser->parse($code);
+        try {
+            $statements = $parser->parse($code);
+        }
+        catch (PHPParser_Error $parserError) {
+
+            $message = sprintf(
+                "Failed to parse code: [%s] error is %s",
+                $parserError->getRawLine(),
+                $parserError->getRawMessage()
+            );
+            
+            
+            throw new JigException(
+                $message,
+                0,
+                $parserError
+            );
+        }
 
         $printer = new TemplatePrinter($parsedTemplate);
-
         $segmentText = $printer->prettyPrint($statements);
-
         $segmentText = substr($segmentText, 0, strrpos($segmentText, ';'));
+        
+        $filters = array_merge($filters, $printer->getFilters());
 
-        if (in_array('nofilter', $filters) == false) {
+        
+        if (in_array('nofilter', $filters) == false ) {
             $segmentText =  '\safeTextObject('.$segmentText.", ENT_QUOTES)";
         }
 

@@ -15,8 +15,9 @@ use Jig\Converter;
 use Jig\JigConfig;
 use Jig\Tests\PlaceHolderView;
 use Jig\JigRender;
+    use Jig\ViewModel\BasicViewModel;
 
-class VariableTest{
+    class VariableTest{
 
     private $value;
 
@@ -79,7 +80,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
             ]
         );
 
-        $this->jigRenderer->bindViewModel($this->viewModel);
+        //$this->jigRenderer->bindViewModel($this->viewModel);
         $this->viewModel->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
     }
 
@@ -127,7 +128,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testBasicConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $contents = $this->jigRenderer->renderTemplateFile('basic/basic');
+        $contents = $this->jigRenderer->renderTemplateFile('basic/basic', $this->viewModel);
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
     }
@@ -137,7 +138,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
         $this->viewModel->setVariable('colors', ['red', 'green', 'blue']);
         $this->viewModel->bindFunction('getColors', function (){ return ['red', 'green', 'blue'];});
-        $contents = $this->jigRenderer->renderTemplateFile('basic/foreachTest');
+        $contents = $this->jigRenderer->renderTemplateFile('basic/foreachTest', $this->viewModel);
         $this->assertContains("Direct: redgreenblue", $contents);
         $this->assertContains("Assigned: redgreenblue", $contents);
         $this->assertContains("Fromfunction: redgreenblue", $contents);
@@ -147,13 +148,13 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testDependencyInsertionConversion(){
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
-        $contents = $this->jigRenderer->renderTemplateFile('basic/DependencyInsertion');
+        $contents = $this->jigRenderer->renderTemplateFile('basic/DependencyInsertion', $this->viewModel);
         $this->assertContains("Twitter", $contents);
         $this->assertContains("Stackoverflow", $contents);
     }
 
     function testFunctionCall() {
-        $contents = $this->jigRenderer->renderTemplateFile('basic/functionCall');
+        $contents = $this->jigRenderer->renderTemplateFile('basic/functionCall', $this->viewModel);
         $hasBeenCalled = $this->viewModel->hasBeenCalled('someFunction', '$("#myTable").tablesorter();');
         $this->assertTrue($hasBeenCalled);
         $this->assertContains("checkRole works", $contents);
@@ -161,7 +162,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
 
     function testBasicCapturingConversion() {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $contents = $this->jigRenderer->renderTemplateFile('basic/basic');
+        $contents = $this->jigRenderer->renderTemplateFile('basic/basic', $this->viewModel);
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
     }
@@ -173,7 +174,7 @@ class JigTest extends \PHPUnit_Framework_TestCase {
         $user = 'Ackersgaah';
         $this->viewModel->setVariable('title', $title);
         $this->viewModel->setVariable('user', $user);
-        $renderedText = $this->jigRenderer->renderTemplateFromString($templateString, "test123");
+        $renderedText = $this->jigRenderer->renderTemplateFromString($templateString, "test123", $this->viewModel);
 
         $this->assertContains('Mr', $renderedText);
         $this->assertContains($user, $renderedText);
@@ -226,10 +227,10 @@ END;
             ]
         );
 
-        $renderer->bindViewModel($this->viewModel);
+//        $renderer->bindViewModel($this->viewModel);
         $this->viewModel->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
 
-        $contents = $renderer->renderTemplateFile('basic/basic');
+        $contents = $renderer->renderTemplateFile('basic/basic', $this->viewModel);
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
     }
@@ -261,11 +262,10 @@ END;
         );
 
         $viewModel = new PlaceHolderView();
-        $jigRenderer->bindViewModel($viewModel);
 
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
 
-        $contents = $jigRenderer->renderTemplateFile('basic/basic');
+        $contents = $jigRenderer->renderTemplateFile('basic/basic', $this->viewModel);
         //$jigRenderer->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
         $this->assertContains("Function was called.", $contents);
@@ -319,7 +319,7 @@ END;
             echo "This is a closure function.";
         });
 
-        $contents = $this->jigRenderer->renderTemplateFile('binding/binding');
+        $contents = $this->jigRenderer->renderTemplateFile('binding/binding', $this->viewModel);
         $this->assertContains("This is a global function.", $contents);
         $this->assertContains("This is a class function.", $contents);
         $this->assertContains("This is a closure function.", $contents);
@@ -338,7 +338,7 @@ END;
         $this->viewModel->setVariable('variableArray', $variableArray);
         $this->viewModel->setVariable('variableObject', $variableObject);
 
-        $contents = $this->jigRenderer->renderTemplateFile('assigning/assigning');
+        $contents = $this->jigRenderer->renderTemplateFile('assigning/assigning', $this->viewModel);
         $this->assertContains($variable1, $contents);
         $this->assertContains($variableArray['index1'], $contents);
         $this->assertContains($objectMessage, $contents);
@@ -347,7 +347,7 @@ END;
     function testBlockEscaping() {
         $this->viewModel->setVariable('variable1', "This is a variable");
         $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
-        $contents = $this->jigRenderer->renderTemplateFile('binding/blocks');
+        $contents = $this->jigRenderer->renderTemplateFile('binding/blocks', $this->viewModel);
         $this->assertContains("€¥™<>", $contents);
         $this->assertContains("This is a variable", $contents);
     }
@@ -361,7 +361,7 @@ END;
 
     function testDynamicInclude(){
         $this->viewModel->setVariable('dynamicInclude', "includeFile/includedFile");
-        $contents = $this->jigRenderer->renderTemplateFile('includeFile/dynamicIncludeTest');
+        $contents = $this->jigRenderer->renderTemplateFile('includeFile/dynamicIncludeTest', $this->viewModel);
         $this->assertContains("This is the included file.", $contents);
     }
 
@@ -369,19 +369,54 @@ END;
     function testCoverageConversion(){
         $this->viewModel->setVariable('filteredVar', '<b>bold</b>');
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/coverage');
+        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/coverage', $this->viewModel);
         $this->assertContains('comment inside', $contents);
         $this->assertContains('<b>bold</b>', $contents);
         $this->assertContains('test is 5', $contents);
     }
 
 
-    function testBlockPostProcess(){
-        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
-        
-        $contents = $this->jigRenderer->renderTemplateFile('block/spoiler');
-        $this->assertContains("is in a spoiler", $contents);
+    function testNoOutput(){
+        $viewModel = new BasicViewModel();
+        $viewModel->setVariable('bar', 'This is some output');
+        $viewModel->bindFunction('getBar', function() {return 'This is some output';});
+        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/nooutput', $viewModel);
+        $this->assertEquals(0, strlen(trim($contents)), "Output of [$contents] found when none expected.");
+
     }
+    
+
+
+    function testBlockPostProcess(){
+        $blockStartCallCount = 0;
+        $blockEndCallCount = 0;
+        $warningBlockStart = function () use (&$blockStartCallCount) {
+            $blockStartCallCount++;
+            return "processedBlockStart";
+        };
+
+        $warningBlockEnd = function ($contents) use (&$blockEndCallCount) {
+            $blockEndCallCount++;
+            return $contents."processedBlockEnd";
+        };
+        
+
+        $this->jigRenderer->bindProcessedBlock(
+            'warning',
+            $warningBlockEnd,
+            $warningBlockStart
+        );
+        
+        $contents = $this->jigRenderer->renderTemplateFile('block/blockProcess');
+        
+        $this->assertEquals($blockStartCallCount, 1);
+        $this->assertEquals($blockEndCallCount, 1);
+
+        $this->assertContains("This is in a warning block", $contents);
+        $this->assertContains("processedBlockEnd", $contents);
+        $this->assertContains("processedBlockStart", $contents);
+    }
+    
 }
 
 }//end namespace

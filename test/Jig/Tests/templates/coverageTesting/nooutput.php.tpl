@@ -1,0 +1,2 @@
+{$foo = getBar()}
+{$foo = $bar}

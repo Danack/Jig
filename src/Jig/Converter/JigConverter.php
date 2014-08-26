@@ -304,9 +304,7 @@ class JigConverter {
 
                 foreach ($this->processedBlockFunctions as $blockName => $blockFunctions) {
                     if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
-
                         $startFunctionName = $blockFunctions[0];
-
                         if ($startFunctionName != null) { 
                             $this->addCode("\$this->jigRender->startProcessedBlock('$segmentText');");
                         }
@@ -315,7 +313,11 @@ class JigConverter {
                         return;
                     }
                 }
-    
+
+                if (strpos($segmentText, '/') === 0) {
+                    throw new JigException("Detected end of unknown block. Did you forget to bind ".$segmentText."?");
+                }
+                
                 //It's a line of code that needs to be included.
                 $this->addLineInternal($segment->getString($this->parsedTemplate));
             }

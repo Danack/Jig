@@ -12,12 +12,28 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
     // Special nodes
     private $rightSide = false;
     private $hasAssignment = false;
+
+    /**
+     * @return boolean
+     */
+    public function hasAssignment() {
+        return $this->hasAssignment;
+    }
     private $parsedTemplate = null;
     
     function __construct(ParsedTemplate $parsedTemplate) {
         $this->parsedTemplate = $parsedTemplate;
         $this->reset();
     }
+
+    function getFilters() {
+        if ($this->hasAssignment()) {
+            return ['nofilter', 'nooutput'];
+        }
+        
+        return [];
+    }
+    
 
     function reset() {
         $this->rightSide = false;

@@ -50,13 +50,6 @@ class JigRender {
     }
 
     /**
-     * @param ViewModel $viewModel
-     */
-    function bindViewModel(ViewModel $viewModel) {
-        $this->viewModel = $viewModel;
-    }
-    
-    /**
      * @param $filename
      */
     function includeFile($filename) {
@@ -108,7 +101,9 @@ class JigRender {
      * @return string
      * @throws \Exception
      */
-    function renderTemplateFromString($templateString, $objectID) {
+    function renderTemplateFromString($templateString, $objectID, ViewModel $viewModel = null) {
+
+        $this->viewModel = $viewModel;
         
         ob_start();
         try{
@@ -138,7 +133,10 @@ class JigRender {
      * @param bool $capture
      * @return string
      */
-    public function renderTemplateFile($templateFilename) {
+    public function renderTemplateFile($templateFilename, ViewModel $viewModel = null) {
+
+        $this->viewModel = $viewModel;
+        
         $contents = '';
 
         ob_start();
@@ -150,16 +148,11 @@ class JigRender {
             /** @var $template \Jig\JigBase */
             $injections = $template->getInjections();
             $injectionValues = array();
-            $lowried = [];
-
-//            if ($this->viewModel) {
-//                $lowried = $this->viewModel->getMergedParams();
-//            }
-
+            
             //TODO - This whole code block could be refactored to
             //do the injection in one step, which would be cleaner.
             foreach ($injections as $name => $value) {
-                $injectionValues[$name] = $this->provider->make($value, $lowried);
+                $injectionValues[$name] = $this->provider->make($value);
             }
     
             $template->inject($injectionValues);

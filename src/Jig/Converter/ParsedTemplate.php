@@ -6,9 +6,6 @@ namespace Jig\Converter;
 use Jig\JigException;
 
 
-
-
-
 class ParsedTemplate {
     
     /**
@@ -70,11 +67,17 @@ class ParsedTemplate {
         return $this->textLines;
     }
 
+    /**
+     * @param $variableName
+     * @return bool
+     */
     function hasLocalVariable($variableName) {
         return in_array($variableName, $this->localVariables);
     }
 
     /**
+     * Add a local variable so that any usage of it doesn't
+     * trigger trying to fetch it from the ViewModel
      * @param $localVariable
      */
     function addLocalVariable($localVariable) {
@@ -89,6 +92,10 @@ class ParsedTemplate {
         }
     }
 
+    /**
+     * @param $name
+     * @param $block
+     */
     function addFunctionBlock($name, $block) {
         $this->functionBlocks[$name] = $block;
     }
@@ -102,7 +109,6 @@ class ParsedTemplate {
 
     /**
      * @param $filename
-     * @TODO allow full qualified names. Maybe.
      */
     function setExtends($filename) {
         $this->extends = $filename;
@@ -122,10 +128,8 @@ class ParsedTemplate {
         if ($this->extends == null) {
             return "Jig\\JigBase";
         }
-
         $extendsClassName = str_replace('/', '\\', $this->extends);
 
-        //echo "hmm - this may be broken";
         return $this->baseNamespace."\\".$extendsClassName;
     }
 
@@ -171,7 +175,7 @@ class ParsedTemplate {
         $outputFileHandle = @fopen($outputFilename, "w");
 
         if ($outputFileHandle == false) {
-            throw new \Jig\JigException("Could not open file [$outputFilename] for writing template.");
+            throw new JigException("Could not open file [$outputFilename] for writing template.");
         }
 
         $parentClassName = getClassName($parentFullClassName);
@@ -271,7 +275,6 @@ public function __construct(\$jigRender, \$viewModel) {
     \$this->viewModel = \$viewModel;
     \$this->jigRender = \$jigRender;
     \$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
-    //\$fullclassName = "\\\\Jig\\\\PHPCompiledTemplate\\\\".\$classInstanceName;
     \$fullclassName = \$classInstanceName;
 
     \$parentInstance = new \$fullclassName(\$jigRender, \$viewModel, \$this);
@@ -295,15 +298,15 @@ END;
         fwrite($outputFileHandle, "\n");
         $output = <<< END
 
-		var \$childInstance = null;
-		var \$viewModel = null;
-		var \$jigRender = null; 
-
-		function __construct(\$jigRender, \$viewModel, \$childInstance){
-			\$this->viewModel = \$viewModel;
-			\$this->jigRender = \$jigRender;
-			\$this->childInstance = \$childInstance;
-		}
+        var \$childInstance = null;
+        var \$viewModel = null;
+        var \$jigRender = null; 
+    
+        function __construct(\$jigRender, \$viewModel, \$childInstance){
+            \$this->viewModel = \$viewModel;
+            \$this->jigRender = \$jigRender;
+            \$this->childInstance = \$childInstance;
+        }
 END;
 
         fwrite($outputFileHandle, "\n");
@@ -332,8 +335,10 @@ END;
     }
 
 
+    /**
+     * @param $outputFileHandle
+     */
     function writeInjectionArray($outputFileHandle) {
-
         $output = "    private \$injections = array(\n";
         $separator = '';
 
@@ -354,8 +359,10 @@ END;
         fwrite($outputFileHandle, "\n");
     }
 
+    /**
+     * @param $outputFileHandle
+     */
     function writeInjectionFunctions($outputFileHandle) {
-
         $output = "    function getInjections() {
             \$parentInjections = parent::getInjections();
 
