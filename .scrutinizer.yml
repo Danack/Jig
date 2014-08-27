@@ -6,36 +6,20 @@ tools:
         test_command: php vendor/bin/phpunit -c test/phpunit.xml --coverage-text
         filter:
             paths: ["src/*"]
-            excluded_paths:
-                - "test/*"
-                - 'docs/*'
-                - 'example/*'
-                - 'vendor/*'
+            excluded_dirs: ["test/*", "docs/*", "example/*", "vendor/*"]
     php_loc:
         enabled: true
-        excluded_paths:
-          - "test/*"
-          - 'docs/*'
-          - 'example/*'
-          - 'vendor/*'
+        excluded_dirs: ["test/*", "docs/*", "example/*", "vendor/*"]
     php_mess_detector:
         enabled: true
         filter:
             paths: ["src/*"]
-            excluded_paths:
-                - "test/*"
-                - 'docs/*'
-                - 'example/*'
-                - 'vendor/*'
-    php_analyzer: true
+            excluded_dirs: ["test/*", "docs/*", "example/*", "vendor/*"]
     php_analyzer:
+        enabled: true
         filter:
             paths: ["src/*"]
-            excluded_paths:
-                - "test/*"
-                - 'docs/*'
-                - 'example/*'
-                - 'vendor/*'
+            excluded_dirs: ["test/*", "docs/*", "example/*", "vendor/*"]
 
 checks:
     php:
