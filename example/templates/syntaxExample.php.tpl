@@ -57,6 +57,17 @@
 ?>
 
 </p>
+
+<h4>There should be no gaps</h4>
+<p>
+    Hello { $user } does not get converted.
+</p>
+            
+            
+
+
+
+
         </div>
     </div>
 </div>

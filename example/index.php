@@ -1,6 +1,5 @@
 <?php
 
-
 require_once "bootstrap.php";
 
 if (php_sapi_name() == "cli-server") {

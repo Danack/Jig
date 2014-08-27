@@ -18,8 +18,8 @@ function bootstrapInjector() {
         __DIR__."/compile/",
         'php.tpl',
         //JigRender::COMPILE_CHECK_MTIME
-        //JigRender::COMPILE_ALWAYS
-        JigRender::COMPILE_CHECK_EXISTS
+        JigRender::COMPILE_ALWAYS
+        //JigRender::COMPILE_CHECK_EXISTS
     );
 
     $provider = new Auryn\Provider();
@@ -50,16 +50,13 @@ function process(\Auryn\Provider $injector, $handler, $vars) {
 }
 
 
-
 function servePage(\Auryn\Provider $injector, $routesFunction) {
 
     $dispatcher = FastRoute\simpleDispatcher($routesFunction);
 
     $httpMethod = 'GET'; //yay hard coding.
     $uri = '/';
-    $uri = '/syntaxExample';
-    
-    
+
     if (array_key_exists('REQUEST_URI', $_SERVER)) {
         $uri = $_SERVER['REQUEST_URI'];
     }
