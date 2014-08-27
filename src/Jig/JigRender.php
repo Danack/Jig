@@ -96,8 +96,10 @@ class JigRender {
 
 
     /**
-     * @param $templateString
-     * @param $objectID
+     * Renders 
+     * @param $templateString string The template to compile.
+     * @param $objectID string An identifying string to name the generated class and so the generated PHP file. It must be a valid class name i.e. may not start with a digit. 
+     * @param $viewModel ViewModel A viewmodel to (optional)
      * @return string
      * @throws \Exception
      */
@@ -264,7 +266,7 @@ class JigRender {
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
         if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
-                return ;
+                return;
             }
         }
 
@@ -333,6 +335,7 @@ class JigRender {
      * @param $templateString
      * @param $cacheName
      * @return mixed
+     * @TODO It is always being compiled, it never uses the already compiled version.
      */
     function getParsedTemplateFromString($templateString, $cacheName) {
         $templateString = str_replace( "<?php", "&lt;php", $templateString);

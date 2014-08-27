@@ -385,6 +385,119 @@ END;
 
     }
     
+    
+    
+    function testIsset() {
+        $viewModel = new BasicViewModel();
+        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/checkIsset', $viewModel);
+        $this->assertEquals(0, strlen(trim($contents)));
+    }
+
+
+
+    function testBadIssetCall() {
+        $this->setExpectedException('Jig\JigException');
+        $viewModel = new BasicViewModel();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/badIssetCall', $viewModel);
+    }
+    
+    
+    
+    
+    function testFunctionNotBound() {
+        $this->setExpectedException('Jig\JigException');
+        $viewModel = new BasicViewModel();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/functionNotDefined', $viewModel);
+    }
+
+
+
+    function testSetVariables(){
+        $viewModel = new BasicViewModel();
+        $viewModel->setVariables([
+            'variable1' => 'red',
+            'variable2' => 'green',
+            'variable3' => 'blue'
+        ]);
+        
+        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/setVariables', $viewModel);
+      
+        $this->assertContains('red', $contents);
+        $this->assertContains('green', $contents);
+        $this->assertContains('blue', $contents);
+    }
+
+
+
+    function testInjectBadName1() {
+        $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
+        $viewModel = new BasicViewModel();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/injectBadName1', $viewModel);
+    }
+
+    function testInjectBadName2() {
+        $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
+        $viewModel = new BasicViewModel();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/injectBadName2', $viewModel);
+    }
+
+
+
+    function testInjectBadValue1() {
+        $this->setExpectedException('Jig\JigException', "Value must not be zero length");
+        $viewModel = new BasicViewModel();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/injectBadValue1', $viewModel);
+    }
+
+    function testInjectBadValue2() {
+        $this->setExpectedException('Jig\JigException', "Failed to get value for injection");
+        $viewModel = new BasicViewModel();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/injectBadValue2', $viewModel);
+    }
+
+
+    function testBorkedCode() {
+        $this->setExpectedException('Jig\JigException', "Failed to parse code");
+        //$viewModel = new BasicViewModel();
+        $this->jigRenderer->renderTemplateFile('coverageTesting/borkedCode');
+    }
+
+
+    function testBorkedExtends() {
+        $this->setExpectedException('Jig\JigException', "Could not extract filename");
+        $this->jigRenderer->renderTemplateFile('coverageTesting/borkedExtends');
+    }
+
+    function testBorkedDynamicExtends() {
+        $this->setExpectedException('Jig\JigException', "Could not extract filename");
+        $this->jigRenderer->renderTemplateFile('coverageTesting/borkedDynamicExtends');
+    }
+    
+    function testBorkedInclude1() {
+        $this->setExpectedException('Jig\JigException', "Could not extract filename");
+        $this->jigRenderer->renderTemplateFile('coverageTesting/borkedInclude1');
+    }
+
+    function testBorkedInclude2() {
+        $this->setExpectedException('Jig\JigException', "Could not extract filename");
+        $this->jigRenderer->renderTemplateFile('coverageTesting/borkedInclude1');
+    }
+
+
+
+    function testBlockNotSet() {
+        $this->setExpectedException('Jig\JigException', "Detected end of unknown block.");
+        $this->jigRenderer->renderTemplateFile('coverageTesting/blockNotSet');
+    }
+
+    
+
+//    function testForEachFromVariable() {
+//        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/foreachFromVariable');
+//        $this->assertContains('123', $contents);
+//    }
+//    
+    
 
 
     function testBlockPostProcess(){

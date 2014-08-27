@@ -86,8 +86,7 @@ class PHPTemplateSegment extends TemplateSegment {
 
         return $filters;
     }
-
-    //TODO - this should be in converter.
+    
     public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array()) {
         $filters = $this->removeFilters();
 

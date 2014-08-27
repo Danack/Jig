@@ -1,6 +1,6 @@
 
 
-variable below
+Variables below
 
 {$variable1}
 

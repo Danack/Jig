@@ -30,7 +30,6 @@ class JigConverter {
     const FILTER_NO_PHP = 'nophp';
     
     private $literalMode = false;
-    public  $proxied = false;
 
     private $blockFunctions = array();
 
@@ -44,7 +43,7 @@ class JigConverter {
     /**
      * @var ParsedTemplate
      */
-    public $parsedTemplate = null;
+    private $parsedTemplate = null;
 
 
     /**
@@ -69,6 +68,17 @@ class JigConverter {
      * @param $blockName
      * @return null|callable
      */
+    function getBlockFunction($blockName) {
+        if (array_key_exists($blockName, $this->blockFunctions)) {
+            return $this->blockFunctions[$blockName];
+        }
+        return null;
+    }
+
+    /**
+     * @param $blockName
+     * @return null|callable
+     */
     function getProcessedBlockFunction($blockName) {
         if (array_key_exists($blockName, $this->processedBlockFunctions)) {
             return $this->processedBlockFunctions[$blockName];
@@ -82,8 +92,7 @@ class JigConverter {
      * @throws \Exception
      * @return ParsedTemplate
      */
-    function createFromLines($fileLines) {
-
+     function createFromLines($fileLines) {
         if ($this->parsedTemplate != null) {
             throw new \Exception("Trying to convert template while in the middle of converting another one.");
         }
@@ -230,7 +239,7 @@ class JigConverter {
             return;
         }
 
-        //TODO this is bad code
+        //TODO this seems sub-optimal
         if ($segment instanceof TextTemplateSegment) {
             $this->addLineInternal($segment->getString($this->parsedTemplate));
         }
@@ -249,7 +258,7 @@ class JigConverter {
      * @param TemplateSegment $segment
      * @throws \Jig\JigException
      */
-    function parseJigSegment(TemplateSegment $segment){
+    function parseJigSegment(TemplateSegment $segment) {
         $segmentText = $segment->text;
 
         try{
@@ -280,7 +289,8 @@ class JigConverter {
             else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0){
                 $this->processLiteralStart();
             }
-            else if (strncmp($segmentText, 'isset', mb_strlen('isset')) == 0){
+            //TODO - make less fragile
+            else if (strncmp($segmentText, 'if isset', mb_strlen('isset')) == 0){
                 $this->processIssetStart($segmentText);
             }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
@@ -295,23 +305,19 @@ class JigConverter {
                 $this->addCode(" } else { ");
             }
             else{
-                foreach ($this->blockFunctions as $blockName => $blockFunctions) {
-                    if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
-                        $blockFunctions[0]($this, $segmentText);
-                        return;
-                    }
+                if ($blockFunction = $this->getBlockFunction($segmentText)) {
+                    $blockFunctions[0]($this, $segmentText);
+                    return;
                 }
-
-                foreach ($this->processedBlockFunctions as $blockName => $blockFunctions) {
-                    if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
-                        $startFunctionName = $blockFunctions[0];
-                        if ($startFunctionName != null) { 
-                            $this->addCode("\$this->jigRender->startProcessedBlock('$segmentText');");
-                        }
-                        $this->addCode("ob_start();");
-
-                        return;
+                
+                if ($processedBlockFunction = $this->getProcessedBlockFunction($segmentText)) {
+                    $startFunctionName = $processedBlockFunction[0];
+                    if ($startFunctionName != null) {
+                        $this->addCode("\$this->jigRender->startProcessedBlock('$segmentText');");
                     }
+                    $this->addCode("ob_start();");
+
+                    return;
                 }
 
                 if (strpos($segmentText, '/') === 0) {
@@ -331,14 +337,14 @@ class JigConverter {
     /**
      * @param $text
      */
-    function addHTML($text){
+    function addHTML($text) {
         $this->addLineInternal($text);
     }
 
     /**
      * @param $text
      */
-    function addCode($text){
+    function addCode($text) {
         $this->addLineInternal("<?php ".$text." ?>");
     }
 
@@ -368,7 +374,7 @@ class JigConverter {
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
         if ($matchCount == 0) {
-            throw new \Exception("Could not extract filename from [$segmentText] to extend.");
+            throw new JigException("Could not extract filename from [$segmentText] to extend.");
         }
 
         $this->parsedTemplate->setExtends($matches[1]);
@@ -383,7 +389,7 @@ class JigConverter {
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
         if ($matchCount == 0) {
-            throw new \Exception("Could not extract filename from [$segmentText] to mapExtend.");
+            throw new JigException("Could not extract filename from [$segmentText] to mapExtend.");
         }
 
         $this->parsedTemplate->setDynamicExtends($matches[1]);
@@ -397,15 +403,18 @@ class JigConverter {
         $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
 
         if ($nameMatchCount == 0) {
-            throw new \Exception("Failed to get name for injection");
+            throw new JigException("Failed to get name for injection");
         }
-
         if ($valueMatchCount == 0) {
-            throw new \Exception("Failed to get value for injection");
+            throw new JigException("Failed to get value for injection");
         }
 
         $name = $nameMatches[1];
         $value = $valueMatches[1];
+        
+        if(strlen($value) == 0) {
+            throw new JigException("Value must not be zero length");
+        }
 
         $this->parsedTemplate->addInjection($name, $value);
     }
@@ -424,20 +433,19 @@ class JigConverter {
             return;
         }
 
-        //dynamic include from variable?
+        //dynamic include from variable
         $pattern = '#file=\$(\w+)#u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount != 0) {
-            $code = "\$file = \$this->getVariable('".$matches[1]."');\n";
-            $this->addCode($code);
-            //TODO add error handling when file is null
-            $code = "echo \$this->jigRender->includeFile(\$file)";
-            $this->addCode($code);
-            return;
+        if ($matchCount == 0) {
+            throw new JigException("Could not extract filename from [$segmentText] to include.");
         }
 
-        throw new \Exception("Could not extract filename from [$segmentText] to include.");
+        $code = "\$file = \$this->getVariable('".$matches[1]."');\n";
+        $this->addCode($code);
+        $code = "echo \$this->jigRender->includeFile(\$file)";
+        $this->addCode($code);
+
     }
 
     /**

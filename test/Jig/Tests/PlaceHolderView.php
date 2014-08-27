@@ -8,7 +8,6 @@ use Jig\ViewModel\BasicViewModel;
 
 class PlaceHolderView extends BasicViewModel {
 
-
     private $calledFunctions = array();
 
     function viewFunction($foo){
@@ -19,7 +18,6 @@ class PlaceHolderView extends BasicViewModel {
         echo "Value is:";
         var_dump($foo);
     }
-
 
     function htmlEntityDecode($content) {
         echo html_entity_decode($content);
