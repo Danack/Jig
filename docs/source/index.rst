@@ -15,7 +15,7 @@ Jig - the DIC template system
    reusingTemplates
    viewModel
    processedBlocks
-   dynamicExtend
+   test
    syntaxReference    
 
 

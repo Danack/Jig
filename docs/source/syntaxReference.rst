@@ -63,7 +63,7 @@ if statement
         foo is not falsy.
     {/if}
     
-    {if $pi == 3 }
+    {if $pi == 3}
         pi is 3.
     {/if}
     

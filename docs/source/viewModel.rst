@@ -11,24 +11,29 @@ Although it is best to insert all dependencies in to the template as objects, it
 Binding variables
 -----------------
 
+Variables can be explicitly bound to a VideModel with the setVariable method. This allows you to use the variable in a template. e.g. binding two variables to `title` and `user` in the PHP code setting up the ViewModel:
+
+
 .. code-block:: php
+    :filename: phpRender.php
 
     $viewModel = new BasicViewModel();
     $viewModel->setVariable('title', 'Mr');
     $viewModel->setVariable('user', 'Danack');
     $jigRenderer->bindViewModel($viewModel);
 
+Allows the variables to be used in a template:
+
 .. code-block:: php
+    :filename: testTemplate.php.tpl
 
     Hello {$title} {$user}
-
 
 
 Binding functions
 -----------------
 
 .. code-block:: php
-
 
     function printTime($user) {
         $hourOfDay = date('G', time());
@@ -55,13 +60,12 @@ Methods on the view model
 Any method of the ViewModel bound to the JigRender can be used in the template without being explicitly bound.
 
 .. code-block:: php
-
-    class WebsiteViewModel extends BasicViewModel {
+    :filename: setup.php
     
+    class WebsiteViewModel extends BasicViewModel {
         function showLogo() {
             echo "<span class='logo'><img src='/websitelogo.png'></span>";
         }
-
     }
     
     $viewModel = new BasicViewModel();
@@ -69,7 +73,8 @@ Any method of the ViewModel bound to the JigRender can be used in the template w
     
     
 .. code-block:: php
-
+    :filename: testTemplate.php.tpl
+   
     {showLogo()}
     
     

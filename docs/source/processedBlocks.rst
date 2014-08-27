@@ -1,5 +1,11 @@
-Processed blocks
-================
+
+
+Compile block
+-------------
+
+
+Render block
+------------
 
 You can declare functions to process blocks of output. This is done with the bindProcessedBlock function. 
 

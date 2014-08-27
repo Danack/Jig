@@ -18,6 +18,14 @@ You can include other templates by using the `include` directive:
 This will include (and render) the `includeStart` at the start of the template, and `includeEnd` template at the end of the template.
 
 
+The file to include can be set via a variable:
+
+.. code-block:: php
+
+    {include file=$dynamicInclude}
+
+
+
 Extending templates
 -------------------
 
