@@ -3,7 +3,7 @@ before_commands:
 tools:
     php_code_coverage:
         enabled: true
-        test_command: phpunit -c phpunit.xml.dist
+        test_command: php vendor/bin/phpunit -c test/phpunit.xml --coverage-text
         filter:
             paths: ["src/*"]
             excluded_paths:       ["*/Tests/*"]
@@ -20,3 +20,8 @@ tools:
         filter:
             paths: ["src/*"]
             excluded_paths:       ["*/Tests/*"]
+
+checks:
+    php:
+        code_rating: true
+        duplication: true
