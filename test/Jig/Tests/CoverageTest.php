@@ -38,15 +38,22 @@ use Jig\JigConfig;
 use Jig\JigRender;
     
     
-class OtherTest extends \PHPUnit_Framework_TestCase {
+class CoverageTest extends \PHPUnit_Framework_TestCase {
+
+    private $templateDirectory;
+    private $compileDirectory;
+
+    protected function setUp() {
+        $this->templateDirectory = dirname(__DIR__)."/../templates/";
+        $this->compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
+    }
 
     function testNamespaceCoverage() {
         \Jig\JigFunctions::load();
         $namespace = \Jig\getNamespace(new StdClass);
         $this->assertEmpty($namespace);
     }
-
-
+    
     function testMkdirFailureThrowsException() {
         $GLOBALS['mkdirCallable'] = function () {
             return false;
@@ -57,8 +64,8 @@ class OtherTest extends \PHPUnit_Framework_TestCase {
         };
 
         $jigConfig = new JigConfig(
-            __DIR__."/templates/",
-            __DIR__."/generatedTemplates/",
+            $this->templateDirectory,
+            $this->compileDirectory,
             "php.tpl",
             JigRender::COMPILE_ALWAYS,
             ""
