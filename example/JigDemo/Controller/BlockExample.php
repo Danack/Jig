@@ -29,7 +29,7 @@ class BlockExample {
     }
 
     function display() {
-        $this->jigRender->bindProcessedBlock(
+        $this->jigRender->bindRenderBlock(
             'warning',          //Block name
             '\JigDemo\Controller\warningBlockEnd',  //Block end callable
             '\JigDemo\Controller\warningBlockStart' //Block start callable.

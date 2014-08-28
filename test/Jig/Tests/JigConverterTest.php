@@ -11,13 +11,14 @@ namespace  {
 namespace Tests\PHPTemplate{
 
 
-use Jig\Converter;
+
+use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\Tests\PlaceHolderView;
 use Jig\JigRender;
-    use Jig\ViewModel\BasicViewModel;
+use Jig\ViewModel\BasicViewModel;
 
-    class VariableTest{
+class VariableTest{
 
     private $value;
 
@@ -344,7 +345,7 @@ END;
 
     function testBlockEscaping() {
         $this->viewModel->setVariable('variable1', "This is a variable");
-        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
+        $this->jigRenderer->bindRenderBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
         $contents = $this->jigRenderer->renderTemplateFile('binding/blocks', $this->viewModel);
         $this->assertContains("€¥™<>", $contents);
         $this->assertContains("This is a variable", $contents);
@@ -352,7 +353,7 @@ END;
 
     function testBlockEscapingFromString() {
         $string = file_get_contents(__DIR__."/templates/binding/blocks.php.tpl");
-        $this->jigRenderer->bindProcessedBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
+        $this->jigRenderer->bindRenderBlock('htmlEntityDecode', [$this->viewModel, 'htmlEntityDecode']);
         $contents = $this->jigRenderer->renderTemplateFromString($string, 'Foo1');
         $this->assertContains("€¥™<>", $contents);
     }
@@ -579,7 +580,7 @@ END;
         $jigRenderer->renderTemplateFile($templateName);
     }
 
-    function testBlockPostProcess(){
+    function testRenderBlock(){
         $blockStartCallCount = 0;
         $blockEndCallCount = 0;
         $warningBlockStart = function () use (&$blockStartCallCount) {
@@ -591,23 +592,77 @@ END;
             $blockEndCallCount++;
             return $contents."processedBlockEnd";
         };
-        
 
-        $this->jigRenderer->bindProcessedBlock(
+        $this->jigRenderer->bindRenderBlock(
             'warning',
             $warningBlockEnd,
             $warningBlockStart
         );
         
-        $contents = $this->jigRenderer->renderTemplateFile('block/blockProcess');
+        $contents = $this->jigRenderer->renderTemplateFile('block/renderBlock');
         
         $this->assertEquals($blockStartCallCount, 1);
         $this->assertEquals($blockEndCallCount, 1);
-
         $this->assertContains("This is in a warning block", $contents);
         $this->assertContains("processedBlockEnd", $contents);
         $this->assertContains("processedBlockStart", $contents);
     }
+
+    function testCompileBlock() {
+
+
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_CHECK_MTIME,
+            ""
+        );
+
+        $provider = new \Auryn\Provider();
+        $provider->share($jigConfig);
+        $provider->share($provider);
+
+        $jigRenderer = $provider->make('Jig\JigRender');
+        
+        
+        $blockStartCallCount = 0;
+        $blockEndCallCount = 0;
+
+        $compileBlockStart = function (JigConverter $jigConverter, $segmentText) use (&$blockStartCallCount) {
+            $blockStartCallCount++;
+            $jigConverter->addHTML("compileBlockStart");
+            $jigConverter->addHTML($segmentText);
+        };
+
+        $compileBlockEnd = function (JigConverter $jigConverter) use (&$blockEndCallCount) {
+            $blockEndCallCount++;
+            $jigConverter->addHTML("compileBlockEnd");
+        };
+
+        $jigRenderer->bindCompileBlock(
+            'compile',
+            $compileBlockEnd,
+            $compileBlockStart
+        );
+
+        $jigRenderer->deleteCompiledFile('block/compileBlock');
+        $contents = $jigRenderer->renderTemplateFile('block/compileBlock');
+        $contents = $jigRenderer->renderTemplateFile('block/compileBlock');
+
+        //Because the block is called when the template is compiled, and
+        //as the template should only be compiled once (due to caching) each
+        //block function should only be called once.
+        
+        $this->assertEquals($blockStartCallCount, 1);
+        $this->assertEquals($blockEndCallCount, 1);
+        $this->assertContains("This is in a compile time block", $contents);
+        $this->assertContains("compileBlockStart", $contents);
+        $this->assertContains("compileBlockEnd", $contents);
+
+    }
+    
+        
         
     function testRenderFromStringJigExceptionHandling() {
         $this->setExpectedException('Jig\JigException', "Could not parse template segment");

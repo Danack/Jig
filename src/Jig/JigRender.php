@@ -183,8 +183,8 @@ class JigRender {
      * @param callable $startCallback
      * @param callable $endCallback
      */
-    function bindBlock($blockName, Callable $startCallback, Callable $endCallback) {
-        $this->jigConverter->bindBlock($blockName, $startCallback, $endCallback);
+    function bindCompileBlock($blockName, Callable $startCallback, Callable $endCallback) {
+        $this->jigConverter->bindCompileBlock($blockName, $startCallback, $endCallback);
     }
 
     /**
@@ -192,8 +192,8 @@ class JigRender {
      * @param $endFunctionName
      * @param null $startFunctionName
      */
-    function bindProcessedBlock($blockName, $endFunctionName, $startFunctionName = null) {
-        $this->jigConverter->bindProcessedBlock($blockName, $endFunctionName, $startFunctionName);
+    function bindRenderBlock($blockName, $endFunctionName, $startFunctionName = null) {
+        $this->jigConverter->bindRenderBlock($blockName, $endFunctionName, $startFunctionName);
     }
 
     /**

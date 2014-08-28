@@ -14,7 +14,7 @@ class ExtendedJigRender extends \Jig\JigRender  {
 
         parent::__construct($jigConfig, $provider);
 
-        $this->bindProcessedBlock(
+        $this->bindRenderBlock(
             'spoiler',
             [$this, 'spoilerBlockEnd'],
             [$this, 'spoilerBlockStart']

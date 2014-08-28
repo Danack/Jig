@@ -31,14 +31,14 @@ class JigConverter {
     
     private $literalMode = false;
 
-    private $blockFunctions = array();
+    private $compileBlockFunctions = array();
 
     /**
      * These block function operate after the block has been converted.
      * @TODO - Steal the callable class from Auryn.
      * @var array
      */
-    private $processedBlockFunctions = array();
+    private $renderBlockFunctions = array();
 
     /**
      * @var ParsedTemplate
@@ -59,29 +59,32 @@ class JigConverter {
 
     
     function __construct(JigConfig $jigConfig) {
-        $this->bindProcessedBlock('trim', [$this, 'processTrimEnd']);
+        $this->bindRenderBlock('trim', [$this, 'processTrimEnd']);
         $this->jigConfig = $jigConfig;
     }
-
 
     /**
      * @param $blockName
      * @return null|callable
      */
-    function getBlockFunction($blockName) {
-        if (array_key_exists($blockName, $this->blockFunctions)) {
-            return $this->blockFunctions[$blockName];
+    function matchCompileBlockFunction($segmentText) {
+        foreach ($this->compileBlockFunctions as $blockName => $blockFunctions) {
+            if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
+                return $blockFunctions;
+            }
         }
+
         return null;
     }
-
+    
+    
     /**
      * @param $blockName
      * @return null|callable
      */
     function getProcessedBlockFunction($blockName) {
-        if (array_key_exists($blockName, $this->processedBlockFunctions)) {
-            return $this->processedBlockFunctions[$blockName];
+        if (array_key_exists($blockName, $this->renderBlockFunctions)) {
+            return $this->renderBlockFunctions[$blockName];
         }
         return null;
     }
@@ -218,14 +221,14 @@ class JigConverter {
             return;
         }
 
-        foreach ($this->blockFunctions as $blockName => $blockFunctions) {
+        foreach ($this->compileBlockFunctions as $blockName => $blockFunctions) {
             if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
                 call_user_func($blockFunctions[1], $this, $segmentText);
                 return;
             }
         }
 
-        foreach ($this->processedBlockFunctions as $blockName => $blockFunctions) {
+        foreach ($this->renderBlockFunctions as $blockName => $blockFunctions) {
             if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
                 $this->addCode("\$this->jigRender->endProcessedBlock('$blockName');");
                 //$this->addCode("ob_end_clean();");
@@ -305,15 +308,23 @@ class JigConverter {
                 $this->addCode(" } else { ");
             }
             else{
-                if ($blockFunction = $this->getBlockFunction($segmentText)) {
-                    $blockFunctions[0]($this, $segmentText);
+                
+                $blockFunctionName = $segmentText;
+                $position = strpos($blockFunctionName, ' ');
+                
+                if ($position !== false) {
+                    $blockFunctionName = substr($blockFunctionName, 0, $position);
+                }
+
+                if ($compileBlockFunction = $this->matchCompileBlockFunction($blockFunctionName)) {
+                    $compileBlockFunction[0]($this, $segmentText);
                     return;
                 }
                 
-                if ($processedBlockFunction = $this->getProcessedBlockFunction($segmentText)) {
+                if ($processedBlockFunction = $this->getProcessedBlockFunction($blockFunctionName)) {
                     $startFunctionName = $processedBlockFunction[0];
                     if ($startFunctionName != null) {
-                        $this->addCode("\$this->jigRender->startProcessedBlock('$segmentText');");
+                        $this->addCode("\$this->jigRender->startProcessedBlock('$blockFunctionName');");
                     }
                     $this->addCode("ob_start();");
 
@@ -582,12 +593,12 @@ class JigConverter {
      * @param callable $startCallback
      * @param callable $endCallback
      */
-    function bindBlock($blockName, Callable $startCallback, Callable $endCallback) {
-        $this->blockFunctions[$blockName] = array($startCallback, $endCallback);
+    function bindCompileBlock($blockName, Callable $startCallback, Callable $endCallback) {
+        $this->compileBlockFunctions[$blockName] = array($startCallback, $endCallback);
     }
 
-    function bindProcessedBlock($blockName, $endFunctionCallable, $startFunctionCallable = null) {
-        $this->processedBlockFunctions[$blockName] = array($startFunctionCallable, $endFunctionCallable);
+    function bindRenderBlock($blockName, $endFunctionCallable, $startFunctionCallable = null) {
+        $this->renderBlockFunctions[$blockName] = array($startFunctionCallable, $endFunctionCallable);
     }
 
     /**

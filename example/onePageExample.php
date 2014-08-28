@@ -74,7 +74,7 @@ $viewModel->bindFunction('boundCallable', function() {echo "This is a callable";
 
 
 
-$renderer->bindProcessedBlock(
+$renderer->bindRenderBlock(
     'warning',          //Block name
     'warningBlockEnd',  //Block end callable
     'warningBlockStart' //Block start callable.
