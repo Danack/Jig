@@ -46,6 +46,7 @@ class JigConfig {
     function getCompiledFilename($className) {
         $namespace = $this->compiledNamespace;
         $classPath = $this->templateCompileDirectory.'/'.$namespace.'/'.$className.'.php';
+        $classPath = str_replace('\\', '/', $classPath);
         
         return $classPath;
     }

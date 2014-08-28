@@ -3,14 +3,12 @@
 
 namespace Jig {
 
+    use Jig\JigException;
+    
     class JigFunctions {
         public static function load(){}
     }
-}
 
-namespace {
-    
-    use Jig\JigException;
 
     /**
      * Convert a PHP variable to an escaped output. Objects and arrays return empty string.
@@ -62,6 +60,15 @@ namespace {
         }
 
         return "";
+    }
+    
+    function getFQCN($namespace, $classname) {
+        
+        if (strlen($namespace)) {
+            return $namespace."\\".$classname;
+        }
+
+        return $classname;
     }
 
     /**

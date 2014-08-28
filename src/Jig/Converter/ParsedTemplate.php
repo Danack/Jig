@@ -129,8 +129,8 @@ class ParsedTemplate {
             return "Jig\\JigBase";
         }
         $extendsClassName = str_replace('/', '\\', $this->extends);
-
-        return $this->baseNamespace."\\".$extendsClassName;
+        
+        return \Jig\getFQCN($this->baseNamespace, $extendsClassName);
     }
 
     /**
@@ -147,11 +147,11 @@ class ParsedTemplate {
      * @throws \Jig\JigException
      */
     function saveCompiledTemplate($compilePath, $proxied) {
-        $fullClassName = $this->baseNamespace."\\".$this->getClassName();
+        $fullClassName = \Jig\getFQCN($this->baseNamespace, $this->getClassName());
         $fullClassName = str_replace("/", "\\", $fullClassName);
 
-        $namespace = getNamespace($fullClassName);
-        $className = getClassName($fullClassName);
+        $namespace = \Jig\getNamespace($fullClassName);
+        $className = \Jig\getClassName($fullClassName);
 
         if($proxied == true) {
             $parentFullClassName =	$fullClassName;
@@ -167,10 +167,10 @@ class ParsedTemplate {
 
         $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
 
-        $outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
+        $outputFilename = \Jig\convertNamespaceClassToFilepath($namespace."\\".$className);
         $outputFilename = $compilePath.$outputFilename.".php";
 
-        ensureDirectoryExists($outputFilename);
+        \Jig\ensureDirectoryExists($outputFilename);
 
         $outputFileHandle = @fopen($outputFilename, "w");
 
@@ -178,12 +178,18 @@ class ParsedTemplate {
             throw new JigException("Could not open file [$outputFilename] for writing template.");
         }
 
-        $parentClassName = getClassName($parentFullClassName);
+        $parentClassName = \Jig\getClassName($parentFullClassName);
 
+        $namespaceString = '';
+        if (strlen(trim($namespace))) {
+            $namespaceString = "namespace $namespace;";
+        }
+        
+        
         $startSection = <<< END
 <?php
 
-namespace $namespace;
+$namespaceString
 
 use $parentFullClassName;
 

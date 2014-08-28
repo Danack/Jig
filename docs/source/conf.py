@@ -131,7 +131,7 @@ html_theme_options = {
     
     'bootswatch_theme': "Cerulean",
     
-    'navbar_fixed_top': True,
+    'navbar_fixed_top': False,
 
 }
 

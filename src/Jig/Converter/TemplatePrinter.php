@@ -129,6 +129,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         return (string) $node->value;
     }
 
+    /** @codeCoverageIgnore */
     public function pScalar_DNumber(\PHPParser_Node_Scalar_DNumber $node) {
         $stringValue = (string) $node->value;
 
@@ -145,220 +146,273 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         return $this->pInfixOp('Expr_Assign', $node->var, ' = ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignRef(\PHPParser_Node_Expr_AssignRef $node) {
         return $this->pInfixOp('Expr_AssignRef', $node->var, ' =& ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignPlus(\PHPParser_Node_Expr_AssignPlus $node) {
         return $this->pInfixOp('Expr_AssignPlus', $node->var, ' += ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignMinus(\PHPParser_Node_Expr_AssignMinus $node) {
         return $this->pInfixOp('Expr_AssignMinus', $node->var, ' -= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignMul(\PHPParser_Node_Expr_AssignMul $node) {
         return $this->pInfixOp('Expr_AssignMul', $node->var, ' *= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignDiv(\PHPParser_Node_Expr_AssignDiv $node) {
         return $this->pInfixOp('Expr_AssignDiv', $node->var, ' /= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignConcat(\PHPParser_Node_Expr_AssignConcat $node) {
         return $this->pInfixOp('Expr_AssignConcat', $node->var, ' .= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignMod(\PHPParser_Node_Expr_AssignMod $node) {
         return $this->pInfixOp('Expr_AssignMod', $node->var, ' %= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignBitwiseAnd(\PHPParser_Node_Expr_AssignBitwiseAnd $node) {
         return $this->pInfixOp('Expr_AssignBitwiseAnd', $node->var, ' &= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignBitwiseOr(\PHPParser_Node_Expr_AssignBitwiseOr $node) {
         return $this->pInfixOp('Expr_AssignBitwiseOr', $node->var, ' |= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignBitwiseXor(\PHPParser_Node_Expr_AssignBitwiseXor $node) {
         return $this->pInfixOp('Expr_AssignBitwiseXor', $node->var, ' ^= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignShiftLeft(\PHPParser_Node_Expr_AssignShiftLeft $node) {
         return $this->pInfixOp('Expr_AssignShiftLeft', $node->var, ' <<= ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_AssignShiftRight(\PHPParser_Node_Expr_AssignShiftRight $node) {
         return $this->pInfixOp('Expr_AssignShiftRight', $node->var, ' >>= ', $node->expr);
     }
 
     // Binary expressions
 
+    /** @codeCoverageIgnore */
     public function pExpr_Plus(\PHPParser_Node_Expr_Plus $node) {
         return $this->pInfixOp('Expr_Plus', $node->left, ' + ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Minus(\PHPParser_Node_Expr_Minus $node) {
         return $this->pInfixOp('Expr_Minus', $node->left, ' - ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Mul(\PHPParser_Node_Expr_Mul $node) {
         return $this->pInfixOp('Expr_Mul', $node->left, ' * ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Div(\PHPParser_Node_Expr_Div $node) {
         return $this->pInfixOp('Expr_Div', $node->left, ' / ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Concat(\PHPParser_Node_Expr_Concat $node) {
         return $this->pInfixOp('Expr_Concat', $node->left, ' . ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Mod(\PHPParser_Node_Expr_Mod $node) {
         return $this->pInfixOp('Expr_Mod', $node->left, ' % ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_BooleanAnd(\PHPParser_Node_Expr_BooleanAnd $node) {
         return $this->pInfixOp('Expr_BooleanAnd', $node->left, ' && ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_BooleanOr(\PHPParser_Node_Expr_BooleanOr $node) {
         return $this->pInfixOp('Expr_BooleanOr', $node->left, ' || ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_BitwiseAnd(\PHPParser_Node_Expr_BitwiseAnd $node) {
         return $this->pInfixOp('Expr_BitwiseAnd', $node->left, ' & ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_BitwiseOr(\PHPParser_Node_Expr_BitwiseOr $node) {
         return $this->pInfixOp('Expr_BitwiseOr', $node->left, ' | ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_BitwiseXor(\PHPParser_Node_Expr_BitwiseXor $node) {
         return $this->pInfixOp('Expr_BitwiseXor', $node->left, ' ^ ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_ShiftLeft(\PHPParser_Node_Expr_ShiftLeft $node) {
         return $this->pInfixOp('Expr_ShiftLeft', $node->left, ' << ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_ShiftRight(\PHPParser_Node_Expr_ShiftRight $node) {
         return $this->pInfixOp('Expr_ShiftRight', $node->left, ' >> ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_LogicalAnd(\PHPParser_Node_Expr_LogicalAnd $node) {
         return $this->pInfixOp('Expr_LogicalAnd', $node->left, ' and ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_LogicalOr(\PHPParser_Node_Expr_LogicalOr $node) {
         return $this->pInfixOp('Expr_LogicalOr', $node->left, ' or ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_LogicalXor(\PHPParser_Node_Expr_LogicalXor $node) {
         return $this->pInfixOp('Expr_LogicalXor', $node->left, ' xor ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Equal(\PHPParser_Node_Expr_Equal $node) {
         return $this->pInfixOp('Expr_Equal', $node->left, ' == ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_NotEqual(\PHPParser_Node_Expr_NotEqual $node) {
         return $this->pInfixOp('Expr_NotEqual', $node->left, ' != ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Identical(\PHPParser_Node_Expr_Identical $node) {
         return $this->pInfixOp('Expr_Identical', $node->left, ' === ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_NotIdentical(\PHPParser_Node_Expr_NotIdentical $node) {
         return $this->pInfixOp('Expr_NotIdentical', $node->left, ' !== ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Greater(\PHPParser_Node_Expr_Greater $node) {
         return $this->pInfixOp('Expr_Greater', $node->left, ' > ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_GreaterOrEqual(\PHPParser_Node_Expr_GreaterOrEqual $node) {
         return $this->pInfixOp('Expr_GreaterOrEqual', $node->left, ' >= ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Smaller(\PHPParser_Node_Expr_Smaller $node) {
         return $this->pInfixOp('Expr_Smaller', $node->left, ' < ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_SmallerOrEqual(\PHPParser_Node_Expr_SmallerOrEqual $node) {
         return $this->pInfixOp('Expr_SmallerOrEqual', $node->left, ' <= ', $node->right);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Instanceof(\PHPParser_Node_Expr_Instanceof $node) {
         return $this->pInfixOp('Expr_Instanceof', $node->expr, ' instanceof ', $node->class);
     }
 
     // Unary expressions
 
+    /** @codeCoverageIgnore */
     public function pExpr_BooleanNot(\PHPParser_Node_Expr_BooleanNot $node) {
         return $this->pPrefixOp('Expr_BooleanNot', '!', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_BitwiseNot(\PHPParser_Node_Expr_BitwiseNot $node) {
         return $this->pPrefixOp('Expr_BitwiseNot', '~', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_UnaryMinus(\PHPParser_Node_Expr_UnaryMinus $node) {
         return $this->pPrefixOp('Expr_UnaryMinus', '-', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_UnaryPlus(\PHPParser_Node_Expr_UnaryPlus $node) {
         return $this->pPrefixOp('Expr_UnaryPlus', '+', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_PreInc(\PHPParser_Node_Expr_PreInc $node) {
         return $this->pPrefixOp('Expr_PreInc', '++', $node->var);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_PreDec(\PHPParser_Node_Expr_PreDec $node) {
         return $this->pPrefixOp('Expr_PreDec', '--', $node->var);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_PostInc(\PHPParser_Node_Expr_PostInc $node) {
         return $this->pPostfixOp('Expr_PostInc', $node->var, '++');
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_PostDec(\PHPParser_Node_Expr_PostDec $node) {
         return $this->pPostfixOp('Expr_PostDec', $node->var, '--');
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_ErrorSuppress(\PHPParser_Node_Expr_ErrorSuppress $node) {
         return $this->pPrefixOp('Expr_ErrorSuppress', '@', $node->expr);
     }
 
     // Casts
 
+    /** @codeCoverageIgnore */
     public function pExpr_Cast_Int(\PHPParser_Node_Expr_Cast_Int $node) {
         return $this->pPrefixOp('Expr_Cast_Int', '(int) ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Cast_Double(\PHPParser_Node_Expr_Cast_Double $node) {
         return $this->pPrefixOp('Expr_Cast_Double', '(double) ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Cast_String(\PHPParser_Node_Expr_Cast_String $node) {
         return $this->pPrefixOp('Expr_Cast_String', '(string) ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Cast_Array(\PHPParser_Node_Expr_Cast_Array $node) {
         return $this->pPrefixOp('Expr_Cast_Array', '(array) ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Cast_Object(\PHPParser_Node_Expr_Cast_Object $node) {
         return $this->pPrefixOp('Expr_Cast_Object', '(object) ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Cast_Bool(\PHPParser_Node_Expr_Cast_Bool $node) {
         return $this->pPrefixOp('Expr_Cast_Bool', '(bool) ', $node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Cast_Unset(\PHPParser_Node_Expr_Cast_Unset $node) {
         return $this->pPrefixOp('Expr_Cast_Unset', '(unset) ', $node->expr);
     }
@@ -374,11 +428,13 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         // return $this->p($node->name) . '(' . $this->pCommaSeparated($node->args) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_MethodCall(\PHPParser_Node_Expr_MethodCall $node) {
         return $this->pVarOrNewExpr($node->var) . '->' . $this->pObjectProperty($node->name)
              . '(' . $this->pCommaSeparated($node->args) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_StaticCall(\PHPParser_Node_Expr_StaticCall $node) {
         return $this->p($node->class) . '::'
              . ($node->name instanceof \PHPParser_Node_Expr
@@ -390,22 +446,27 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . '(' . $this->pCommaSeparated($node->args) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Empty(\PHPParser_Node_Expr_Empty $node) {
         return 'empty(' . $this->p($node->expr) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Isset(\PHPParser_Node_Expr_Isset $node) {
         return 'isset(' . $this->pCommaSeparated($node->vars) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Print(\PHPParser_Node_Expr_Print $node) {
         return 'print ' . $this->p($node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Eval(\PHPParser_Node_Expr_Eval $node) {
         return 'eval(' . $this->p($node->expr) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Include(\PHPParser_Node_Expr_Include $node) {
         static $map = array(
             \PHPParser_Node_Expr_Include::TYPE_INCLUDE      => 'include',
@@ -417,6 +478,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         return $map[$node->type] . ' ' . $this->p($node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_List(\PHPParser_Node_Expr_List $node) {
         $pList = array();
         foreach ($node->vars as $var) {
@@ -432,6 +494,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     // Other
 
+    /** @codeCoverageIgnore */
     public function pExpr_Variable(\PHPParser_Node_Expr_Variable $node) {
         if ($node->name instanceof \PHPParser_Node_Expr) {
             return '${' . $this->p($node->name) . '}';
@@ -450,10 +513,12 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         }
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Array(\PHPParser_Node_Expr_Array $node) {
         return 'array(' . $this->pCommaSeparated($node->items) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_ArrayItem(\PHPParser_Node_Expr_ArrayItem $node) {
         return (null !== $node->key ? $this->p($node->key) . ' => ' : '')
              . ($node->byRef ? '&' : '') . $this->p($node->value);
@@ -468,22 +533,27 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         return $this->p($node->name);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_ClassConstFetch(\PHPParser_Node_Expr_ClassConstFetch $node) {
         return $this->p($node->class) . '::' . $node->name;
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_PropertyFetch(\PHPParser_Node_Expr_PropertyFetch $node) {
         return $this->pVarOrNewExpr($node->var) . '->' . $this->pObjectProperty($node->name);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_StaticPropertyFetch(\PHPParser_Node_Expr_StaticPropertyFetch $node) {
         return $this->p($node->class) . '::$' . $this->pObjectProperty($node->name);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_ShellExec(\PHPParser_Node_Expr_ShellExec $node) {
         return '`' . $this->pEncapsList($node->parts, '`') . '`';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Closure(\PHPParser_Node_Expr_Closure $node) {
         return ($node->static ? 'static ' : '')
              . 'function ' . ($node->byRef ? '&' : '')
@@ -492,18 +562,22 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . ' {' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_ClosureUse(\PHPParser_Node_Expr_ClosureUse $node) {
         return ($node->byRef ? '&' : '') . '$' . $node->var;
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_New(\PHPParser_Node_Expr_New $node) {
         return 'new ' . $this->p($node->class) . '(' . $this->pCommaSeparated($node->args) . ')';
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Clone(\PHPParser_Node_Expr_Clone $node) {
         return 'clone ' . $this->p($node->expr);
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Ternary(\PHPParser_Node_Expr_Ternary $node) {
         // a bit of cheating: we treat the ternary as a binary op where the ?...: part is the operator.
         // this is okay because the part between ? and : never needs parentheses.
@@ -512,10 +586,12 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         );
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Exit(\PHPParser_Node_Expr_Exit $node) {
         return 'die' . (null !== $node->expr ? '(' . $this->p($node->expr) . ')' : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pExpr_Yield(\PHPParser_Node_Expr_Yield $node) {
         if ($node->value === null) {
             return 'yield';
@@ -530,26 +606,31 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     // Declarations
 
+    /** @codeCoverageIgnore */
     public function pStmt_Namespace(\PHPParser_Node_Stmt_Namespace $node) {
         return 'namespace' . (null !== $node->name ? ' ' . $this->p($node->name) : '')
              . ' {' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Use(\PHPParser_Node_Stmt_Use $node) {
         return 'use ' . $this->pCommaSeparated($node->uses) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_UseUse(\PHPParser_Node_Stmt_UseUse $node) {
         return $this->p($node->name)
              . ($node->name->getLast() !== $node->alias ? ' as ' . $node->alias : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Interface(\PHPParser_Node_Stmt_Interface $node) {
         return 'interface ' . $node->name
              . (!empty($node->extends) ? ' extends ' . $this->pCommaSeparated($node->extends) : '')
              . "\n" . '{' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Class(\PHPParser_Node_Stmt_Class $node) {
         return $this->pModifiers($node->type)
              . 'class ' . $node->name
@@ -558,11 +639,13 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . "\n" . '{' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Trait(\PHPParser_Node_Stmt_Trait $node) {
         return 'trait ' . $node->name
              . "\n" . '{' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_TraitUse(\PHPParser_Node_Stmt_TraitUse $node) {
         return 'use ' . $this->pCommaSeparated($node->traits)
              . (empty($node->adaptations)
@@ -570,11 +653,13 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
                 : ' {' . "\n" . $this->pStmts($node->adaptations) . "\n" . '}');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_TraitUseAdaptation_Precedence(\PHPParser_Node_Stmt_TraitUseAdaptation_Precedence $node) {
         return $this->p($node->trait) . '::' . $node->method
              . ' insteadof ' . $this->pCommaSeparated($node->insteadof) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_TraitUseAdaptation_Alias(\PHPParser_Node_Stmt_TraitUseAdaptation_Alias $node) {
         return (null !== $node->trait ? $this->p($node->trait) . '::' : '')
              . $node->method . ' as'
@@ -583,15 +668,18 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Property(\PHPParser_Node_Stmt_Property $node) {
         return $this->pModifiers($node->type) . $this->pCommaSeparated($node->props) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_PropertyProperty(\PHPParser_Node_Stmt_PropertyProperty $node) {
         return '$' . $node->name
              . (null !== $node->default ? ' = ' . $this->p($node->default) : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_ClassMethod(\PHPParser_Node_Stmt_ClassMethod $node) {
         return $this->pModifiers($node->type)
              . 'function ' . ($node->byRef ? '&' : '') . $node->name
@@ -601,31 +689,37 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
                 : ';');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_ClassConst(\PHPParser_Node_Stmt_ClassConst $node) {
         return 'const ' . $this->pCommaSeparated($node->consts) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Function(\PHPParser_Node_Stmt_Function $node) {
         return 'function ' . ($node->byRef ? '&' : '') . $node->name
              . '(' . $this->pCommaSeparated($node->params) . ')'
              . "\n" . '{' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Const(\PHPParser_Node_Stmt_Const $node) {
         return 'const ' . $this->pCommaSeparated($node->consts) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Declare(\PHPParser_Node_Stmt_Declare $node) {
         return 'declare (' . $this->pCommaSeparated($node->declares) . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_DeclareDeclare(\PHPParser_Node_Stmt_DeclareDeclare $node) {
         return $node->key . ' = ' . $this->p($node->value);
     }
 
     // Control flow
 
+    /** @codeCoverageIgnore */
     public function pStmt_If(\PHPParser_Node_Stmt_If $node) {
         return 'if (' . $this->p($node->cond) . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}'
@@ -633,15 +727,18 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . (null !== $node->else ? $this->p($node->else) : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Elseif(\PHPParser_Node_Stmt_Elseif $node) {
         return ' elseif (' . $this->p($node->cond) . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Else(\PHPParser_Node_Stmt_Else $node) {
         return ' else {' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_For(\PHPParser_Node_Stmt_For $node) {
         return 'for ('
              . $this->pCommaSeparated($node->init) . ';' . (!empty($node->cond) ? ' ' : '')
@@ -650,6 +747,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . ') {' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Foreach(\PHPParser_Node_Stmt_Foreach $node) {
         return 'foreach (' . $this->p($node->expr) . ' as '
              . (null !== $node->keyVar ? $this->p($node->keyVar) . ' => ' : '')
@@ -657,26 +755,31 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_While(\PHPParser_Node_Stmt_While $node) {
         return 'while (' . $this->p($node->cond) . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Do(\PHPParser_Node_Stmt_Do $node) {
         return 'do {' . "\n" . $this->pStmts($node->stmts) . "\n"
              . '} while (' . $this->p($node->cond) . ');';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Switch(\PHPParser_Node_Stmt_Switch $node) {
         return 'switch (' . $this->p($node->cond) . ') {'
              . "\n" . $this->pStmts($node->cases) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Case(\PHPParser_Node_Stmt_Case $node) {
         return (null !== $node->cond ? 'case ' . $this->p($node->cond) : 'default') . ':'
              . ($node->stmts ? "\n" . $this->pStmts($node->stmts) : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_TryCatch(\PHPParser_Node_Stmt_TryCatch $node) {
         return 'try {' . "\n" . $this->pStmts($node->stmts) . "\n" . '}'
              . $this->pImplode($node->catches)
@@ -685,58 +788,71 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
                 : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Catch(\PHPParser_Node_Stmt_Catch $node) {
         return ' catch (' . $this->p($node->type) . ' $' . $node->var . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Break(\PHPParser_Node_Stmt_Break $node) {
         return 'break' . ($node->num !== null ? ' ' . $this->p($node->num) : '') . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Continue(\PHPParser_Node_Stmt_Continue $node) {
         return 'continue' . ($node->num !== null ? ' ' . $this->p($node->num) : '') . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Return(\PHPParser_Node_Stmt_Return $node) {
         return 'return' . (null !== $node->expr ? ' ' . $this->p($node->expr) : '') . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Throw(\PHPParser_Node_Stmt_Throw $node) {
         return 'throw ' . $this->p($node->expr) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Label(\PHPParser_Node_Stmt_Label $node) {
         return $node->name . ':';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Goto(\PHPParser_Node_Stmt_Goto $node) {
         return 'goto ' . $node->name . ';';
     }
 
     // Other
 
+    /** @codeCoverageIgnore */
     public function pStmt_Echo(\PHPParser_Node_Stmt_Echo $node) {
         return 'echo ' . $this->pCommaSeparated($node->exprs) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Static(\PHPParser_Node_Stmt_Static $node) {
         return 'static ' . $this->pCommaSeparated($node->vars) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Global(\PHPParser_Node_Stmt_Global $node) {
         return 'global ' . $this->pCommaSeparated($node->vars) . ';';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_StaticVar(\PHPParser_Node_Stmt_StaticVar $node) {
         return '$' . $node->name
              . (null !== $node->default ? ' = ' . $this->p($node->default) : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_Unset(\PHPParser_Node_Stmt_Unset $node) {
         return 'unset(' . $this->pCommaSeparated($node->vars) . ');';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_InlineHTML(\PHPParser_Node_Stmt_InlineHTML $node) {
         return '?>' . $this->pNoIndent(
             ("\n" === $node->value[0] || "\r" === $node->value[0] ? "\n" : '')
@@ -744,12 +860,14 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         ) . '<?php ';
     }
 
+    /** @codeCoverageIgnore */
     public function pStmt_HaltCompiler(\PHPParser_Node_Stmt_HaltCompiler $node) {
         return '__halt_compiler();' . $node->remaining;
     }
 
     // Helpers
 
+    /** @codeCoverageIgnore */
     public function pObjectProperty($node) {
         if ($node instanceof \PHPParser_Node_Expr) {
             return '{' . $this->p($node) . '}';
@@ -758,6 +876,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         }
     }
 
+    /** @codeCoverageIgnore */
     public function pModifiers($modifiers) {
         return ($modifiers & \PHPParser_Node_Stmt_Class::MODIFIER_PUBLIC    ? 'public '    : '')
              . ($modifiers & \PHPParser_Node_Stmt_Class::MODIFIER_PROTECTED ? 'protected ' : '')
@@ -767,6 +886,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
              . ($modifiers & \PHPParser_Node_Stmt_Class::MODIFIER_FINAL     ? 'final '     : '');
     }
 
+    /** @codeCoverageIgnore */
     public function pEncapsList(array $encapsList, $quote) {
         $return = '';
         foreach ($encapsList as $element) {
@@ -780,6 +900,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         return $return;
     }
 
+    /** @codeCoverageIgnore */
     public function pVarOrNewExpr(\PHPParser_Node $node) {
         if ($node instanceof \PHPParser_Node_Expr_New) {
             return '(' . $this->p($node) . ')';
@@ -788,6 +909,8 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         }
     }
 
+
+    
     protected function pInfixOp($type, \PHPParser_Node $leftNode, $operatorString, \PHPParser_Node $rightNode) {
         list($precedence, $associativity) = $this->precedenceMap[$type];
 

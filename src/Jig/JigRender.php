@@ -208,6 +208,13 @@ class JigRender {
 
         return $deleted;
     }
+    
+    function getCompileFilename($templateName) {
+        $className = $this->jigConverter->getClassNameFromFilename($templateName);
+        $compileFilename = $this->jigConfig->getCompiledFilename($className);
+        
+        return $compileFilename;
+    }
 
     /**
      * @param $templateFilename
@@ -215,8 +222,7 @@ class JigRender {
      */
     function isGeneratedFileOutOfDate($templateFilename) {
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
-        $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
-        $classPath = $this->jigConfig->getCompiledFilename($className);
+        $classPath = $this->getCompileFilename($templateFilename);
         $classPath = str_replace('\\', '/', $classPath);
         $templateTime = @filemtime($templateFullFilename);
         $classTime = @filemtime($classPath);

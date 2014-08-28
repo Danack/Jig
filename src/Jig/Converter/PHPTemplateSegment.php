@@ -127,7 +127,7 @@ class PHPTemplateSegment extends TemplateSegment {
 
         
         if (in_array('nofilter', $filters) == false ) {
-            $segmentText =  '\safeTextObject('.$segmentText.", ENT_QUOTES)";
+            $segmentText =  '\Jig\safeTextObject('.$segmentText.", ENT_QUOTES)";
         }
 
         if (in_array('nooutput', $filters) == false) {

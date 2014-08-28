@@ -242,8 +242,6 @@ END;
     function testNonExistentConversion(){
         $this->setExpectedException('Jig\JigException');
 //        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        
-        
         $contents = $this->jigRenderer->renderTemplateFile('nonExistantFile');
     }
 
@@ -490,15 +488,96 @@ END;
         $this->jigRenderer->renderTemplateFile('coverageTesting/blockNotSet');
     }
 
+
+
+
+    function testStringCoverage() {
+        $viewModel = new BasicViewModel();
+        $viewModel->setVariable('someObjectWithoutToString', new \stdClass);
+        $viewModel->setVariable('someArray', []);
+        $this->jigRenderer->renderTemplateFile('coverageTesting/stringCoverage', $viewModel);
+    }
     
 
+    function testDelete() {
+        $templateName = 'basic/basic';
+        $this->jigRenderer->renderTemplateFile($templateName);
+        $this->jigRenderer->deleteCompiledFile($templateName);
+    }
+
+//    function testDyanmicExtendsDoesntExist() {
+//        $templateName = 'coverage/borkedDynamicExtendsDoesntExist';
+//        $this->jigRenderer->renderTemplateFile($templateName);
+//        //$this->jigRenderer->deleteCompiledFile($templateName);
+//    }
+
+
+    
+    
 //    function testForEachFromVariable() {
 //        $contents = $this->jigRenderer->renderTemplateFile('coverageTesting/foreachFromVariable');
 //        $this->assertContains('123', $contents);
 //    }
 //    
-    
 
+
+    function testWithoutNameSpace() {
+
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_ALWAYS,
+            ""
+        );
+
+        $provider = new \Auryn\Provider();
+        $provider->share($jigConfig);
+        $provider->share($provider);
+        $jigRenderer = $provider->make('Jig\JigRender');
+        $jigRenderer->renderTemplateFile("templateInRoot");
+    }
+
+
+
+    function testCheckExistsCoverage() {
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_CHECK_EXISTS,
+            ""
+        );
+
+        $provider = new \Auryn\Provider();
+        $provider->share($jigConfig);
+        $provider->share($provider);
+        $jigRenderer = $provider->make('Jig\JigRender');
+        $jigRenderer->renderTemplateFile("basic/basic");
+        $jigRenderer->renderTemplateFile("basic/basic");
+    }
+
+    function testCheckMtimeCoverage() {
+        $jigConfig = new JigConfig(
+            __DIR__."/templates/",
+            __DIR__."/generatedTemplates/",
+            "php.tpl",
+            JigRender::COMPILE_CHECK_MTIME,
+            ""
+        );
+
+        $provider = new \Auryn\Provider();
+        $provider->share($jigConfig);
+        $provider->share($provider);
+
+        $jigRenderer = $provider->make('Jig\JigRender');
+        $templateName = "coverageTesting/mtimeonce";
+        $jigRenderer->deleteCompiledFile($templateName);
+        $jigRenderer->renderTemplateFile($templateName);
+        $filename = $jigRenderer->getCompileFilename($templateName);
+        touch($filename, time() - 3600); // will break if the test takes an hour ;)
+        $jigRenderer->renderTemplateFile($templateName);
+    }
 
     function testBlockPostProcess(){
         $blockStartCallCount = 0;
@@ -529,7 +608,26 @@ END;
         $this->assertContains("processedBlockEnd", $contents);
         $this->assertContains("processedBlockStart", $contents);
     }
-    
+        
+    function testRenderFromStringJigExceptionHandling() {
+        $this->setExpectedException('Jig\JigException', "Could not parse template segment");
+        $templateString = "This is an invalud template {not valid construct}";
+        $this->jigRenderer->renderTemplateFromString($templateString, "Exception1");
+    }
+
+    function testRenderFromStringGenericExceptionHandling() {
+        $exceptionMessage = "This is an exception";
+        $callable = function() use ($exceptionMessage) {
+            throw new \Exception($exceptionMessage);
+        };
+        
+        $viewModel = new BasicViewModel();
+        $viewModel->bindFunction('throwup', $callable);
+        $templateString = "This throws {throwup()}";
+        $this->setExpectedException('Jig\JigException', $exceptionMessage);
+        $this->jigRenderer->renderTemplateFromString($templateString, "Exception1", $viewModel);
+    }
+
 }
 
 }//end namespace
