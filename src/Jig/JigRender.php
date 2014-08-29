@@ -326,6 +326,10 @@ class JigRender {
             if (function_exists('opcache_invalidate') == true) {
                 opcache_invalidate($outputFilename);
             }
+            //This is fucking stupid. We should be able to auto-load the class
+            //if an only if it is required. But the Composer autoloader caches
+            //the 'class doesn't exist' result from earlier, which means we
+            //have to load it by hand.
             /** @noinspection PhpIncludeInspection */
             require($outputFilename);
         }
@@ -349,7 +353,7 @@ class JigRender {
 
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
-        $parsedTemplate->saveCompiledTemplate(
+        $outputFilename = $parsedTemplate->saveCompiledTemplate(
             $this->jigConfig->templateCompileDirectory,
             false
         );
@@ -359,6 +363,13 @@ class JigRender {
             $this->checkTemplateCompiled($extendsFilename);
         }
 
+        //This is fucking stupid. We should be able to auto-load the class
+        //if an only if it is required. But the Composer autoloader caches
+        //the 'class doesn't exist' result from earlier, which means we
+        //have to load it by hand.
+        /** @noinspection PhpIncludeInspection */
+        require($outputFilename);
+
         return $this->jigConfig->getFullClassname($parsedTemplate->getClassName());
     }
 
@@ -367,12 +378,12 @@ class JigRender {
      * @param $blockName
      * @return mixed|null
      */
-    function startProcessedBlock($blockName) {
+    function startRenderBlock($blockName, $segmentText) {
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
         $startFunctionCallable = $blockFunction[0];
 
         if ($startFunctionCallable) {
-            echo call_user_func($startFunctionCallable);
+            echo call_user_func($startFunctionCallable, $segmentText);
         }
     }
 
@@ -380,7 +391,7 @@ class JigRender {
      * @param $blockName
      * @return mixed
      */
-    function endProcessedBlock($blockName) {
+    function endRenderBlock($blockName) {
         $contents = ob_get_contents();
         ob_end_clean();
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);

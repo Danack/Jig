@@ -230,7 +230,7 @@ class JigConverter {
 
         foreach ($this->renderBlockFunctions as $blockName => $blockFunctions) {
             if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
-                $this->addCode("\$this->jigRender->endProcessedBlock('$blockName');");
+                $this->addCode("\$this->jigRender->endRenderBlock('$blockName');");
                 //$this->addCode("ob_end_clean();");
                 return;
             }
@@ -310,21 +310,26 @@ class JigConverter {
             else{
                 
                 $blockFunctionName = $segmentText;
+                $remainingText = '';
                 $position = strpos($blockFunctionName, ' ');
                 
                 if ($position !== false) {
-                    $blockFunctionName = substr($blockFunctionName, 0, $position);
+                    $blockFunctionName = substr($segmentText, 0, $position);
+                    $remainingText = substr($segmentText, $position+1);
                 }
 
                 if ($compileBlockFunction = $this->matchCompileBlockFunction($blockFunctionName)) {
-                    $compileBlockFunction[0]($this, $segmentText);
+                    $compileBlockFunction[0]($this, $remainingText);
                     return;
                 }
                 
                 if ($processedBlockFunction = $this->getProcessedBlockFunction($blockFunctionName)) {
                     $startFunctionName = $processedBlockFunction[0];
                     if ($startFunctionName != null) {
-                        $this->addCode("\$this->jigRender->startProcessedBlock('$blockFunctionName');");
+
+                        $paramText = addslashes($remainingText);
+                        
+                        $this->addCode("\$this->jigRender->startRenderBlock('$blockFunctionName', '$paramText');");
                     }
                     $this->addCode("ob_start();");
 

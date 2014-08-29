@@ -1,7 +1,7 @@
 
 {block name='mainContent'}
 
-{warning}
+{warning foo='bar'}
 This is in a warning block?
 {/warning}
     

@@ -533,8 +533,10 @@ END;
     function testRenderBlock(){
         $blockStartCallCount = 0;
         $blockEndCallCount = 0;
-        $warningBlockStart = function () use (&$blockStartCallCount) {
+        $passedSegementText = null;
+        $warningBlockStart = function ($segmentText) use (&$blockStartCallCount, &$passedSegementText) {
             $blockStartCallCount++;
+            $passedSegementText = $segmentText;
             return "processedBlockStart";
         };
 
@@ -553,6 +555,7 @@ END;
         
         $this->assertEquals($blockStartCallCount, 1);
         $this->assertEquals($blockEndCallCount, 1);
+        $this->assertEquals("foo='bar'", $passedSegementText);
         $this->assertContains("This is in a warning block", $contents);
         $this->assertContains("processedBlockEnd", $contents);
         $this->assertContains("processedBlockStart", $contents);
@@ -575,10 +578,13 @@ END;
         $blockStartCallCount = 0;
         $blockEndCallCount = 0;
 
-        $compileBlockStart = function (JigConverter $jigConverter, $segmentText) use (&$blockStartCallCount) {
+        $passedSegementText = null;
+
+        $compileBlockStart = function (JigConverter $jigConverter, $segmentText) use (&$blockStartCallCount, &$passedSegementText) {
             $blockStartCallCount++;
             $jigConverter->addHTML("compileBlockStart");
             $jigConverter->addHTML($segmentText);
+            $passedSegementText = $segmentText;
         };
 
         $compileBlockEnd = function (JigConverter $jigConverter) use (&$blockEndCallCount) {
@@ -588,8 +594,8 @@ END;
 
         $jigRenderer->bindCompileBlock(
             'compile',
-            $compileBlockEnd,
-            $compileBlockStart
+            $compileBlockStart,
+            $compileBlockEnd
         );
 
         $jigRenderer->deleteCompiledFile('block/compileBlock');
@@ -599,7 +605,8 @@ END;
         //Because the block is called when the template is compiled, and
         //as the template should only be compiled once (due to caching) each
         //block function should only be called once.
-        
+
+        $this->assertEquals('foo="bar"', $passedSegementText);
         $this->assertEquals($blockStartCallCount, 1);
         $this->assertEquals($blockEndCallCount, 1);
         $this->assertContains("This is in a compile time block", $contents);
