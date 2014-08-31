@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Jig\Tests;
+namespace Jig\PlaceHolder;
 
 
 class SiteNavLinks implements \IteratorAggregate {

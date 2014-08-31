@@ -183,7 +183,7 @@ class JigRender {
      * @param callable $startCallback
      * @param callable $endCallback
      */
-    function bindCompileBlock($blockName, Callable $startCallback, Callable $endCallback) {
+    function bindCompileBlock($blockName, callable $startCallback, callable $endCallback) {
         $this->jigConverter->bindCompileBlock($blockName, $startCallback, $endCallback);
     }
 

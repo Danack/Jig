@@ -594,14 +594,23 @@ class JigConverter {
     }
 
     /**
+     * Creates a 'named block' that is processed when the template is compiled
+     * and binds a start and end callable to it.
      * @param $blockName
      * @param callable $startCallback
      * @param callable $endCallback
      */
-    function bindCompileBlock($blockName, Callable $startCallback, Callable $endCallback) {
+    function bindCompileBlock($blockName, callable $startCallback, callable $endCallback) {
         $this->compileBlockFunctions[$blockName] = array($startCallback, $endCallback);
     }
 
+    /**
+     * Creates a 'named block' that is processed when the template is rendered 
+     * and binds a start and end callable to it. 
+     * @param $blockName
+     * @param $endFunctionCallable
+     * @param null|callable $startFunctionCallable
+     */
     function bindRenderBlock($blockName, $endFunctionCallable, $startFunctionCallable = null) {
         $this->renderBlockFunctions[$blockName] = array($startFunctionCallable, $endFunctionCallable);
     }

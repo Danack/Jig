@@ -8,6 +8,7 @@
     <testsuites>
         <testsuite name="Jig Test Suite">
             <directory>../test/Jig/Tests/</directory>
+            <exclude>*/BaseTestCase.php</exclude> <!-- This doens't seem to work-->
         </testsuite>
     </testsuites>
 

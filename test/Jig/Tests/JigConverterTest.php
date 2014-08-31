@@ -14,7 +14,7 @@ namespace Tests\PHPTemplate{
 
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
-use Jig\Tests\PlaceHolderView;
+use Jig\PlaceHolder\PlaceHolderView;
 use Jig\JigRender;
 use Jig\ViewModel\BasicViewModel;
 
@@ -36,7 +36,7 @@ function testCallableFunction() {
 }
 
 
-class JigTest extends \PHPUnit_Framework_TestCase {
+class JigTest extends \Jig\Base\BaseTestCase {
 
     private $startOBLevel;
 
@@ -55,16 +55,16 @@ class JigTest extends \PHPUnit_Framework_TestCase {
     private $jigRenderer = null;
 
     /**
-     * @var \Jig\Tests\PlaceHolderView
+     * @var \Jig\PlaceHolder\PlaceHolderView
      */
     private $viewModel;
 
-    protected function setUp() {
+    function setUp() {
 
+        parent::setUp();
+        
         $this->templateDirectory = dirname(__DIR__)."/../templates/";
         $this->compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
-        
-        $this->startOBLevel = ob_get_level();
         $this->viewModel = new PlaceHolderView();
 
         $jigConfig = new JigConfig(
@@ -84,23 +84,12 @@ class JigTest extends \PHPUnit_Framework_TestCase {
              ':provider',   $provider
             ]
         );
-
-//        $this->jigRenderer = $provider->make(
-//            '\Jig\Tests\ExtendedJigRender',
-//            [':jigConfig' , $jigConfig,
-//                ':provider',   $provider
-//            ]
-//        );
-
-        //$this->jigRenderer->bindViewModel($this->viewModel);
+        
         $this->viewModel->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
     }
 
-    protected function tearDown(){
-        //ob_end_clean();
-        $level = ob_get_level();
-        
-        $this->assertEquals($this->startOBLevel, $level, "Output buffer was left active by somethng");
+    public function teardown(){
+        parent::teardown();
     }
 
     function testWithoutView() {

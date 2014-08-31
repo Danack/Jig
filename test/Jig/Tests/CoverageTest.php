@@ -38,12 +38,13 @@ use Jig\JigConfig;
 use Jig\JigRender;
     
     
-class CoverageTest extends \PHPUnit_Framework_TestCase {
+class CoverageTest extends \Jig\Base\BaseTestCase {
 
     private $templateDirectory;
     private $compileDirectory;
 
-    protected function setUp() {
+    public function setUp() {
+        parent::setup();
         $this->templateDirectory = dirname(__DIR__)."/../templates/";
         $this->compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
     }

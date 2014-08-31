@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Jig\Tests;
+namespace Jig\PlaceHolder;
 
 use Jig\ViewModel\BasicViewModel;
 
