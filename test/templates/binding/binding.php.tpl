@@ -9,3 +9,7 @@ Function test
 
 
 {testFunction3()}
+
+{if isAllowed('admin', 'edit')}
+    isAllowed was true
+{/if}

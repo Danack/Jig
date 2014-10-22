@@ -273,17 +273,21 @@ END;
     }
 
     function testFunctionBinding() {
-
         $this->viewModel->bindFunction('testFunction1', 'testFunction1');
         $this->viewModel->bindFunction('testFunction2', [$this, 'classBoundFunction']);
         $this->viewModel->bindFunction('testFunction3', function () {
             echo "This is a closure function.";
         });
 
+        $this->viewModel->bindFunction('isAllowed', function () {
+            return true;
+        });
+
         $contents = $this->jigRenderer->renderTemplateFile('binding/binding', $this->viewModel);
         $this->assertContains("This is a global function.", $contents);
         $this->assertContains("This is a class function.", $contents);
         $this->assertContains("This is a closure function.", $contents);
+        $this->assertContains("isAllowed was true", $contents);
     }
     
     function testAssignment() {

@@ -293,7 +293,7 @@ class JigConverter {
                 $this->processLiteralStart();
             }
             //TODO - make less fragile
-            else if (strncmp($segmentText, 'if isset', mb_strlen('isset')) == 0){
+            else if (strncmp($segmentText, 'if isset', mb_strlen('if isset')) == 0){
                 $this->processIssetStart($segmentText);
             }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
