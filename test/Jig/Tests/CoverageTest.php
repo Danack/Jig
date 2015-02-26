@@ -73,6 +73,7 @@ class CoverageTest extends \Jig\Base\BaseTestCase {
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $provider->share($jigConfig);
         $provider->share($provider);
         $jigRenderer = $provider->make('Jig\JigRender');

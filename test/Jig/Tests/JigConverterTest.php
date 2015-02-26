@@ -75,6 +75,7 @@ class JigTest extends \Jig\Base\BaseTestCase {
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $provider->share($jigConfig);
         $provider->share($provider);
 
@@ -101,6 +102,7 @@ class JigTest extends \Jig\Base\BaseTestCase {
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $renderer = new JigRender($jigConfig, $provider);
         
         $contents = $renderer->renderTemplateFile('basic/templateWithoutView');
@@ -116,6 +118,7 @@ class JigTest extends \Jig\Base\BaseTestCase {
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $renderer = new JigRender($jigConfig, $provider);
 
         $contents = $renderer->renderTemplateFile('basic/filterTest');
@@ -196,6 +199,7 @@ END;
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $provider->share($jigConfig);
         $provider->share($provider);
 
@@ -478,6 +482,7 @@ END;
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $provider->share($jigConfig);
         $provider->share($provider);
         $jigRenderer = $provider->make('Jig\JigRender');
@@ -494,6 +499,7 @@ END;
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $provider->share($jigConfig);
         $provider->share($provider);
         $jigRenderer = $provider->make('Jig\JigRender');
@@ -511,6 +517,7 @@ END;
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $provider->share($jigConfig);
         $provider->share($provider);
 
@@ -552,6 +559,8 @@ END;
         $this->assertContains("This is in a warning block", $contents);
         $this->assertContains("processedBlockEnd", $contents);
         $this->assertContains("processedBlockStart", $contents);
+
+        $this->assertContains("This is in a warning block", $contents);
     }
 
     function testCompileBlock() {
@@ -564,6 +573,7 @@ END;
         );
 
         $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
         $provider->share($jigConfig);
         $provider->share($provider);
 
@@ -592,7 +602,6 @@ END;
         );
 
         $jigRenderer->deleteCompiledFile('block/compileBlock');
-        $contents = $jigRenderer->renderTemplateFile('block/compileBlock');
         $contents = $jigRenderer->renderTemplateFile('block/compileBlock');
 
         //Because the block is called when the template is compiled, and
@@ -627,6 +636,27 @@ END;
         $this->jigRenderer->renderTemplateFromString($templateString, "Exception1", $viewModel);
     }
 
+
+    function testCheckInlinePHP() {
+        $jigConfig = new JigConfig(
+            $this->templateDirectory,
+            $this->compileDirectory,
+            "php.tpl",
+            JigRender::COMPILE_CHECK_EXISTS,
+            ""
+        );
+
+        $provider = new \Auryn\Provider();
+        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider->share($jigConfig);
+        $provider->share($provider);
+        $jigRenderer = $provider->make('Jig\JigRender');
+        $contents = $jigRenderer->renderTemplateFile("inlinePHP/simple");
+
+        $this->assertContains('value is 5', $contents);
+    }
+    
+    
 }
 
 }//end namespace

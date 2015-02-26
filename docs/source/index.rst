@@ -14,7 +14,7 @@ Jig - the DIC template system
    basic
    reusingTemplates
    viewModel
-   processedBlocks
+   namedBlocks
    test
    syntaxReference    
 

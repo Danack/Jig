@@ -33,9 +33,9 @@ class JigRender {
     private $jigConverter;
 
     /**
-     * @var \Auryn\Provider
+     * @var \Auryn\Injector
      */
-    private $provider;
+    private $injector;
 
     /**
      * @var JigConfig
@@ -43,10 +43,10 @@ class JigRender {
     private $jigConfig;
     
 
-    function __construct(JigConfig $jigConfig, \Auryn\Provider $provider) {
+    function __construct(JigConfig $jigConfig, \Auryn\Injector $injector) {
         $this->jigConfig = clone $jigConfig;
         $this->jigConverter = new JigConverter($this->jigConfig);
-        $this->provider = $provider;
+        $this->injector = $injector;
     }
 
     /**
@@ -154,7 +154,7 @@ class JigRender {
             //TODO - This whole code block could be refactored to
             //do the injection in one step, which would be cleaner.
             foreach ($injections as $name => $value) {
-                $injectionValues[$name] = $this->provider->make($value);
+                $injectionValues[$name] = $this->injector->make($value);
             }
     
             $template->inject($injectionValues);

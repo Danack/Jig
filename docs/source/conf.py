@@ -91,7 +91,14 @@ exclude_patterns = []
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+#pygments_style = 'sphinx'
+#pygments_style = 'friendly'
+#pygments_style = 'pastie'
+#pygments_style = 'borland'
+#pygments_style = 'manni'
+#borland
+#friendly
+
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -106,7 +113,6 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 #html_theme = 'sphinxdoc'
 
-
 html_theme = 'bootstrap'
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
@@ -119,20 +125,16 @@ html_theme_options = {
     'source_link_position': "footer",
     'navbar_links': [
         ("Github", "https://www.github.com/danack/jig/", True)
-#        ("Forum", "http://googlegroups.com", True), #:-P
+        #        ("Forum", "http://googlegroups.com", True), #:-P
     ],
 
     'navbar_sidebarrel': True,
-#    'navbar_sidebarrel': True,
+    #    'navbar_sidebarrel': True,
     'navbar_pagenav': True,
     'navbar_class': "navbar navbar-inverse",
-    
-#    'nosidebar': False,
-    
+        #    'nosidebar': False,
     'bootswatch_theme': "Cerulean",
-    
     'navbar_fixed_top': False,
-
 }
 
 
@@ -308,5 +310,3 @@ html_sidebars = {
     '*': ['sidebarToc.html', 'searchbox.html', 'githubLink.html' ],
     'index': []
 }
-
-

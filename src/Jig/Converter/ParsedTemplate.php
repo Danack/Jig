@@ -172,7 +172,10 @@ class ParsedTemplate {
 
         \Jig\ensureDirectoryExists($outputFilename);
 
-        $outputFileHandle = @fopen($outputFilename, "w");
+        $directoryName = dirname($outputFilename);
+        $tempFilename = tempnam($directoryName, 'jig');
+        chmod($tempFilename, 0750);
+        $outputFileHandle = @fopen($tempFilename, "w");
 
         if ($outputFileHandle == false) {
             throw new JigException("Could not open file [$outputFilename] for writing template.");
@@ -226,7 +229,12 @@ END;
 
         $this->writeEndSection($outputFileHandle);
 
+        //Close the file and move it to the correct place atomically.
         fclose($outputFileHandle);
+        $renameResult = rename($tempFilename, $outputFilename);
+        if (!$renameResult) {
+            throw new JigException("Failed to rename temp file $tempFilename to $outputFilename");
+        }
 
         return $outputFilename;
     }
