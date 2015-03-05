@@ -16,6 +16,7 @@ class JigRender {
     const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
     const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
     const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
+    const COMPILE_NEVER         = 'COMPILE_NEVER';
 
     /**
      * @var ViewModel
@@ -94,6 +95,9 @@ class JigRender {
         return $proxiedClassName;
     }
 
+    function renderTemplateFromStringWithSameView($templateString, $objectID) {
+        return $this->renderTemplateFromString($templateString, $objectID, $this->viewModel);
+    }
 
     /**
      * Renders 
@@ -269,6 +273,10 @@ class JigRender {
      * @throws JigException
      */
     function checkTemplateCompiled($templateFilename, $proxied = false) {
+        if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
+            return;
+        }
+        
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
         if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
