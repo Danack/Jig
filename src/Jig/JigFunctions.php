@@ -3,12 +3,25 @@
 
 namespace Jig {
 
+    use Jig\Converter\JigConverter;
     use Jig\JigException;
     
     class JigFunctions {
         public static function load(){}
     }
 
+    /**
+     * @param $templateName
+     * @return string
+     */
+    function getCompileFilename($templateName, JigConverter $jigConverter, JigConfig $jigConfig) {
+        $className = $jigConverter->getClassNameFromFilename($templateName);
+        $compileFilename = $jigConfig->getCompiledFilename($className);
+
+        return $compileFilename;
+    }
+    
+    
 
     /**
      * Convert a PHP variable to an escaped output. Objects and arrays return empty string.

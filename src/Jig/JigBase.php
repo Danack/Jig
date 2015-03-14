@@ -62,6 +62,10 @@ abstract class JigBase {
      * @return mixed
      */
     function getVariable($name) {
+        if ($name == 'jigRender') {
+            return $this->jigRender;
+        }
+        
         if ($this->viewModel) {
             return $this->viewModel->getVariable($name);
         }

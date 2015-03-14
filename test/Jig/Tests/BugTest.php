@@ -1,6 +1,6 @@
 <?php
 
-
+use Jig\Jig;
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\PlaceHolder\PlaceHolderView;
@@ -16,9 +16,9 @@ class BugTest extends \Jig\Base\BaseTestCase {
     private $viewModel;
 
     /**
-     * @var \Jig\JigRender
+     * @var \Jig\Jig
      */
-    private $jigRenderer;
+    private $jig;
 
     /**
      * 
@@ -35,7 +35,7 @@ class BugTest extends \Jig\Base\BaseTestCase {
             $templateDirectory,
             $compileDirectory,
             "php.tpl",
-            JigRender::COMPILE_ALWAYS
+            Jig::COMPILE_ALWAYS
         );
 
         $provider = new \Auryn\Provider();
@@ -43,8 +43,8 @@ class BugTest extends \Jig\Base\BaseTestCase {
         $provider->share($jigConfig);
         $provider->share($provider);
 
-        $this->jigRenderer = $provider->make(
-            'Jig\JigRender',
+        $this->jig = $provider->make(
+            'Jig\Jig',
             [':jigConfig' , $jigConfig,
                 ':provider',   $provider
             ]
@@ -68,7 +68,7 @@ class BugTest extends \Jig\Base\BaseTestCase {
         $templateString = implode("\n{\$foo}\n", $testLines);
         $this->viewModel->setVariable('foo', 'bar');
 
-        $renderedText = $this->jigRenderer->renderTemplateFromString($templateString, "bug123", $this->viewModel);
+        $renderedText = $this->jig->renderTemplateFromString($templateString, "bug123", $this->viewModel);
 
         $count = 0;
         foreach ($testLines as $testLine) {
@@ -86,13 +86,12 @@ class BugTest extends \Jig\Base\BaseTestCase {
             );
             $count++;
         }
-        
     }
 
 
     function testQuotesInTemplate() {
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
-        $contents = $this->jigRenderer->renderTemplateFile('bugs/quotes', $this->viewModel);
+        $contents = $this->jig->renderTemplateFile('bugs/quotes', $this->viewModel);
         $this->assertContains('content: " ";', $contents);
     }
 }

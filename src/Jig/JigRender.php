@@ -4,24 +4,16 @@
 namespace Jig;
 
 use Jig\Converter\JigConverter;
+use Auryn\Injector; 
 
 JigFunctions::load();
 
 /**
  * Class JigRender
- *
+ * 
+ * 
  */
 class JigRender {
-
-    const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
-    const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
-    const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
-    const COMPILE_NEVER         = 'COMPILE_NEVER';
-
-    /**
-     * @var ViewModel
-     */
-    private $viewModel;
 
     /**
      * @var array The class map for dynamically extending classes
@@ -42,12 +34,19 @@ class JigRender {
      * @var JigConfig
      */
     private $jigConfig;
-    
 
-    function __construct(JigConfig $jigConfig, \Auryn\Injector $injector) {
-        $this->jigConfig = clone $jigConfig;
-        $this->jigConverter = new JigConverter($this->jigConfig);
+    function __construct(
+        Jigconfig $jigConfig,
+        JigConverter $jigConverter,
+        Injector $injector,
+        ViewModel $viewModel,
+        array $mappedClasses
+    ) {
+        $this->jigConfig = $jigConfig;
+        $this->jigConverter = $jigConverter;
         $this->injector = $injector;
+        $this->viewModel = $viewModel;
+        $this->mappedClasses = $mappedClasses;
     }
 
     /**
@@ -58,16 +57,6 @@ class JigRender {
         return $contents;
     }
 
-    /**
-     * Sets the class map for dynamically extending classes
-     *
-     * e.g. standardLayout => standardJSONLayout or standardHTMLLayout
-     *
-     * @param $classMap
-     */
-    function mapClasses($classMap) {
-        $this->mappedClasses = array_merge($this->mappedClasses, $classMap);
-    }
 
     /**
      * @param $className
@@ -95,10 +84,6 @@ class JigRender {
         return $proxiedClassName;
     }
 
-    function renderTemplateFromStringWithSameView($templateString, $objectID) {
-        return $this->renderTemplateFromString($templateString, $objectID, $this->viewModel);
-    }
-
     /**
      * Renders 
      * @param $templateString string The template to compile.
@@ -107,10 +92,7 @@ class JigRender {
      * @return string
      * @throws \Exception
      */
-    function renderTemplateFromString($templateString, $objectID, ViewModel $viewModel = null) {
-
-        $this->viewModel = $viewModel;
-        
+    function renderTemplateFromString($templateString, $objectID) {
         ob_start();
         try{
             $className = $this->getParsedTemplateFromString($templateString, $objectID);
@@ -139,10 +121,7 @@ class JigRender {
      * @param bool $capture
      * @return string
      */
-    public function renderTemplateFile($templateFilename, ViewModel $viewModel = null) {
-
-        $this->viewModel = $viewModel;
-        
+    public function renderTemplateFile($templateFilename) {
         $contents = '';
 
         ob_start();
@@ -183,36 +162,9 @@ class JigRender {
     }
 
     /**
-     * @param $blockName
-     * @param callable $startCallback
-     * @param callable $endCallback
-     */
-    function bindCompileBlock($blockName, callable $startCallback, callable $endCallback) {
-        $this->jigConverter->bindCompileBlock($blockName, $startCallback, $endCallback);
-    }
-
-    /**
-     * @param $blockName
-     * @param $endFunctionName
-     * @param null $startFunctionName
-     */
-    function bindRenderBlock($blockName, $endFunctionName, $startFunctionName = null) {
-        $this->jigConverter->bindRenderBlock($blockName, $endFunctionName, $startFunctionName);
-    }
-
-    /**
-     * Delete the compiled version of a template.
      * @param $templateName
-     * @return bool
+     * @return string
      */
-    function deleteCompiledFile($templateName) {
-        $className = $this->jigConverter->getClassNameFromFilename($templateName);
-        $compileFilename = $this->jigConfig->getCompiledFilename($className);
-        $deleted = @unlink($compileFilename);
-
-        return $deleted;
-    }
-    
     function getCompileFilename($templateName) {
         $className = $this->jigConverter->getClassNameFromFilename($templateName);
         $compileFilename = $this->jigConfig->getCompiledFilename($className);
@@ -226,7 +178,7 @@ class JigRender {
      */
     function isGeneratedFileOutOfDate($templateFilename) {
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
-        $classPath = $this->getCompileFilename($templateFilename);
+        $classPath = getCompileFilename($templateFilename, $this->jigConverter, $this->jigConfig);
         $classPath = str_replace('\\', '/', $classPath);
         $templateTime = @filemtime($templateFullFilename);
         $classTime = @filemtime($classPath);
@@ -256,7 +208,7 @@ class JigRender {
             $parsedTemplate = $this->jigConverter->createFromLines($fileLines);
             $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
             $parsedTemplate->setClassName($className);
-            
+
             return $parsedTemplate;
         }
         catch(JigException $pte) {
@@ -273,18 +225,20 @@ class JigRender {
      * @throws JigException
      */
     function checkTemplateCompiled($templateFilename, $proxied = false) {
-        if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
+        if ($this->jigConfig->compileCheck == Jig::COMPILE_NEVER) {
+            //This is useful when debugging templates. It allows you to edit the
+            //generated code, without having it over-written.
             return;
         }
         
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
-        if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_EXISTS) {
+        if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
                 return;
             }
         }
 
-        if ($this->jigConfig->compileCheck == JigRender::COMPILE_CHECK_MTIME) {
+        if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_MTIME) {
             if ($this->isGeneratedFileOutOfDate($templateFilename) == false) {
                 if (class_exists($className) == true) {
                     return;
@@ -353,7 +307,7 @@ class JigRender {
      * @param $templateString
      * @param $cacheName
      * @return mixed
-     * @TODO It is always being compiled, it never uses the already compiled version.
+     * 
      */
     function getParsedTemplateFromString($templateString, $cacheName) {
         $templateString = str_replace( "<?php", "&lt;php", $templateString);
@@ -372,7 +326,7 @@ class JigRender {
         }
 
         //This is fucking stupid. We should be able to auto-load the class
-        //if an only if it is required. But the Composer autoloader caches
+        //if and only if it is required. But the Composer autoloader caches
         //the 'class doesn't exist' result from earlier, which means we
         //have to load it by hand.
         /** @noinspection PhpIncludeInspection */
@@ -406,5 +360,4 @@ class JigRender {
         $endFunctionCallable = $blockFunction[1];
         echo call_user_func($endFunctionCallable, $contents);
     }
-    
 }
