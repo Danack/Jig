@@ -6,12 +6,11 @@ namespace Jig\Converter;
 use Jig\JigException;
 use Jig\JigConfig;
 
-
 /**
- * Class JigConverter The actual class that converts templates into PHP. 
+ * Class JigConverter The actual class that converts templates into PHP.
  */
-class JigConverter {
-
+class JigConverter
+{
     /**
      * @var \Jig\JigConfig
      */
@@ -53,12 +52,13 @@ class JigConverter {
     private $activeBlock = null;
 
     /**
-     * @var null|string The name of the active block if there is one. 
+     * @var null|string The name of the active block if there is one.
      */
     private $activeBlockName = null;
 
     
-    function __construct(JigConfig $jigConfig) {
+    public function __construct(JigConfig $jigConfig)
+    {
         $this->bindRenderBlock('trim', [$this, 'processTrimEnd']);
         $this->jigConfig = $jigConfig;
     }
@@ -67,9 +67,10 @@ class JigConverter {
      * @param $blockName
      * @return null|callable
      */
-    function matchCompileBlockFunction($segmentText) {
+    public function matchCompileBlockFunction($segmentText)
+    {
         foreach ($this->compileBlockFunctions as $blockName => $blockFunctions) {
-            if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0){
+            if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0) {
                 return $blockFunctions;
             }
         }
@@ -82,7 +83,8 @@ class JigConverter {
      * @param $blockName
      * @return null|callable
      */
-    function getProcessedBlockFunction($blockName) {
+    public function getProcessedBlockFunction($blockName)
+    {
         if (array_key_exists($blockName, $this->renderBlockFunctions)) {
             return $this->renderBlockFunctions[$blockName];
         }
@@ -95,7 +97,8 @@ class JigConverter {
      * @throws \Exception
      * @return ParsedTemplate
      */
-     function createFromLines($fileLines) {
+     public function createFromLines($fileLines)
+     {
         if ($this->parsedTemplate != null) {
             throw new \Exception("Trying to convert template while in the middle of converting another one.");
         }
@@ -120,7 +123,8 @@ class JigConverter {
      * @param $fileLine
      * @return TemplateSegment[]
      */
-    function getLineSegments($fileLine) {
+    public function getLineSegments($fileLine)
+    {
         $segments = array();
         $matches = array();
 
@@ -141,13 +145,21 @@ class JigConverter {
         //TODO preg is the wrong way of doing this.
 
         //http://stackoverflow.com/questions/524548/regular-expression-to-detect-semi-colon-terminated-c-for-while-loops/524624#524624
-//        You could write a little, very simple routine that does it, without using a regular expression:
+
+/*
+//        You could write a little, very simple routine that does it, without using a regular
+ expression:
 //
-//Set a position counter pos so that is points to just before the opening bracket after your for or while.
+//Set a position counter pos so that is points to just before the opening bracket after your for
+ or while.
 //Set an open brackets counter openBr to 0.
-//Now keep incrementing pos, reading the characters at the respective positions, and increment openBr when you see an opening bracket, and decrement it when you see a closing bracket. That will increment it once at the beginning, for the first opening bracket in "for (", increment and decrement some more for some brackets in between, and set it back to 0 when your for bracket closes.
+//Now keep incrementing pos, reading the characters at the respective positions, and increment
+ openBr when you see an opening bracket, and decrement it when you see a closing bracket. That
+ will increment it once at the beginning, for the first opening bracket in "for (", increment and
+ decrement some more for some brackets in between, and set it back to 0 when your for bracket
+ closes.
 //        So, stop when openBr is 0 again.
-//        
+*/
 
         $matchCount = preg_match_all($pattern, $fileLine, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
 
@@ -196,7 +208,8 @@ class JigConverter {
     /**
      * @param $literalMode
      */
-    function setLiteralMode($literalMode){
+    public function setLiteralMode($literalMode)
+    {
         $this->literalMode = $literalMode;
     }
 
@@ -204,7 +217,8 @@ class JigConverter {
     /**
      * @param $filename
      */
-    public function setInclude($filename) {
+    public function setInclude($filename)
+    {
         $code = "echo \$this->jigRender->includeFile('$filename')";
         $this->addCode($code);
     }
@@ -213,23 +227,24 @@ class JigConverter {
      * @param TemplateSegment $segment
      * @throws \Exception
      */
-    function addSegment(TemplateSegment $segment) {
+    public function addSegment(TemplateSegment $segment)
+    {
         $segmentText = $segment->text;
 
-        if (strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0){
+        if (strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0) {
             $this->processLiteralEnd();
             return;
         }
 
         foreach ($this->compileBlockFunctions as $blockName => $blockFunctions) {
-            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
+            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0) {
                 call_user_func($blockFunctions[1], $this, $segmentText);
                 return;
             }
         }
 
         foreach ($this->renderBlockFunctions as $blockName => $blockFunctions) {
-            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0){
+            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0) {
                 $this->addCode("\$this->jigRender->endRenderBlock('$blockName');");
                 //$this->addCode("ob_end_clean();");
                 return;
@@ -261,10 +276,11 @@ class JigConverter {
      * @param TemplateSegment $segment
      * @throws \Jig\JigException
      */
-    function parseJigSegment(TemplateSegment $segment) {
+    public function parseJigSegment(TemplateSegment $segment)
+    {
         $segmentText = $segment->text;
 
-        try{
+        try {
             if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
                 $this->processExtends($segmentText);
             }

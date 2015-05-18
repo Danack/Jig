@@ -5,8 +5,8 @@ namespace Jig\Converter;
 
 use Jig\JigException;
 
-
-class ParsedTemplate {
+class ParsedTemplate
+{
     
     /**
      * @var string[]
@@ -27,26 +27,31 @@ class ParsedTemplate {
 
     private $injections = array();
 
-    public function __construct($baseNamespace){
+    public function __construct($baseNamespace)
+    {
         $this->baseNamespace = $baseNamespace;
     }
 
-    function addTextLine($string){
+    public function addTextLine($string)
+    {
         $this->textLines[] = $string;
     }
 
-    function  addInjection($name, $value) {
+    public function addInjection($name, $value)
+    {
         $this->injections[$name] = $value;
     }
 
-    function getDynamicExtends() {
+    public function getDynamicExtends()
+    {
         return $this->dynamicExtends;
     }
 
     /**
      * @param $className
      */
-    public function setClassName($className) {
+    public function setClassName($className)
+    {
         $className = str_replace("/", "\\", $className);
         $className = str_replace("-", "", $className);
 
@@ -56,14 +61,16 @@ class ParsedTemplate {
     /**
      * @return string
      */
-    function getClassName() {
+    public function getClassName()
+    {
         return $this->className;
     }
 
     /**
      * @return \string[]
      */
-    function getLines() {
+    public function getLines()
+    {
         return $this->textLines;
     }
 
@@ -71,7 +78,8 @@ class ParsedTemplate {
      * @param $variableName
      * @return bool
      */
-    function hasLocalVariable($variableName) {
+    public function hasLocalVariable($variableName)
+    {
         return in_array($variableName, $this->localVariables);
     }
 
@@ -80,10 +88,11 @@ class ParsedTemplate {
      * trigger trying to fetch it from the ViewModel
      * @param $localVariable
      */
-    function addLocalVariable($localVariable) {
+    public function addLocalVariable($localVariable)
+    {
         $varName = $localVariable;
 
-        if(strpos($varName, '$') === 0) {
+        if (strpos($varName, '$') === 0) {
             $varName = substr($localVariable, 1);
         }
 
@@ -96,35 +105,40 @@ class ParsedTemplate {
      * @param $name
      * @param $block
      */
-    function addFunctionBlock($name, $block) {
+    public function addFunctionBlock($name, $block)
+    {
         $this->functionBlocks[$name] = $block;
     }
 
     /**
      * @return array
      */
-    function getFunctionBlocks() {
+    public function getFunctionBlocks()
+    {
         return $this->functionBlocks;
     }
 
     /**
      * @param $filename
      */
-    function setExtends($filename) {
+    public function setExtends($filename)
+    {
         $this->extends = $filename;
     }
 
     /**
      * @param $filename
      */
-    public function setDynamicExtends($filename) {
+    public function setDynamicExtends($filename)
+    {
         $this->dynamicExtends = $filename;
     }
 
     /**
      * @return string
      */
-    public function getParentClass() {
+    public function getParentClass()
+    {
         if ($this->extends == null) {
             return "Jig\\JigBase";
         }
@@ -136,7 +150,8 @@ class ParsedTemplate {
     /**
      * @return null|string
      */
-    function getExtends() {
+    public function getExtends()
+    {
         return $this->extends;
     }
 
@@ -146,15 +161,16 @@ class ParsedTemplate {
      * @return string
      * @throws \Jig\JigException
      */
-    function saveCompiledTemplate($compilePath, $proxied) {
+    public function saveCompiledTemplate($compilePath, $proxied)
+    {
         $fullClassName = \Jig\getFQCN($this->baseNamespace, $this->getClassName());
         $fullClassName = str_replace("/", "\\", $fullClassName);
 
         $namespace = \Jig\getNamespace($fullClassName);
         $className = \Jig\getClassName($fullClassName);
 
-        if($proxied == true) {
-            $parentFullClassName =	$fullClassName;
+        if ($proxied == true) {
+            $parentFullClassName = $fullClassName;
             $className = 'Proxied'.$className;
         }
         else if ($this->dynamicExtends != null) {
@@ -242,7 +258,8 @@ END;
     /**
      * @param $outputFileHandle
      */
-    function writeEndSection($outputFileHandle) {
+    public function writeEndSection($outputFileHandle)
+    {
 
         $endSection = <<< END
     }
@@ -258,7 +275,8 @@ END;
      * @param $functionName
      * @param $lines
      */
-    function writeFunction($outputFileHandle, $functionName, $lines) {
+    public function writeFunction($outputFileHandle, $functionName, $lines)
+    {
         if ($lines > 0) {
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "\n");
@@ -279,12 +297,13 @@ END;
     /**
      * @param $outputFileHandle
      */
-    function writeMappedSection($outputFileHandle) {
+    public function writeMappedSection($outputFileHandle)
+    {
 
         $dynamicExtends = $this->dynamicExtends;
 
         //Todo just pass in parent class name - or eve just parent instance
-$output = <<< END
+        $output = <<< END
 public function __construct(\$jigRender, \$viewModel) {
     \$this->viewModel = \$viewModel;
     \$this->jigRender = \$jigRender;
@@ -307,8 +326,8 @@ END;
     /**
      * @param $outputFileHandle
      */
-    public function writeProxySection($outputFileHandle) {
-
+    public function writeProxySection($outputFileHandle)
+    {
         fwrite($outputFileHandle, "\n");
         $output = <<< END
 
@@ -329,7 +348,6 @@ END;
 
         $functionBlocks = $this->getFunctionBlocks();
         foreach ($functionBlocks as $name => $functionBlockSegments) {
-
             $output = <<< END
 
             function $name() {
@@ -352,7 +370,8 @@ END;
     /**
      * @param $outputFileHandle
      */
-    function writeInjectionArray($outputFileHandle) {
+    public function writeInjectionArray($outputFileHandle)
+    {
         $output = "    private \$injections = array(\n";
         $separator = '';
 
@@ -376,7 +395,8 @@ END;
     /**
      * @param $outputFileHandle
      */
-    function writeInjectionFunctions($outputFileHandle) {
+    public function writeInjectionFunctions($outputFileHandle)
+    {
         $output = "    function getInjections() {
             \$parentInjections = parent::getInjections();
 
@@ -397,5 +417,3 @@ END;
         fwrite($outputFileHandle, "\n");
     }
 }
-
-

@@ -11,14 +11,15 @@ use PHPParser_Error;
 /**
  * Class PHPTemplateSegment
  */
-class PHPTemplateSegment extends TemplateSegment {
-
+class PHPTemplateSegment extends TemplateSegment
+{
     /**
      * The pattern matcher strips off the enclosing tags - we re-add them here
      * for literal mode parsing.
      * @return string
      */
-    public function getRawString(){
+    public function getRawString()
+    {
         return '{'.$this->text.'}';
     }
 
@@ -56,11 +57,10 @@ class PHPTemplateSegment extends TemplateSegment {
     // {if ($count % 2) == 0}
     //{$count++}
 
-    public function removeFilters(){
+    public function removeFilters()
+    {
         $knownFilters = array('nofilter', 'urlencode', 'nooutput', 'nophp');
-
         $filterString = implode('|', $knownFilters);
-
         $pattern = '/\|\s*('.$filterString.')+/u';
 
         $filterCount = preg_match_all($pattern, $this->text, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
@@ -70,7 +70,7 @@ class PHPTemplateSegment extends TemplateSegment {
         $chomp = false;
 
         if ($filterCount != 0) {
-            foreach($matches as $match) {
+            foreach ($matches as $match) {
                 $filters[] = $match[1][0];
                 //$length = strlen($match[0][0]);
                 $position = $match[0][1];
@@ -87,7 +87,8 @@ class PHPTemplateSegment extends TemplateSegment {
         return $filters;
     }
     
-    public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array()) {
+    public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array())
+    {
         $filters = $this->removeFilters();
 
         $filters = array_merge($filters, $extraFilters);
@@ -104,14 +105,12 @@ class PHPTemplateSegment extends TemplateSegment {
             $statements = $parser->parse($code);
         }
         catch (PHPParser_Error $parserError) {
-
             $message = sprintf(
                 "Failed to parse code: [%s] error is %s",
                 $parserError->getRawLine(),
                 $parserError->getRawMessage()
             );
-            
-            
+
             throw new JigException(
                 $message,
                 0,
@@ -126,7 +125,7 @@ class PHPTemplateSegment extends TemplateSegment {
         $filters = array_merge($filters, $printer->getFilters());
 
         
-        if (in_array('nofilter', $filters) == false ) {
+        if (in_array('nofilter', $filters) == false) {
             $segmentText =  '\Jig\safeTextObject('.$segmentText.", ENT_QUOTES)";
         }
 
@@ -147,7 +146,7 @@ class PHPTemplateSegment extends TemplateSegment {
 
     //1. For all assignments, i.e. left of an equals sign - $parsedTemplate->addLocalVariable($assignmentMatch[1][0]);
     
-    //2. Var all variable fetch, replace with 
+    //2. Var all variable fetch, replace with
         //2a - if ($parsedTemplate->hasLocalVariable($variableName) == true)
             //just add it
         //2b - else

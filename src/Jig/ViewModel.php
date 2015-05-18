@@ -3,45 +3,44 @@
 
 namespace Jig;
 
-
-interface ViewModel {
-
+interface ViewModel
+{
     /**
      * @param array $functionArgs First entry is function name, the rest are the function parameters.
      * @return mixed
      */
-    function call(array $functionArgs);
+    public function call(array $functionArgs);
 
     /**
      * @param $name
      * @return mixed
      */
-    function getVariable($name);
+    public function getVariable($name);
 
     /**
      * @param $name
      * @return mixed
      */
-    function isVariableSet($name);
+    public function isVariableSet($name);
 
     /**
      * @param $name
      * @param $value
      * @return mixed
      */
-    function setVariable($name, $value);
+    public function setVariable($name, $value);
 
     /**
      * @param array $variable
      * @return mixed
      */
-    function setVariables(array $variable);
+    public function setVariables(array $variable);
 
     /**
-     * Bind a callable to be usable in a template 
-     * @param string $functionName The name the function should be called by. 
-     * @param callable $callable 
+     * Bind a callable to be usable in a template
+     * @param string $functionName The name the function should be called by.
+     * @param callable $callable
      * @return mixed
      */
-    function bindFunction($functionName, callable $callable);
+    public function bindFunction($functionName, callable $callable);
 }

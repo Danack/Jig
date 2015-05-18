@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Jig;
-
 
 /**
  * Class JigBase
@@ -10,8 +8,8 @@ namespace Jig;
  * There should be no reason to touch this class, unless you're debugging why
  * a template isn't working.
  */
-abstract class JigBase {
-
+abstract class JigBase
+{
     /**
      * @var ViewModel
      */
@@ -20,9 +18,10 @@ abstract class JigBase {
     /**
      * @var JigRender
      */
-    protected   $jigRender;
+    protected $jigRender;
 
-    function __construct(JigRender $jigRender, ViewModel $viewModel = null){
+    public function __construct(JigRender $jigRender, ViewModel $viewModel = null)
+    {
         $this->viewModel = $viewModel;
         $this->jigRender = $jigRender;
     }
@@ -30,12 +29,13 @@ abstract class JigBase {
     /**
      * @return mixed
      */
-    abstract function renderInternal();
+    abstract public function renderInternal();
 
     /**
      * @param $injectionValues
      */
-    function inject($injectionValues) {
+    public function inject($injectionValues)
+    {
         foreach ($injectionValues as $name => $value) {
             $this->{$name} = $value;
         }
@@ -44,7 +44,8 @@ abstract class JigBase {
     /**
      * @return array
      */
-    function getInjections() {
+    public function getInjections()
+    {
         return [];
     }
 
@@ -52,7 +53,8 @@ abstract class JigBase {
      * Render this template
      * @return mixed
      */
-    public function render() {
+    public function render()
+    {
         return $this->renderInternal();
     }
 
@@ -61,7 +63,8 @@ abstract class JigBase {
      * @param $name
      * @return mixed
      */
-    function getVariable($name) {
+    public function getVariable($name)
+    {
         if ($name == 'jigRender') {
             return $this->jigRender;
         }
@@ -79,14 +82,14 @@ abstract class JigBase {
      * @return mixed|void
      * @todo - if this template has $functionName - call it?
      */
-    function call($placeHolder) {
+    public function call($placeHolder)
+    {
         $functionArgs = func_get_args();
 
-        if ($this->viewModel) { 
+        if ($this->viewModel) {
             return $this->viewModel->call($functionArgs);
         }
 
         return null;
     }
 }
-

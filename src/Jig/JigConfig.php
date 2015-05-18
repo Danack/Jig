@@ -1,13 +1,12 @@
 <?php
 
-
 namespace Jig;
-
 
 /**
  * Class JigConfig Holds all of the config value for rendering templates.
  */
-class JigConfig {
+class JigConfig
+{
     
     public $templateSourceDirectory;
     public $templateCompileDirectory;
@@ -15,7 +14,7 @@ class JigConfig {
     public $compileCheck;
     public $compiledNamespace = "Jig\\PHPCompiledTemplate";
     
-    function __construct(
+    public function __construct(
         $templateSourceDirectory,
         $templateCompileDirectory,
         $extension,
@@ -34,20 +33,22 @@ class JigConfig {
      * @param $templateName
      * @return string
      */
-    function getTemplatePath($templateName) {
+    public function getTemplatePath($templateName)
+    {
         return $this->templateSourceDirectory.$templateName.'.'.$this->extension;
     }
 
     /**
-     * Returns the fully pathed filename for a compiled class. 
+     * Returns the fully pathed filename for a compiled class.
      * @param $className
      * @return string
      */
-    function getCompiledFilename($className) {
+    public function getCompiledFilename($className)
+    {
         $namespace = $this->compiledNamespace;
         $classPath = $this->templateCompileDirectory.'/'.$namespace.'/'.$className.'.php';
         $classPath = str_replace('\\', '/', $classPath);
-        
+
         return $classPath;
     }
 
@@ -56,12 +57,11 @@ class JigConfig {
      * @param $className
      * @return string
      */
-    function getFullClassname($className) {
-        $classname =   $this->compiledNamespace."\\".$className;
+    public function getFullClassname($className)
+    {
+        $classname = $this->compiledNamespace."\\".$className;
         $classname = str_replace('/', '\\', $classname);
 
         return $classname;
     }
 }
-
-

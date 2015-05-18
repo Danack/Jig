@@ -5,9 +5,8 @@ namespace Jig;
 use Jig\ViewModel;
 use Jig\Converter\JigConverter;
 
-
-class Jig {
-
+class Jig
+{
     const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
     const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
     const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
@@ -33,25 +32,29 @@ class Jig {
      */
     private $jigConfig;
 
-    function __construct(JigConfig $jigConfig, \Auryn\Injector $injector) {
+    public function __construct(JigConfig $jigConfig, \Auryn\Injector $injector)
+    {
         $this->jigConfig = clone $jigConfig;
         $this->jigConverter = new JigConverter($this->jigConfig);
         $this->injector = $injector;
     }
 
-    public function renderTemplateFromString($templateString, $objectID, ViewModel $viewModel) {
+    public function renderTemplateFromString($templateString, $objectID, ViewModel $viewModel)
+    {
         $jigRender = $this->createJigRender($viewModel);
 
         return $jigRender->renderTemplateFromString($templateString, $objectID);
     }
 
-    public function renderTemplateFile($templateFilename, ViewModel $viewModel) {
+    public function renderTemplateFile($templateFilename, ViewModel $viewModel)
+    {
         $jigRender = $this->createJigRender($viewModel);
         
         return $jigRender->renderTemplateFile($templateFilename);
     }
     
-    private function createJigRender(ViewModel $viewModel) {
+    private function createJigRender(ViewModel $viewModel)
+    {
         $jigRender = new JigRender(
             $this->jigConfig,
             $this->jigConverter,
@@ -68,7 +71,8 @@ class Jig {
      * @param callable $startCallback
      * @param callable $endCallback
      */
-    function bindCompileBlock($blockName, callable $startCallback, callable $endCallback) {
+    public function bindCompileBlock($blockName, callable $startCallback, callable $endCallback)
+    {
         $this->jigConverter->bindCompileBlock($blockName, $startCallback, $endCallback);
     }
 
@@ -77,7 +81,8 @@ class Jig {
      * @param $endFunctionName
      * @param null $startFunctionName
      */
-    function bindRenderBlock($blockName, $endFunctionName, $startFunctionName = null) {
+    public function bindRenderBlock($blockName, $endFunctionName, $startFunctionName = null)
+    {
         $this->jigConverter->bindRenderBlock($blockName, $endFunctionName, $startFunctionName);
     }
 
@@ -86,7 +91,8 @@ class Jig {
      * @param $templateName
      * @return bool
      */
-    function deleteCompiledFile($templateName) {
+    public function deleteCompiledFile($templateName)
+    {
         $className = $this->jigConverter->getClassNameFromFilename($templateName);
         $compileFilename = $this->jigConfig->getCompiledFilename($className);
         $deleted = @unlink($compileFilename);
@@ -101,7 +107,8 @@ class Jig {
      *
      * @param $classMap
      */
-    function mapClasses($classMap) {
+    public function mapClasses($classMap)
+    {
         $this->mappedClasses = array_merge($this->mappedClasses, $classMap);
     }
 
@@ -109,7 +116,8 @@ class Jig {
      * @param $templateFilename
      * @return string
      */
-    function getCompileFilename($templateFilename) {
+    public function getCompileFilename($templateFilename)
+    {
         return getCompileFilename($templateFilename, $this->jigConverter, $this->jigConfig);
     }
 }

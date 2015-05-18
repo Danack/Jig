@@ -2,6 +2,7 @@
 
 namespace Jig\Converter;
 
+// @codingStandardsIgnoreStart
 
 /**
  * Class TemplatePrinter

@@ -3,6 +3,4 @@
 
 namespace Jig;
 
-class ViewModelException extends \Exception{}
-
-
+class ViewModelException extends \Exception {}

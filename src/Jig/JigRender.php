@@ -4,17 +4,16 @@
 namespace Jig;
 
 use Jig\Converter\JigConverter;
-use Auryn\Injector; 
+use Auryn\Injector;
 
 JigFunctions::load();
 
 /**
  * Class JigRender
- * 
- * 
+ *
  */
-class JigRender {
-
+class JigRender
+{
     /**
      * @var array The class map for dynamically extending classes
      */
@@ -35,7 +34,7 @@ class JigRender {
      */
     private $jigConfig;
 
-    function __construct(
+    public function __construct(
         Jigconfig $jigConfig,
         JigConverter $jigConverter,
         Injector $injector,
@@ -51,8 +50,10 @@ class JigRender {
 
     /**
      * @param $filename
+     * @return string
      */
-    function includeFile($filename) {
+    public function includeFile($filename)
+    {
         $contents = $this->renderTemplateFile($filename, $this->viewModel);
         return $contents;
     }
@@ -63,7 +64,8 @@ class JigRender {
      * @throws JigException
      * @return mixed
      */
-    function getProxiedClass($className) {
+    public function getProxiedClass($className)
+    {
         if (array_key_exists($className, $this->mappedClasses) == false) {
             throw new JigException("Class '$className' not listed in mappedClasses, cannot proxy.");
         }
@@ -85,16 +87,18 @@ class JigRender {
     }
 
     /**
-     * Renders 
+     * Renders
      * @param $templateString string The template to compile.
-     * @param $objectID string An identifying string to name the generated class and so the generated PHP file. It must be a valid class name i.e. may not start with a digit. 
+     * @param $objectID string An identifying string to name the generated class and so the
+     * generated PHP file. It must be a valid class name i.e. may not start with a digit.
      * @param $viewModel ViewModel A viewmodel to (optional)
      * @return string
      * @throws \Exception
      */
-    function renderTemplateFromString($templateString, $objectID) {
+    public function renderTemplateFromString($templateString, $objectID)
+    {
         ob_start();
-        try{
+        try {
             $className = $this->getParsedTemplateFromString($templateString, $objectID);
             $template = new $className($this, $this->viewModel);
             /** @var $template \Jig\JigBase */
@@ -108,7 +112,7 @@ class JigRender {
             //Just rethrow it to keep the stack trace the same
             throw $je;
         }
-        catch(\Exception $e){
+        catch(\Exception $e) {
             ob_end_clean();
             //Catch all exceptions, but throw as a JigException to allow code to only
             //catch the template errors.
@@ -118,12 +122,11 @@ class JigRender {
 
     /**
      * @param $templateFilename
-     * @param bool $capture
+     * @throws JigException
      * @return string
      */
-    public function renderTemplateFile($templateFilename) {
-        $contents = '';
-
+    public function renderTemplateFile($templateFilename)
+    {
         ob_start();
         
         try {
@@ -150,10 +153,10 @@ class JigRender {
             ob_end_clean();
             
             throw new JigException(
-                "Failed to render template: ".$e->getMessage(), 
-                $e->getCode(), 
+                "Failed to render template: ".$e->getMessage(),
+                $e->getCode(),
                 $e
-            ); 
+            );
         }
 
         ob_end_clean();
@@ -165,7 +168,8 @@ class JigRender {
      * @param $templateName
      * @return string
      */
-    function getCompileFilename($templateName) {
+    public function getCompileFilename($templateName)
+    {
         $className = $this->jigConverter->getClassNameFromFilename($templateName);
         $compileFilename = $this->jigConfig->getCompiledFilename($className);
         
@@ -176,7 +180,8 @@ class JigRender {
      * @param $templateFilename
      * @return bool
      */
-    function isGeneratedFileOutOfDate($templateFilename) {
+    public function isGeneratedFileOutOfDate($templateFilename)
+    {
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
         $classPath = getCompileFilename($templateFilename, $this->jigConverter, $this->jigConfig);
         $classPath = str_replace('\\', '/', $classPath);
@@ -196,7 +201,8 @@ class JigRender {
      * @throws JigException
      * @return \Jig\Converter\ParsedTemplate
      */
-    function prepareTemplateFromFile($templateFilename) {
+    public function prepareTemplateFromFile($templateFilename)
+    {
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
         $fileLines = @file($templateFullFilename);
 
@@ -224,7 +230,8 @@ class JigRender {
      * @param bool $proxied
      * @throws JigException
      */
-    function checkTemplateCompiled($templateFilename, $proxied = false) {
+    public function checkTemplateCompiled($templateFilename, $proxied = false)
+    {
         if ($this->jigConfig->compileCheck == Jig::COMPILE_NEVER) {
             //This is useful when debugging templates. It allows you to edit the
             //generated code, without having it over-written.
@@ -256,7 +263,8 @@ class JigRender {
      * @param $proxied
      * @throws JigException
      */
-    function compileTemplate($className, $templateFilename, $proxied) {
+    public function compileTemplate($className, $templateFilename, $proxied)
+    {
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename);
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
             $this->jigConfig->templateCompileDirectory,
@@ -270,9 +278,13 @@ class JigRender {
         }
         else if ($parsedTemplate->getDynamicExtends()) {
             if (array_key_exists($parsedTemplate->getDynamicExtends(), $this->mappedClasses) == false) {
-                throw new JigException("File $templateFilename is trying to proxy [".$parsedTemplate->getDynamicExtends(
-                    )."] but that doesn't exist in the mappedClasses."
+                $errorString = sprintf(
+                    "File %s is trying to proxy [%s] but that doesn't exist in the mappedClasses.",
+                    $templateFilename,
+                    $parsedTemplate->getDynamicExtends()
                 );
+
+                throw new JigException($errorString);
             }
 
             $dynamicExtendsClass = $this->mappedClasses[$parsedTemplate->getDynamicExtends()];
@@ -307,11 +319,11 @@ class JigRender {
      * @param $templateString
      * @param $cacheName
      * @return mixed
-     * 
      */
-    function getParsedTemplateFromString($templateString, $cacheName) {
-        $templateString = str_replace( "<?php", "&lt;php", $templateString);
-        $templateString = str_replace( "?>", "?&gt;", $templateString);
+    public function getParsedTemplateFromString($templateString, $cacheName)
+    {
+        $templateString = str_replace("<?php", "&lt;php", $templateString);
+        $templateString = str_replace("?>", "?&gt;", $templateString);
 
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
@@ -340,7 +352,8 @@ class JigRender {
      * @param $blockName
      * @return mixed|null
      */
-    function startRenderBlock($blockName, $segmentText) {
+    public function startRenderBlock($blockName, $segmentText)
+    {
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
         $startFunctionCallable = $blockFunction[0];
 
@@ -353,7 +366,8 @@ class JigRender {
      * @param $blockName
      * @return mixed
      */
-    function endRenderBlock($blockName) {
+    public function endRenderBlock($blockName)
+    {
         $contents = ob_get_contents();
         ob_end_clean();
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
