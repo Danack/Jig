@@ -38,15 +38,15 @@ class BugTest extends \Jig\Base\BaseTestCase {
             Jig::COMPILE_ALWAYS
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
 
         $this->jig = $provider->make(
             'Jig\Jig',
-            [':jigConfig' , $jigConfig,
-                ':provider',   $provider
+            [ 
+                ':jigConfig' => $jigConfig,
+                ':provider' =>   $provider
             ]
         );
 

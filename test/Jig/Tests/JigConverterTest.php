@@ -8,7 +8,7 @@ namespace  {
 }
 
 
-namespace Tests\PHPTemplate{
+namespace Tests\PHPTemplate {
 
 
 use Jig\Jig;
@@ -76,15 +76,15 @@ class JigTest extends \Jig\Base\BaseTestCase {
             Jig::COMPILE_ALWAYS
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
 
         $this->jig = $provider->make(
             'Jig\Jig',
-            [':jigConfig' , $jigConfig,
-             ':provider',   $provider
+            [
+                ':jigConfig' => $jigConfig,
+                ':provider' =>  $provider
             ]
         );
         
@@ -122,8 +122,7 @@ class JigTest extends \Jig\Base\BaseTestCase {
             Jig::COMPILE_ALWAYS
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $renderer = new Jig($jigConfig, $provider);
 
         $contents = $renderer->renderTemplateFile('basic/filterTest', $this->emptyViewModel);
@@ -206,16 +205,15 @@ END;
             Jig::COMPILE_CHECK_EXISTS
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
 
         $renderer = $provider->make(
-            //'\Jig\Tests\ExtendedJigRender',
             'Jig\Jig',
-            [':jigConfig' , $jigConfig,
-                ':provider',   $provider
+            [
+                ':jigConfig' => $jigConfig,
+                ':provider' => $provider
             ]
         );
         
@@ -244,7 +242,7 @@ END;
 
         $jigRenderer = new Jig(
             $jigConfig,
-            new \Auryn\Provider()
+            new \Auryn\Injector()
         );
 
         $jigRenderer->deleteCompiledFile('basic/basic');
@@ -549,8 +547,7 @@ END;
             ""
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
         $jig = $provider->make('Jig\Jig');
@@ -569,8 +566,7 @@ END;
             ""
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
         $jig = $provider->make('Jig\Jig');
@@ -587,8 +583,7 @@ END;
             ""
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
 
@@ -643,8 +638,7 @@ END;
             ""
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
 
@@ -720,8 +714,7 @@ END;
             ""
         );
 
-        $provider = new \Auryn\Provider();
-        $provider->alias('Auryn\Injector', 'Auryn\Provider');
+        $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
         $jig = $provider->make('Jig\Jig');
@@ -737,6 +730,3 @@ END;
 }
 
 }//end namespace
-
-
-?>

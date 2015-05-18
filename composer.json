@@ -30,7 +30,7 @@
     },
     "require":{
         "php": ">=7.0",
-        "danack/auryn": "~0.14.3",
+        "rdlowrey/auryn": "^0.15.2",
         "nikic/php-parser": "^0.9.3"
     }
 }
