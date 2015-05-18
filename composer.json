@@ -29,7 +29,6 @@
         "phpunit/phpunit": "3.7.*"
     },
     "require":{
-        "php": ">=7.0",
         "rdlowrey/auryn": "^0.15.2",
         "nikic/php-parser": "^0.9.3"
     }
