@@ -507,7 +507,8 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
             
             if ($this->hasAssignment == false ||
                 $this->rightSide == true) {
-                return '$this->getVariable("'.$node->name.'")';
+                //return '$this->getVariable("'.$node->name.'")';
+                return '$this->'.$node->name;
             }
 
             return '$' . $node->name;

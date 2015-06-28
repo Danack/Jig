@@ -2,10 +2,10 @@
 
 namespace JigDemo\ViewModel;
 
-use Jig\ViewModel\BasicViewModel;
+use Jig\ViewModel\BasicTemplateHelper;
 
 
-class FunctionViewModel extends BasicViewModel {
+class FunctionViewModel extends BasicTemplateHelper {
 
     
     function showCompanyMotto() {

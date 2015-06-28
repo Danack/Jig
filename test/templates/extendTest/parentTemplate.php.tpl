@@ -13,6 +13,9 @@ This is between the blocks
     This is the second parent block.
 {/block}
 
+{inject name='parent' value='Jig\PlaceHolder\ParentDependency'}
+
+{$parent->render()}
 
 This is after the blocks.
 

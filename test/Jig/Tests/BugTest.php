@@ -3,23 +3,24 @@
 use Jig\Jig;
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
-use Jig\PlaceHolder\PlaceHolderView;
 use Jig\JigRender;
-use Jig\ViewModel\BasicViewModel;
-
+use Jig\PlaceHolder\BasicTemplateHelper;
+use Jig\PlaceHolder\PlaceHolderHelper;
 
 class BugTest extends \Jig\Base\BaseTestCase {
 
     /**
-     * @var \Jig\PlaceHolder\PlaceHolderView
+     * @var \Jig\PlaceHolder\PlaceHolderHelper
      */
-    private $viewModel;
+    private $helper;
 
     /**
-     * @var \Jig\Jig
+     * @var \Jig\JigDispatcher
      */
     private $jig;
 
+    private $jigRender;
+    
     /**
      * 
      */
@@ -29,7 +30,7 @@ class BugTest extends \Jig\Base\BaseTestCase {
 
         $templateDirectory = dirname(__DIR__)."/../templates/";
         $compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
-        $this->viewModel = new PlaceHolderView();
+        $this->helper = new PlaceHolderHelper();
 
         $jigConfig = new JigConfig(
             $templateDirectory,
@@ -41,16 +42,13 @@ class BugTest extends \Jig\Base\BaseTestCase {
         $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
+        
+        $jigConverter = new JigConverter($jigConfig);
+        
+        $this->jigRender = new JigRender($jigConfig, $jigConverter);
+        $this->jig = new \Jig\JigDispatcher($jigConfig, $this->jigRender, $jigConverter, $provider);
 
-        $this->jig = $provider->make(
-            'Jig\Jig',
-            [ 
-                ':jigConfig' => $jigConfig,
-                ':provider' =>   $provider
-            ]
-        );
-
-        $this->viewModel->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
+        $this->helper->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
     }
 
     /**
@@ -65,11 +63,10 @@ class BugTest extends \Jig\Base\BaseTestCase {
             "Double-single \"'quotes'\"",
         ];
 
-        $templateString = implode("\n{\$foo}\n", $testLines);
-        $this->viewModel->setVariable('foo', 'bar');
-
-        $renderedText = $this->jig->renderTemplateFromString($templateString, "bug123", $this->viewModel);
-
+        $templateString = "{\$foo = 'hello';}";
+        $templateString .= implode("\n{\$foo}\n", $testLines);
+        $renderedText = $this->jig->renderTemplateFromString($templateString, "testQuotes");
+        
         $count = 0;
         foreach ($testLines as $testLine) {
             $errorString = sprintf(
@@ -91,7 +88,7 @@ class BugTest extends \Jig\Base\BaseTestCase {
 
     function testQuotesInTemplate() {
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
-        $contents = $this->jig->renderTemplateFile('bugs/quotes', $this->viewModel);
+        $contents = $this->jig->renderTemplateFile('bugs/quotes', $this->helper);
         $this->assertContains('content: " ";', $contents);
     }
 }

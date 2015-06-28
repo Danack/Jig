@@ -12,7 +12,6 @@ Or to put it another way, a jig allows you to work fast with sharp tools without
     <thead>
         <tr>
             <th>Build status</th>
-            <th>Code score</th>
             <th>Coverage</th>
         </tr>
     </thead>
@@ -21,11 +20,6 @@ Or to put it another way, a jig allows you to work fast with sharp tools without
             <td>
                 <a href="https://travis-ci.org/Danack/Jig ">
                     <img src="https://travis-ci.org/Danack/Jig.png" alt="Latest Stable Version" style="max-width:100%;">
-                </a>
-            </td>
-            <td>
-                <a href="https://scrutinizer-ci.com/g/Danack/Jig/">
-                    <img src="https://scrutinizer-ci.com/g/Danack/Jig/badges/quality-score.png?s=bac5cc7d57c0433c1213290257721948818a78a2" alt="Scrutinizer Quality Score" style="max-width:100%;">
                 </a>
             </td>
             <td>

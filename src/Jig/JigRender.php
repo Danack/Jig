@@ -4,7 +4,6 @@
 namespace Jig;
 
 use Jig\Converter\JigConverter;
-use Auryn\Injector;
 
 JigFunctions::load();
 
@@ -14,20 +13,11 @@ JigFunctions::load();
  */
 class JigRender
 {
-    /**
-     * @var array The class map for dynamically extending classes
-     */
-    private $mappedClasses = array();
 
     /**
      * @var Converter\JigConverter
      */
     private $jigConverter;
-
-    /**
-     * @var \Auryn\Injector
-     */
-    private $injector;
 
     /**
      * @var JigConfig
@@ -36,132 +26,15 @@ class JigRender
 
     public function __construct(
         Jigconfig $jigConfig,
-        JigConverter $jigConverter,
-        Injector $injector,
-        ViewModel $viewModel,
-        array $mappedClasses
+        JigConverter $jigConverter
     ) {
         $this->jigConfig = $jigConfig;
         $this->jigConverter = $jigConverter;
-        $this->injector = $injector;
-        $this->viewModel = $viewModel;
-        $this->mappedClasses = $mappedClasses;
     }
 
-    /**
-     * @param $filename
-     * @return string
-     */
-    public function includeFile($filename)
+    public function getClassName($templateFilename)
     {
-        $contents = $this->renderTemplateFile($filename, $this->viewModel);
-        return $contents;
-    }
-
-
-    /**
-     * @param $className
-     * @throws JigException
-     * @return mixed
-     */
-    public function getProxiedClass($className)
-    {
-        if (array_key_exists($className, $this->mappedClasses) == false) {
-            throw new JigException("Class '$className' not listed in mappedClasses, cannot proxy.");
-        }
-
-        $mappedClass = $this->mappedClasses[$className];
-        $originalClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, false);
-        if (class_exists($originalClassName) == false) {
-            $this->checkTemplateCompiled($mappedClass, false);
-        }
-        
-        $proxiedClassName = $this->jigConverter->getNamespacedClassNameFromFileName($mappedClass, true);
-
-        if (class_exists($proxiedClassName) == false) {
-            //this is needed if dynamic extended classes are used out of order
-            $this->checkTemplateCompiled($mappedClass, true);
-        }
-        
-        return $proxiedClassName;
-    }
-
-    /**
-     * Renders
-     * @param $templateString string The template to compile.
-     * @param $objectID string An identifying string to name the generated class and so the
-     * generated PHP file. It must be a valid class name i.e. may not start with a digit.
-     * @param $viewModel ViewModel A viewmodel to (optional)
-     * @return string
-     * @throws \Exception
-     */
-    public function renderTemplateFromString($templateString, $objectID)
-    {
-        ob_start();
-        try {
-            $className = $this->getParsedTemplateFromString($templateString, $objectID);
-            $template = new $className($this, $this->viewModel);
-            /** @var $template \Jig\JigBase */
-            $template->render();
-            $contents = ob_get_contents();
-            ob_end_clean();
-            return $contents;
-        }
-        catch(JigException $je) {
-            ob_end_clean();
-            //Just rethrow it to keep the stack trace the same
-            throw $je;
-        }
-        catch(\Exception $e) {
-            ob_end_clean();
-            //Catch all exceptions, but throw as a JigException to allow code to only
-            //catch the template errors.
-            throw new JigException("Failed to render template: ".$e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * @param $templateFilename
-     * @throws JigException
-     * @return string
-     */
-    public function renderTemplateFile($templateFilename)
-    {
-        ob_start();
-        
-        try {
-            $this->checkTemplateCompiled($templateFilename);
-            $className = $this->jigConfig->getFullClassname($templateFilename);
-            $template = new $className($this, $this->viewModel);
-            /** @var $template \Jig\JigBase */
-            $injections = $template->getInjections();
-            $injectionValues = array();
-            
-            //TODO - This whole code block could be refactored to
-            //do the injection in one step, which would be cleaner.
-            foreach ($injections as $name => $value) {
-                $injectionValues[$name] = $this->injector->make($value);
-            }
-    
-            $template->inject($injectionValues);
-            $template->render();
-            $contents = ob_get_contents();
-        }
-        catch(\Exception $e) {
-            //TODO - should put the bit that gave an error somewhere?
-            //$contents = ob_get_contents();
-            ob_end_clean();
-            
-            throw new JigException(
-                "Failed to render template: ".$e->getMessage(),
-                $e->getCode(),
-                $e
-            );
-        }
-
-        ob_end_clean();
-
-        return $contents;
+        return $this->jigConfig->getFullClassname($templateFilename);
     }
 
     /**
@@ -266,42 +139,23 @@ class JigRender
     public function compileTemplate($className, $templateFilename, $proxied)
     {
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename);
+        $templateDependencies = $parsedTemplate->getTemplateDependencies();
+
+        foreach ($templateDependencies as $templateDependency) {
+            $this->checkTemplateCompiled($templateDependency);
+        }
+
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
             $this->jigConfig->templateCompileDirectory,
             $proxied
         );
-
-        $extendsTemplate = $parsedTemplate->getExtends();
-
-        if ($extendsTemplate) {
-            $this->checkTemplateCompiled($extendsTemplate);
-        }
-        else if ($parsedTemplate->getDynamicExtends()) {
-            if (array_key_exists($parsedTemplate->getDynamicExtends(), $this->mappedClasses) == false) {
-                $errorString = sprintf(
-                    "File %s is trying to proxy [%s] but that doesn't exist in the mappedClasses.",
-                    $templateFilename,
-                    $parsedTemplate->getDynamicExtends()
-                );
-
-                throw new JigException($errorString);
-            }
-
-            $dynamicExtendsClass = $this->mappedClasses[$parsedTemplate->getDynamicExtends()];
-
-            //Generate this twice - once for real, once as a proxy.
-            $this->checkTemplateCompiled($dynamicExtendsClass, false);
-
-            //TODO - once the proxy generating is working, this can be removed?
-            $this->checkTemplateCompiled($dynamicExtendsClass, true);
-        }
 
         if (class_exists($className, false) == false) {
             if (function_exists('opcache_invalidate') == true) {
                 opcache_invalidate($outputFilename);
             }
             //This is fucking stupid. We should be able to auto-load the class
-            //if an only if it is required. But the Composer autoloader caches
+            //if and only if it is required. But the Composer autoloader caches
             //the 'class doesn't exist' result from earlier, which means we
             //have to load it by hand.
             /** @noinspection PhpIncludeInspection */
@@ -372,6 +226,10 @@ class JigRender
         ob_end_clean();
         $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
         $endFunctionCallable = $blockFunction[1];
+
+        if (!$endFunctionCallable) {
+            throw new JigException("Block end function is null");
+        }
         echo call_user_func($endFunctionCallable, $contents);
     }
 }

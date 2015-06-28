@@ -3,10 +3,10 @@
 
 namespace Jig\PlaceHolder;
 
-use Jig\ViewModel\BasicViewModel;
+use Jig\TemplateHelper\BasicTemplateHelper;
 
 
-class PlaceHolderView extends BasicViewModel {
+class PlaceHolderHelper extends BasicTemplateHelper {
 
     private $calledFunctions = array();
 

@@ -2,10 +2,10 @@
 
 namespace JigDemo\ViewModel;
 
-use Jig\ViewModel\BasicViewModel;
+use Jig\ViewModel\BasicTemplateHelper;
 
 
-class VariableViewModel extends BasicViewModel {
+class VariableViewModel extends BasicTemplateHelper {
 
     public $viewModelVariable;
     

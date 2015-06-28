@@ -27,10 +27,11 @@
         "mockery/mockery": "0.9.1",
         "nikic/fast-route": "~0.2.0",
         "phpunit/phpunit": "3.7.*",
+        "rdlowrey/auryn": "dev-master",
         "squizlabs/php_codesniffer": "^2.0.0"
     },
     "require":{
-        "rdlowrey/auryn": "^0.15.2",
         "nikic/php-parser": "^0.9.3"
-    }
+    },
+    "minimum-stability": "dev"
 }

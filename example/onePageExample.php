@@ -17,7 +17,7 @@ $jigConfig = new JigConfig(
 );
 
 
-class ExampleViewModel extends \Jig\ViewModel\BasicViewModel {
+class ExampleViewModel extends \Jig\ViewModel\BasicTemplateHelper {
     function testMethod() {
         return "This is a method in the ViewModel. It can be called without being explicitly bound.";
     }

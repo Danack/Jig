@@ -2,6 +2,8 @@
 
 Function test
 
+{helper type='Jig\PlaceHolder\PlaceHolderHelper'}
+
 {testFunction1()}
 
 

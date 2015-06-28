@@ -19,7 +19,6 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase {
     }
 
     function teardown() {
-        
         if ($this->startLevel === null) {
             $this->assertEquals(0, 1, "startLevel was not set, cannot complete teardown");
         }

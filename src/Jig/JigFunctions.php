@@ -23,7 +23,6 @@ function getCompileFilename($templateName, JigConverter $jigConverter, JigConfig
 }
 
 
-
 /**
  * Convert a PHP variable to an escaped output. Objects and arrays return empty string.
  * @param $string
@@ -33,10 +32,15 @@ function safeTextObject($string)
 {
     //TODO - add __toString calling
     if (is_object($string) == true) {
-        return "";
+        
+        if (method_exists($string, '__toString') == false) {
+            throw new JigException("Object of type ".get_class($string)." does not have a __toString method. Cannot use it as a string.");
+        }
+
+        return call_user_func([$string, '__toString()']);
     }
     if (is_array($string) == true) {
-        return "";
+        throw new JigException(JigException::IMPLICIT_ARRAY_TO_STRING);
     }
 
     return htmlentities($string, ENT_DISALLOWED | ENT_HTML401 | ENT_NOQUOTES, 'UTF-8');
@@ -112,7 +116,3 @@ function ensureDirectoryExists($outputFilename)
         throw new JigException("Directory $directoryName does not exist and could not be created");
     }
 }
-
-
-
- 

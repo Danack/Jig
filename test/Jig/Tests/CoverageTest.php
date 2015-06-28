@@ -37,7 +37,7 @@ namespace {
 use Jig\JigConfig;
 use Jig\JigRender;
 use Jig\Jig;
-use Jig\PlaceHolder\PlaceHolderView;
+use Jig\PlaceHolder\PlaceHolderHelper;
     
 class CoverageTest extends \Jig\Base\BaseTestCase {
 
@@ -69,17 +69,16 @@ class CoverageTest extends \Jig\Base\BaseTestCase {
             $this->templateDirectory,
             $this->compileDirectory,
             "php.tpl",
-            Jig::COMPILE_ALWAYS,
-            ""
+            Jig::COMPILE_ALWAYS
         );
 
         $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
-        $jig = $provider->make('Jig\Jig');
+        $jig = $provider->make('Jig\JigDispatcher');
         $jig->deleteCompiledFile("basic/basic");
         $this->setExpectedException('Jig\JigException', "does not exist and could not be created");
-        $viewModel = new PlaceHolderView();
+        $viewModel = new PlaceHolderHelper();
 
         $jig->renderTemplateFile("basic/basic", $viewModel);
     }

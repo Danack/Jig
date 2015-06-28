@@ -5,6 +5,13 @@ namespace Jig\Converter;
 
 use Jig\JigException;
 
+function convertTypeToParam($helper)
+{
+    $helper = str_replace('\\', '_', $helper);
+
+    return $helper;
+}
+
 class ParsedTemplate
 {
     
@@ -21,11 +28,13 @@ class ParsedTemplate
 
     private $extends = null;
 
-    private $dynamicExtends = null;
-
     private $baseNamespace;
 
     private $injections = array();
+    
+    private $helpers = array();
+    
+    private $includeFiles = array();
 
     public function __construct($baseNamespace)
     {
@@ -42,9 +51,15 @@ class ParsedTemplate
         $this->injections[$name] = $value;
     }
 
-    public function getDynamicExtends()
+    public function addHelper($name)
     {
-        return $this->dynamicExtends;
+        $this->helpers[] = $name;
+    }
+
+    public function addIncludeFile($filename, $paramName, $className)
+    {
+        $this->addInjection($paramName, $className);
+        $this->includeFiles[] = $filename;
     }
 
     /**
@@ -127,14 +142,6 @@ class ParsedTemplate
     }
 
     /**
-     * @param $filename
-     */
-    public function setDynamicExtends($filename)
-    {
-        $this->dynamicExtends = $filename;
-    }
-
-    /**
      * @return string
      */
     public function getParentClass()
@@ -154,6 +161,19 @@ class ParsedTemplate
     {
         return $this->extends;
     }
+    
+    public function getTemplateDependencies()
+    {
+        $dependencies = [];
+
+        if ($this->extends) {
+            $dependencies[] = $this->extends;
+        }
+
+        $dependencies = array_merge($dependencies, $this->includeFiles);
+
+        return $dependencies;
+    }
 
     /**
      * @param $compilePath
@@ -172,10 +192,6 @@ class ParsedTemplate
         if ($proxied == true) {
             $parentFullClassName = $fullClassName;
             $className = 'Proxied'.$className;
-        }
-        else if ($this->dynamicExtends != null) {
-            //Dynamic extension does class extension at run time.
-            $parentFullClassName = "\\Jig\\DynamicTemplateExtender";
         }
         else{
             $parentFullClassName = $this->getParentClass();
@@ -211,34 +227,34 @@ class ParsedTemplate
 $namespaceString
 
 use $parentFullClassName;
+use Jig\JigRender;
 
 class $className extends $parentClassName {
 
 END;
 
+
+        $parentDependencies = call_user_func([$parentFullClassName, 'getDependencyList']); 
+        
+        // TODO - check no clashes on names.
+
         fwrite($outputFileHandle, $startSection);
 
-        $this->writeInjectionArray($outputFileHandle);
-        $this->writeInjectionFunctions($outputFileHandle);
+        $this->writeProperties($outputFileHandle);
+        $this->writeConstructor($outputFileHandle, $parentDependencies);
+        $this->writeDependencyList($outputFileHandle);
 
-        if ($this->dynamicExtends != null) {
-            $this->writeMappedSection($outputFileHandle);
+
+        $functionBlocks = $this->getFunctionBlocks();
+
+        foreach ($functionBlocks as $name => $functionBlockSegments) {
+            $this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
         }
 
-        if($proxied == true) {
-            $this->writeProxySection($outputFileHandle);
-        }
-        else {
-            $functionBlocks = $this->getFunctionBlocks();
 
-            foreach ($functionBlocks as $name => $functionBlockSegments) {
-                $this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
-            }
-        }
-
-        if ($this->getExtends() == null &&
-            $this->dynamicExtends == null &&
-            $proxied == false) {
+        if ($this->getExtends() == null) {//&&
+//            $this->dynamicExtends == null &&
+//            $proxied == false) {
             $remainingSegments = $this->getLines();
             $this->writeFunction($outputFileHandle, 'renderInternal', $remainingSegments);
         }
@@ -260,7 +276,6 @@ END;
      */
     public function writeEndSection($outputFileHandle)
     {
-
         $endSection = <<< END
     }
 
@@ -297,79 +312,6 @@ END;
     /**
      * @param $outputFileHandle
      */
-    public function writeMappedSection($outputFileHandle)
-    {
-
-        $dynamicExtends = $this->dynamicExtends;
-
-        //Todo just pass in parent class name - or eve just parent instance
-        $output = <<< END
-public function __construct(\$jigRender, \$viewModel) {
-    \$this->viewModel = \$viewModel;
-    \$this->jigRender = \$jigRender;
-    \$classInstanceName = \$jigRender->getProxiedClass('$dynamicExtends');
-    \$fullclassName = \$classInstanceName;
-
-    \$parentInstance = new \$fullclassName(\$jigRender, \$viewModel, \$this);
-    \$this->setParentInstance(\$parentInstance);
-}
-END;
-
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, "\n");
-    }
-
-
-    /**
-     * @param $outputFileHandle
-     */
-    public function writeProxySection($outputFileHandle)
-    {
-        fwrite($outputFileHandle, "\n");
-        $output = <<< END
-
-        var \$childInstance = null;
-        var \$viewModel = null;
-        var \$jigRender = null; 
-    
-        function __construct(\$jigRender, \$viewModel, \$childInstance){
-            \$this->viewModel = \$viewModel;
-            \$this->jigRender = \$jigRender;
-            \$this->childInstance = \$childInstance;
-        }
-END;
-
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
-
-        $functionBlocks = $this->getFunctionBlocks();
-        foreach ($functionBlocks as $name => $functionBlockSegments) {
-            $output = <<< END
-
-            function $name() {
-                if (method_exists (\$this->childInstance, '$name') == true) {
-                    return \$this->childInstance->$name();
-                }
-                parent::$name();
-            }
-END;
-
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, $output);
-            fwrite($outputFileHandle, "\n");
-        }
-
-        fwrite($outputFileHandle, "\n");
-    }
-
-
-    /**
-     * @param $outputFileHandle
-     */
     public function writeInjectionArray($outputFileHandle)
     {
         $output = "    private \$injections = array(\n";
@@ -395,25 +337,121 @@ END;
     /**
      * @param $outputFileHandle
      */
-    public function writeInjectionFunctions($outputFileHandle)
+    public function writeProperties($outputFileHandle)
     {
-        $output = "    function getInjections() {
-            \$parentInjections = parent::getInjections();
+        $output = '';
 
-            return array_merge(\$parentInjections, \$this->injections);
-        }\n\n";
+        foreach ($this->injections as $name => $type) {
+            $output .=  "\n    private \$$name;";
+        }
+
+        fwrite($outputFileHandle, $output);
+    }
 
 
-        $output .= "   function getVariable(\$name) {
-            if (property_exists(\$this, \$name) == true) {
-                return \$this->{\$name};
+    /**
+     * @param $outputFileHandle
+     */
+    public function writeConstructor($outputFileHandle, $parentDependencies)
+    {
+        $depdendencies = '';
+        $separator = "";
+
+        $fullDependencies = array_merge($this->injections, $parentDependencies);
+
+        foreach ($fullDependencies as $name => $type) {
+            $depdendencies .= $separator."       \\$type \$$name";
+            $separator = ",\n";
+        }
+        
+        foreach ($this->helpers as $helper) {
+            $helperParam = convertTypeToParam($helper);
+            $depdendencies .= $separator."       \\$helper \$$helperParam";
+            $separator = ",\n";
+        }
+
+        $output = "
+    function __construct(
+$depdendencies$separator        JigRender \$jigRender
+    )
+    {
+        \$this->jigRender = \$jigRender;
+";
+
+        foreach ($this->injections as $name => $type) {
+            $output .=  "        \$this->$name = \$$name;\n";
+        }
+
+        foreach ($this->helpers as $helper) {
+            $helperParam = convertTypeToParam($helper);
+            $output .=  "        \$this->addTemplateHelper(\$$helperParam);\n";
+        }
+        
+        
+        if (count($parentDependencies)) {
+            $output .=  "        
+        parent::__construct(\n";
+            foreach ($parentDependencies as $name => $type) {
+                $output .=  "            \$$name,\n";
             }
+            $output .=  
+"            \$jigRender
+        );\n";  
+        }
 
-            return parent::getVariable(\$name);
-        }\n\n";
+        $output .=  "    }\n";
+
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, $output);
+    }
+
+    /**
+     * @param $outputFileHandle
+     */
+    function writeDependencyList($outputFileHandle)
+    {
+        $output = "
+    public static function getDependencyList() {
+    
+        return [\n";
+        
+        foreach ($this->injections as $name => $type) {
+            $output .=  "            '$name' => '$type',\n";
+        }
+
+        $output .= "        ];
+    }
+        ";
 
         fwrite($outputFileHandle, "\n");
         fwrite($outputFileHandle, $output);
         fwrite($outputFileHandle, "\n");
     }
+    
+    
+//    /**
+//     * @param $outputFileHandle
+//     */
+//    public function writeInjectionFunctions($outputFileHandle)
+//    {
+//        $output = "    
+//    function getInjections() {
+//        \$parentInjections = parent::getInjections();
+//
+//        return array_merge(\$parentInjections, \$this->injections);
+//    }\n\n";
+//
+//
+//        $output .= "   function getVariable(\$name) {
+//            if (property_exists(\$this, \$name) == true) {
+//                return \$this->{\$name};
+//            }
+//
+//            return parent::getVariable(\$name);
+//        }\n\n";
+//
+//        fwrite($outputFileHandle, "\n");
+//        fwrite($outputFileHandle, $output);
+//        fwrite($outputFileHandle, "\n");
+//    }
 }

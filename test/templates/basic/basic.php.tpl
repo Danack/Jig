@@ -1,31 +1,19 @@
 
 {block name='mainContent'}
     
+{inject name='userDetail' value='Jig\PlaceHolder\Values\UserDetails'}
+    
 This is a template.
 {literal}
-    Hello there {$title} {$user} !!!!
+    Hello there {$userDetail->title} {$userDetail->name} !!!!
 {/literal}
     
 
-Hello there {$title} {$user} !!!!
+Hello there {$userDetail->title} {$userDetail->name} !!!!
 
 <h3>Calling a function</h3>
 
-{viewFunction(5)}
-    
-<h3>Raw PHP</h3>
-    
-<?php
-for($x=0 ; $x<5 ; $x++){
-
-	?>
-	The value of $x is {$x} <br/>
-    
-	<?php
-}
-?>
-    
-    Basic test passed.
+Basic test passed.
     
 {$foo = 5}
 {if $foo}

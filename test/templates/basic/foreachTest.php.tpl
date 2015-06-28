@@ -2,18 +2,15 @@
 {block name='mainContent'}
 
 
+{inject name='colors' value='Jig\PlaceHolder\Values\Colors'}
+{helper type='Jig\Helper\ColorsHelper'}
 
-Direct: {foreach $colors as $color}{trim}
+Direct: {foreach $colors->getColors() as $color}{trim}
 {$color}
 {/trim}{/foreach}
 
 
-Assigned: {foreach $colors as $color}{trim}
-{$color}
-{/trim}{/foreach}
-
-
-Fromfunction: {foreach getColors() as $color}{trim}
+From function: {foreach getColors() as $color}{trim}
 {$color}
 {/trim}{/foreach}
 

@@ -6,6 +6,11 @@ namespace Jig\Converter;
 use Jig\JigException;
 use Jig\JigConfig;
 
+function convertClassnameToParam($classname)
+{
+    return str_replace('\\', '_', $classname);
+}
+
 /**
  * Class JigConverter The actual class that converts templates into PHP.
  */
@@ -24,17 +29,19 @@ class JigConverter
     // Don't output any return from the function
     const FILTER_NO_OUTPUT = 'nooutput';
 
-    // Suppress wrapping generated code with <?php ? > to allow modification
-    // of the generated code.
-    const FILTER_NO_PHP = 'nophp';
-    
+    /**
+     * Is the converter currently in literal mode.
+     * @var bool
+     */
     private $literalMode = false;
 
+    /**
+     * @var array
+     */
     private $compileBlockFunctions = array();
 
     /**
      * These block function operate after the block has been converted.
-     * @TODO - Steal the callable class from Auryn.
      * @var array
      */
     private $renderBlockFunctions = array();
@@ -43,7 +50,6 @@ class JigConverter
      * @var ParsedTemplate
      */
     private $parsedTemplate = null;
-
 
     /**
      * @var null|array Holds the lines in a block, so that they can be processed
@@ -219,7 +225,12 @@ class JigConverter
      */
     public function setInclude($filename)
     {
-        $code = "echo \$this->jigRender->includeFile('$filename')";
+        $className = $this->jigConfig->getFullClassname($filename);
+        $paramName = convertClassnameToParam($className);
+
+        $this->parsedTemplate->addIncludeFile($filename, $paramName, $className);
+        
+        $code = "echo \$this->".$paramName."->render();";
         $this->addCode($code);
     }
 
@@ -246,7 +257,6 @@ class JigConverter
         foreach ($this->renderBlockFunctions as $blockName => $blockFunctions) {
             if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0) {
                 $this->addCode("\$this->jigRender->endRenderBlock('$blockName');");
-                //$this->addCode("ob_end_clean();");
                 return;
             }
         }
@@ -284,14 +294,14 @@ class JigConverter
             if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
                 $this->processExtends($segmentText);
             }
-            else if (strncmp($segmentText, 'dynamicExtends ', mb_strlen('dynamicExtends ')) == 0){
-                $this->processDynamicExtends($segmentText);
-            }
             else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) == 0){
                 $this->processInject($segmentText);
             }
             else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
                 $this->processInclude($segmentText);
+            }
+            else if (strncmp($segmentText, 'helper ', mb_strlen('helper ')) == 0){
+                $this->processHelper($segmentText);
             }
             else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0){
                 $this->processBlockStart($segmentText);
@@ -308,13 +318,9 @@ class JigConverter
             else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0){
                 $this->processLiteralStart();
             }
-            //TODO - make less fragile
-            else if (strncmp($segmentText, 'if isset', mb_strlen('if isset')) == 0){
-                $this->processIssetStart($segmentText);
-            }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
                 $segment->text = substr($segmentText, 3);
-                $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+                $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nooutput']);
                 $this->addLineInternal('<?php if ('.$text.'){ ?>');
             }
             else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
@@ -369,14 +375,16 @@ class JigConverter
     /**
      * @param $text
      */
-    function addHTML($text) {
+    function addHTML($text)
+    {
         $this->addLineInternal($text);
     }
 
     /**
      * @param $text
      */
-    function addCode($text) {
+    function addCode($text)
+    {
         $this->addLineInternal("<?php ".$text." ?>");
     }
 
@@ -384,24 +392,8 @@ class JigConverter
      * @param $segmentText
      * @throws \Exception
      */
-    function processIssetStart($segmentText) {
-        $pattern = '#isset\(\$([\w\[\]\']+)\)#u';
-
-        $matchCount = preg_match($pattern, $segmentText, $match);
-
-        if ($matchCount == 0) {
-            throw new JigException("Could not extract variable from [$segmentText] to check isset.");
-        }
-
-        $code = 'if ($this->viewModel->isVariableSet(\''.addslashes($match[1]).'\') == true) {';
-        $this->addCode($code);
-    }
-
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processExtends($segmentText){
+    function processExtends($segmentText)
+    {
         $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
@@ -412,23 +404,8 @@ class JigConverter
         $this->parsedTemplate->setExtends($matches[1]);
     }
 
-    /**
-     * @param $segmentText
-     * @throws \Exception
-     */
-    function processDynamicExtends($segmentText) {
-        $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
-
-        $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount == 0) {
-            throw new JigException("Could not extract filename from [$segmentText] to mapExtend.");
-        }
-
-        $this->parsedTemplate->setDynamicExtends($matches[1]);
-    }
-
-
-    function processInject($segmentText) {
+    function processInject($segmentText)
+    {
         $namePattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
         $valuePattern = '#value=[\'"](.*)[\'"]#u';
         $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
@@ -451,12 +428,34 @@ class JigConverter
         $this->parsedTemplate->addInjection($name, $value);
     }
 
+    /**
+     * @param $segmentText
+     * @throws JigException
+     */
+    function processHelper($segmentText)
+    {
+        $namePattern = '#type=[\'"](.*)[\'"]#u';
+        $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
+
+        if ($nameMatchCount == 0) {
+            throw new JigException("Failed to get name of helper");
+        }
+
+        $name = $nameMatches[1];
+        
+        if(strlen($name) == 0) {
+            throw new JigException("Type must not be zero length");
+        }
+
+        $this->parsedTemplate->addHelper($name);
+    }
 
     /**
      * @param $segmentText
-     * @throws \Exception
+     * @throws JigException
      */
-    function processInclude($segmentText) {
+    function processInclude($segmentText)
+    {
         $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
@@ -465,26 +464,17 @@ class JigConverter
             return;
         }
 
-        //dynamic include from variable
-        $pattern = '#file=\$(\w+)#u';
-
-        $matchCount = preg_match($pattern, $segmentText, $matches);
         if ($matchCount == 0) {
             throw new JigException("Could not extract filename from [$segmentText] to include.");
         }
-
-        $code = "\$file = \$this->getVariable('".$matches[1]."');\n";
-        $this->addCode($code);
-        $code = "echo \$this->jigRender->includeFile(\$file)";
-        $this->addCode($code);
-
     }
 
     /**
      * @param $segmentText
      * @throws \Exception
      */
-    function processBlockStart($segmentText){
+    function processBlockStart($segmentText)
+    {
         $pattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
         $matchCount = preg_match($pattern, $segmentText, $matches);
         if ($matchCount == 0) {
@@ -504,7 +494,8 @@ class JigConverter
     /**
      *
      */
-    function processBlockEnd() {
+    function processBlockEnd()
+    {
         if ($this->parsedTemplate->getExtends() == null) {
             $this->parsedTemplate->addTextLine(" <?php \$this->".$this->activeBlockName."();  ?> ");
         }
@@ -515,9 +506,11 @@ class JigConverter
     }
 
     /**
-     *
+     * @param $content
+     * @return string
      */
-    function processTrimEnd($content) {
+    function processTrimEnd($content)
+    {
         return trim($content);
     }
 
@@ -547,7 +540,7 @@ class JigConverter
         }
         else{
             $segment = new PHPTemplateSegment($foreachItem);
-            $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+            $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nooutput']);
             $segmentText = str_replace($foreachItem, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
         }
@@ -590,14 +583,16 @@ class JigConverter
     /**
      *
      */
-    function processLiteralStart(){
+    function processLiteralStart()
+    {
         $this->setLiteralMode(true);
     }
 
     /**
      *
      */
-    function processLiteralEnd(){
+    function processLiteralEnd()
+    {
         $this->setLiteralMode(false);
     }
 
@@ -605,7 +600,8 @@ class JigConverter
      * @param $templateFilename
      * @return string
      */
-    function setClassNameFromFilename($templateFilename){
+    function setClassNameFromFilename($templateFilename)
+    {
         return self::getClassNameFromFileName($templateFilename);
     }
 
@@ -616,7 +612,8 @@ class JigConverter
      * @param callable $startCallback
      * @param callable $endCallback
      */
-    function bindCompileBlock($blockName, callable $startCallback, callable $endCallback) {
+    function bindCompileBlock($blockName, callable $startCallback, callable $endCallback)
+    {
         $this->compileBlockFunctions[$blockName] = array($startCallback, $endCallback);
     }
 
@@ -627,7 +624,8 @@ class JigConverter
      * @param $endFunctionCallable
      * @param null|callable $startFunctionCallable
      */
-    function bindRenderBlock($blockName, $endFunctionCallable, $startFunctionCallable = null) {
+    function bindRenderBlock($blockName, $endFunctionCallable, $startFunctionCallable = null)
+    {
         $this->renderBlockFunctions[$blockName] = array($startFunctionCallable, $endFunctionCallable);
     }
 
@@ -637,7 +635,8 @@ class JigConverter
      * @param $templateFilename
      * @return string
      */
-     function getClassNameFromFileName($templateFilename){
+     function getClassNameFromFileName($templateFilename)
+     {
         $templatePath = str_replace('/', '\\', $templateFilename);
         $templatePath = str_replace('-', '', $templatePath);
         return $templatePath;
@@ -649,7 +648,8 @@ class JigConverter
      * @param bool $proxied
      * @return string
      */
-    function getNamespacedClassNameFromFileName($templateFilename, $proxied = false) {
+    function getNamespacedClassNameFromFileName($templateFilename, $proxied = false)
+    {
         $className = self::getClassNameFromFileName($templateFilename);
 
         if ($proxied == true) {
