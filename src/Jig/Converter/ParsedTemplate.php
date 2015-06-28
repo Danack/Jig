@@ -358,17 +358,30 @@ END;
         $separator = "";
 
         $fullDependencies = array_merge($this->injections, $parentDependencies);
+        
+        //$fullDependencies = array_merge($fullDependencies, $this->helpers);
+        
+        
+
+        
 
         foreach ($fullDependencies as $name => $type) {
             $depdendencies .= $separator."       \\$type \$$name";
             $separator = ",\n";
         }
-        
+
         foreach ($this->helpers as $helper) {
             $helperParam = convertTypeToParam($helper);
             $depdendencies .= $separator."       \\$helper \$$helperParam";
             $separator = ",\n";
         }
+
+        
+//        foreach ($this->helpers as $helper) {
+//            $helperParam = convertTypeToParam($helper);
+//            $depdendencies .= $separator."       \\$helper \$$helperParam";
+//            $separator = ",\n";
+//        }
 
         $output = "
     function __construct(
@@ -386,8 +399,7 @@ $depdendencies$separator        JigRender \$jigRender
             $helperParam = convertTypeToParam($helper);
             $output .=  "        \$this->addTemplateHelper(\$$helperParam);\n";
         }
-        
-        
+
         if (count($parentDependencies)) {
             $output .=  "        
         parent::__construct(\n";
@@ -416,6 +428,12 @@ $depdendencies$separator        JigRender \$jigRender
         return [\n";
         
         foreach ($this->injections as $name => $type) {
+            $output .=  "            '$name' => '$type',\n";
+        }
+
+        
+        foreach ($this->helpers as $type) {
+            $name = convertTypeToParam($type);
             $output .=  "            '$name' => '$type',\n";
         }
 
