@@ -181,16 +181,19 @@ class JigRender
 
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
+        $templateDependencies = $parsedTemplate->getTemplateDependencies();
+
+        foreach ($templateDependencies as $templateDependency) {
+            $this->checkTemplateCompiled($templateDependency);
+        }
+
+        //This has to be after checking the dependencies are compiled
+        //to ensure the getDepedency function is available.
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
             $this->jigConfig->templateCompileDirectory,
             false
         );
-        $extendsFilename = $parsedTemplate->getExtends();
-
-        if ($extendsFilename) {
-            $this->checkTemplateCompiled($extendsFilename);
-        }
-
+        
         //This is fucking stupid. We should be able to auto-load the class
         //if and only if it is required. But the Composer autoloader caches
         //the 'class doesn't exist' result from earlier, which means we

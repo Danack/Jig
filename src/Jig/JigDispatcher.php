@@ -53,7 +53,6 @@ class JigDispatcher extends Jig
      */
     public function renderTemplateFromString($templateString, $objectID)
     {
-        //$jigRender = $this->createJigRender();
         $className = $this->jigRender->getParsedTemplateFromString($templateString, $objectID);
         $contents = $this->injector->execute([$className, 'render']);
 

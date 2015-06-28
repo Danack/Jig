@@ -165,10 +165,12 @@ class JigConverterTest extends \Jig\Base\BaseTestCase {
         $this->assertContains("checkRole works", $contents);
     }
 
+    /**
+     * @group wat
+     */
     function testStringExtendsConversion() {
         $templateString = <<< END
 {extends file='extendTest/parentTemplate'}
-
     {block name='secondBlock'}
     This is the second child block.
 {/block}
@@ -407,25 +409,13 @@ END;
         $this->jig->deleteCompiledFile($templateName);
     }
 
-    function testWithoutNameSpace() {
-
-        $jigConfig = new JigConfig(
-            $this->templateDirectory,
-            $this->compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_ALWAYS,
-            ""
-        );
-
-        $provider = new \Auryn\Injector();
-        $provider->share($jigConfig);
-        $provider->share($provider);
-        $jig = $provider->make('Jig\JigDispatcher');
-        $jig->renderTemplateFile(
-            "templateInRoot",
-            $this->emptyHelper
-        );
-    }
+    //TODO - This needs some assertion.
+//    function testWithoutNameSpace() {
+//        $this->jig->renderTemplateFile(
+//            "templateInRoot",
+//            $this->emptyHelper
+//        );
+//    }
 
     function testCheckExistsCoverage() {
         $jigConfig = new JigConfig(
@@ -449,8 +439,7 @@ END;
             $this->templateDirectory,
             $this->compileDirectory,
             "php.tpl",
-            Jig::COMPILE_CHECK_MTIME,
-            ""
+            Jig::COMPILE_CHECK_MTIME
         );
 
         $provider = new \Auryn\Injector();
@@ -459,7 +448,7 @@ END;
 
         $jig = $provider->make('Jig\JigDispatcher');
         $templateName = "coverageTesting/mtimeonce";
-        $jig->deleteCompiledFile($templateName);
+        $this->jig->deleteCompiledFile($templateName);
         $jig->renderTemplateFile($templateName);
         $filename = $jig->getCompileFilename($templateName);
         touch($filename, time() - 3600); // will break if the test takes an hour ;)
@@ -556,19 +545,18 @@ END;
     }
 
     function testCheckInlinePHP() {
-        $jigConfig = new JigConfig(
-            $this->templateDirectory,
-            $this->compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_CHECK_EXISTS,
-            ""
-        );
-
-        $provider = new \Auryn\Injector();
-        $provider->share($jigConfig);
-        $provider->share($provider);
-        $jig = $provider->make('Jig\JigDispatcher');
-        $contents = $jig->renderTemplateFile("inlinePHP/simple");
+//        $jigConfig = new JigConfig(
+//            $this->templateDirectory,
+//            $this->compileDirectory,
+//            "php.tpl",
+//            Jig::COMPILE_CHECK_EXISTS
+//        );
+//
+//        $provider = new \Auryn\Injector();
+//        $provider->share($jigConfig);
+//        $provider->share($provider);
+//        $jig = $provider->make('Jig\JigDispatcher');
+        $contents = $this->jig->renderTemplateFile("inlinePHP/simple");
         $this->assertContains('value is 5', $contents);
     }
     
