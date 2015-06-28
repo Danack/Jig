@@ -59,7 +59,7 @@ class PHPTemplateSegment extends TemplateSegment
 
     public function removeFilters()
     {
-        $knownFilters = array('nofilter', 'urlencode', 'nooutput');
+        $knownFilters = array('nofilter', 'urlencode', 'nooutput', 'nophp');
         $filterString = implode('|', $knownFilters);
         $pattern = '/\|\s*('.$filterString.')+/u';
 
@@ -72,7 +72,6 @@ class PHPTemplateSegment extends TemplateSegment
         if ($filterCount != 0) {
             foreach ($matches as $match) {
                 $filters[] = $match[1][0];
-                //$length = strlen($match[0][0]);
                 $position = $match[0][1];
                 if ($chomp == false || $position < $chomp) {
                     $chomp = $position;

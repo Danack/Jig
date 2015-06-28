@@ -29,6 +29,11 @@ class JigConverter
     // Don't output any return from the function
     const FILTER_NO_OUTPUT = 'nooutput';
 
+    // Suppress wrapping generated code with <?php ? > to allow modification
+    // of the generated code.
+    const FILTER_NO_PHP = 'nophp';
+
+    
     /**
      * Is the converter currently in literal mode.
      * @var bool
@@ -320,7 +325,7 @@ class JigConverter
             }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
                 $segment->text = substr($segmentText, 3);
-                $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nooutput']);
+                $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
                 $this->addLineInternal('<?php if ('.$text.'){ ?>');
             }
             else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0){
@@ -540,7 +545,7 @@ class JigConverter
         }
         else{
             $segment = new PHPTemplateSegment($foreachItem);
-            $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nooutput']);
+            $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
             $segmentText = str_replace($foreachItem, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
         }
