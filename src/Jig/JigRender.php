@@ -32,6 +32,11 @@ class JigRender
         $this->jigConverter = $jigConverter;
     }
 
+    public function callFilter($text, $filterName)
+    {
+        return $this->jigConverter->callFilter($text, $filterName);
+    }
+    
     public function getClassName($templateFilename)
     {
         return $this->jigConfig->getFullClassname($templateFilename);

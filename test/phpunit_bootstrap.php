@@ -9,3 +9,8 @@ $autoloader->add(
     [realpath(realpath('./').'/tmp/generatedTemplates/')]
 );
 
+
+//Used in a test
+function testFunction1() {
+    echo "This is a global function.";
+}

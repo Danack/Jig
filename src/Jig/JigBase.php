@@ -86,6 +86,12 @@ abstract class JigBase
         throw new JigException("Function $functionName not known.");
     }
     
+    public function callFilter($text, $filterName)
+    {
+
+        return $this->jigRender->callFilter($text, $filterName);
+    }
+    
     
     public function render()
     {

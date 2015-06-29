@@ -13,6 +13,19 @@ use PHPParser_Error;
  */
 class PHPTemplateSegment extends TemplateSegment
 {
+
+    /**
+     * @var JigConverter
+     */
+    private $jigConverter;
+
+    public function __construct(JigConverter $jigConverter, $text)
+    {
+        $this->jigConverter = $jigConverter;
+        parent::__construct($text);
+    }
+    
+    
     /**
      * The pattern matcher strips off the enclosing tags - we re-add them here
      * for literal mode parsing.
@@ -60,6 +73,11 @@ class PHPTemplateSegment extends TemplateSegment
     public function removeFilters()
     {
         $knownFilters = array('nofilter', 'urlencode', 'nooutput', 'nophp');
+        
+        $userFiltersNames = array_keys($this->jigConverter->getUserFilters());
+        
+        $knownFilters = array_merge($knownFilters, $userFiltersNames);
+        
         $filterString = implode('|', $knownFilters);
         $pattern = '/\|\s*('.$filterString.')+/u';
 
@@ -124,8 +142,18 @@ class PHPTemplateSegment extends TemplateSegment
         $filters = array_merge($filters, $printer->getFilters());
 
         
+        foreach ($filters as $filter) {
+            if ($filter == 'nofilter' ||
+                $filter == 'nooutput' ||
+                $filter == 'nophp') {
+                continue;
+            }
+
+            $segmentText = '$this->callFilter('.$segmentText.", '$filter')";
+        }
+        
         if (in_array('nofilter', $filters) == false) {
-            $segmentText =  '\Jig\safeTextObject('.$segmentText.", ENT_QUOTES)";
+            $segmentText = '\Jig\safeTextObject('.$segmentText.", ENT_QUOTES)";
         }
 
         if (in_array('nooutput', $filters) == false) {
@@ -133,12 +161,8 @@ class PHPTemplateSegment extends TemplateSegment
         }
 
         if (in_array('nophp', $filters) == false) {
-            $segmentText = "<?php ".$segmentText." ; ?>";
+            $segmentText = "<?php ".$segmentText."; ?>";
         }
-
-//        if (in_array('urlencode', $filters) == true) {
-//            $segmentText = "\urlencode(".$segmentText."); ? >";
-//        }
 
         return $segmentText;
     }

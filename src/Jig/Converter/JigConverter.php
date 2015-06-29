@@ -33,7 +33,8 @@ class JigConverter
     // of the generated code.
     const FILTER_NO_PHP = 'nophp';
 
-    
+    private $filters = []; 
+
     /**
      * Is the converter currently in literal mode.
      * @var bool
@@ -74,6 +75,60 @@ class JigConverter
         $this->jigConfig = $jigConfig;
     }
 
+    /**
+     * @param $filterName
+     * @param callable $callback
+     */
+    public function addFilter($filterName, callable $callback)
+    {
+        //TOOD - add checks on filterName
+        $this->filters[$filterName] = $callback;
+    }
+
+    /**
+     * @param $text
+     * @param $filterName
+     * @return mixed
+     * @throws JigException
+     */
+    public function callFilter($text, $filterName)
+    {
+        if (!array_key_exists($filterName, $this->filters)) {
+            throw new JigException(
+                "Compile error - unknown filter $filterName",
+                \Jig\JigException::UNKNOWN_FILTER
+            );
+        }
+        $callback = $this->filters[$filterName];
+
+        return $callback($text);
+    }
+
+    /**
+     * @return array
+     */
+    public function getUserFilters()
+    {
+        return $this->filters;
+    }
+
+    /**
+     * @param $filterName
+     * @return mixed
+     * @throws JigException
+     */
+    public function getUserFilterCallback($filterName)
+    {
+        if (array_key_exists($filterName, $this->filters)) {
+            return $this->filters[$filterName];
+        }
+
+        throw new JigException(
+            "Unknown filter '$filterName'",
+            \Jig\JigException::UNKNOWN_FILTER
+        );
+    }
+    
     /**
      * @param $blockName
      * @return null|callable
@@ -203,7 +258,7 @@ class JigConverter
                     continue;
                 }
 
-                $segments[] = new PHPTemplateSegment($code);
+                $segments[] = new PHPTemplateSegment($this, $code);
             }
 
             $remainingString = mb_substr($fileLine, $position);
@@ -544,7 +599,7 @@ class JigConverter
             $this->addLineInternal( $segmentText.'){' );
         }
         else{
-            $segment = new PHPTemplateSegment($foreachItem);
+            $segment = new PHPTemplateSegment($this, $foreachItem);
             $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
             $segmentText = str_replace($foreachItem, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
