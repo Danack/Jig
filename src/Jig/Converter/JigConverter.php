@@ -68,11 +68,17 @@ class JigConverter
      */
     private $activeBlockName = null;
 
+    private $defaultHelpers = [];
     
     public function __construct(JigConfig $jigConfig)
     {
         $this->bindRenderBlock('trim', [$this, 'processTrimEnd']);
         $this->jigConfig = $jigConfig;
+    }
+    
+    public function addDefaultHelper($name)
+    {
+        $this->defaultHelpers[] = $name;
     }
 
     /**
@@ -170,6 +176,9 @@ class JigConverter
         }
         
         $this->parsedTemplate = new ParsedTemplate($this->jigConfig->compiledNamespace);
+        foreach($this->defaultHelpers as $defaultHelper) {
+            $this->parsedTemplate->addHelper($defaultHelper);
+        }
 
         foreach ($fileLines as $fileLine) {
             $nextSegments = $this->getLineSegments($fileLine);
