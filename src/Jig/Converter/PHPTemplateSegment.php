@@ -3,6 +3,7 @@
 
 namespace Jig\Converter;
 
+use Jig\JigRender;
 use Jig\JigException;
 use PHPParser_Lexer;
 use PHPParser_Parser;
@@ -15,13 +16,13 @@ class PHPTemplateSegment extends TemplateSegment
 {
 
     /**
-     * @var JigConverter
+     * @var JigRender
      */
-    private $jigConverter;
+    private $jigRender;
 
-    public function __construct(JigConverter $jigConverter, $text)
+    public function __construct(JigRender $jigRender, $text)
     {
-        $this->jigConverter = $jigConverter;
+        $this->jigRender = $jigRender;
         parent::__construct($text);
     }
     
@@ -74,7 +75,7 @@ class PHPTemplateSegment extends TemplateSegment
     {
         $knownFilters = array('nofilter', 'urlencode', 'nooutput', 'nophp');
         
-        $userFiltersNames = array_keys($this->jigConverter->getUserFilters());
+        $userFiltersNames = array_keys($this->jigRender->getUserFilters());
         
         $knownFilters = array_merge($knownFilters, $userFiltersNames);
         

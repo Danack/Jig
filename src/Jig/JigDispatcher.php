@@ -3,24 +3,35 @@
 namespace Jig;
 
 use Jig\Converter\JigConverter;
+use Auryn\Injector;
 
 
 class JigDispatcher extends Jig
 {
 
+    /**
+     * @var \Auryn\Injector
+     */
     private $injector;
-
-    private $jigRender;
 
     public function __construct(
         JigConfig $jigConfig,
-        JigRender $jigRender,
-        JigConverter $jigConverter,
-        \Auryn\Injector $injector)
+        Injector $injector,
+        JigRender $jigRender = null,
+        JigConverter $jigConverter = null)
     {
-        parent::__construct($jigConfig, $jigConverter);
+        if ($jigConverter == null) {
+            $jigConverter = new JigConverter($jigConfig);
+        }
+
+        if ($jigRender == null) {
+            $jigRender = new JigRender($jigConfig, $jigConverter);
+        }
+
+        parent::__construct($jigConfig, $jigRender, $jigConverter);
         $this->injector = $injector;
-        $this->jigRender = $jigRender;
+        $this->injector->share($jigRender);
+        $this->injector->share($jigConverter);
     }
     
     
@@ -31,13 +42,10 @@ class JigDispatcher extends Jig
      */
     public function renderTemplateFile($templateFilename)
     {
-        $injector = clone $this->injector;
-        $injector->share($this->jigRender);
-        $injector->share($this->jigConverter);
         
         $this->jigRender->checkTemplateCompiled($templateFilename);
         $className = $this->jigConfig->getFullClassname($templateFilename);
-        $contents = $injector->execute([$className, 'render']);
+        $contents = $this->injector->execute([$className, 'render']);
 
         return $contents;
     }
@@ -57,5 +65,11 @@ class JigDispatcher extends Jig
         $contents = $this->injector->execute([$className, 'render']);
 
         return $contents;
+    }
+    
+    public function addHelper($helper)
+    {
+        $this->injector->share($helper);
+        $this->addDefaultHelper(get_class($helper));
     }
 }

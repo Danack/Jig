@@ -1,1 +1,1 @@
-{inject name='fooInterface' value=''}
+{inject name='fooInterface' type=''}

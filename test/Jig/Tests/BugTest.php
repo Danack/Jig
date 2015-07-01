@@ -30,7 +30,6 @@ class BugTest extends \Jig\Base\BaseTestCase {
 
         $templateDirectory = dirname(__DIR__)."/../templates/";
         $compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
-        $this->helper = new PlaceHolderHelper();
 
         $jigConfig = new JigConfig(
             $templateDirectory,
@@ -46,9 +45,7 @@ class BugTest extends \Jig\Base\BaseTestCase {
         $jigConverter = new JigConverter($jigConfig);
         
         $this->jigRender = new JigRender($jigConfig, $jigConverter);
-        $this->jig = new \Jig\JigDispatcher($jigConfig, $this->jigRender, $jigConverter, $provider);
-
-        $this->helper->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
+        $this->jig = new \Jig\JigDispatcher($jigConfig, $provider, $this->jigRender, $jigConverter);
     }
 
     /**

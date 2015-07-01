@@ -1,7 +1,7 @@
 
 {block name='mainContent'}
     
-{inject name='userDetail' value='Jig\PlaceHolder\Values\UserDetails'}
+{inject name='userDetail' type='Jig\PlaceHolder\Values\UserDetails'}
     
 This is a template.
 {literal}

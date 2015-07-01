@@ -1,5 +1,7 @@
 {include file='pageStart'}
 
+{helper type="JigDemo\Helper\DemoHelper"}
+
 
 <div class="container">
     <div class="row">
@@ -9,14 +11,13 @@
 
 <p>
     By default all output is filtered to escape HTML entities.<br/>
-    String output: {$htmlString} <br/>
     Function output: {greet('<b>john</b>')} <br/>
 </p>
 
 
 <h4>Output filtering can be disabled</h4>
 <p>
-    String output: {$htmlString | nofilter}<br/>
+   
     Function output: {greet('<b>john</b>') | nofilter}<br/>
 </p>
 
@@ -24,7 +25,6 @@
 <h4>Foreach variable </h4>
 <p>
     {$colors = getColors()}
-
     {foreach $colors as $key => $color}
         <span style='color: {$color}'>{$color}</span>
     {/foreach}

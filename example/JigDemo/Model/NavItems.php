@@ -19,7 +19,7 @@ class NavItems implements \IteratorAggregate  {
             new NavItem('/formExample', 'Form'),
         ];
     }
-    
+
     /**
      * @return \JigDemo\Model\NavItem[]
      */

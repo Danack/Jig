@@ -2,10 +2,10 @@
 
 namespace JigDemo\Controller;
 
-use Jig\JigRender;
-use Jig\ViewModel;
+use Jig\Jig;
+
 use JigDemo\Response\TextResponse;
-use JigDemo\ViewModel\FunctionViewModel;
+use JigDemo\Helper\FunctionHelper;
 
 function globalFunction() {
     return "This is a global function.";
@@ -14,31 +14,31 @@ function globalFunction() {
 
 class FunctionExample {
 
-    private $jigRender;
-
-    function __construct(JigRender $jigRender) {
-        $this->jigRender = $jigRender;
-    }
+//    private $jigRender;
+//
+//    function __construct(JigRender $jigRender) {
+//        $this->jigRender = $jigRender;
+//    }
 
     function classFunction() {
         return "This is a method on class.";
     }
 
-    function display() {
-        $viewModel = new FunctionViewModel();
+    function display(Jig $jig) {
+        $functionHelper = new FunctionHelper();
 
         $closureFunction = function () {
             $args = func_get_args();
             echo "This is a closure function. The args were: ".var_export($args);
         };
         
-        $viewModel->bindFunction('closureFunction', $closureFunction);
-        $viewModel->bindFunction('globalFunction', 'JigDemo\\Controller\\globalFunction');
-        $viewModel->bindFunction('classFunction', [$this, 'classFunction']);
-        
-        $output = $this->jigRender->renderTemplateFile('functionExample', $viewModel);
+        $functionHelper->bindFunction('closureFunction', $closureFunction);
+        $functionHelper->bindFunction('globalFunction', 'JigDemo\\Controller\\globalFunction');
+        $functionHelper->bindFunction('classFunction', [$this, 'classFunction']);
 
-        return new TextResponse($output);
+        $jig->addDefaultHelper(get_class($functionHelper));
+
+        return getTemplateCallable('functionExample', [$functionHelper]);
     }
 }
 

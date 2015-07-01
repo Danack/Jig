@@ -17,15 +17,43 @@ class Jig
     protected $jigConverter;
 
     /**
-     * @var JigConfig
+     * @var \Jig\JigConfig
      */
     protected $jigConfig;
 
-    public function __construct(JigConfig $jigConfig, JigConverter $jigConverter)
+    /**
+     * @var \Jig\JigRender
+     */
+    protected $jigRender;
+    
+    public function __construct(
+        JigConfig $jigConfig,
+        JigRender $jigRender = null,
+        JigConverter $jigConverter = null)
     {
+        if ($jigConverter == null) {
+            $jigConverter = new JigConverter($jigConfig);
+        }
+        
+        if ($jigRender == null) {
+            $jigRender = new JigRender($jigConfig, $jigConverter);
+        }
+        
         $this->jigConfig = clone $jigConfig;
         $this->jigConverter = $jigConverter;
+        $this->jigRender = $jigRender;
     }
+
+    public function getJigRender()
+    {
+        return $this->jigRender;
+    }
+    
+    public function getJigConverter()
+    {
+        return $this->jigConverter;
+    }
+    
 
     /**
      * @param $blockName
@@ -68,5 +96,41 @@ class Jig
     public function getCompileFilename($templateFilename)
     {
         return getCompileFilename($templateFilename, $this->jigConverter, $this->jigConfig);
+    }
+
+    /**
+     * @param $templateFilename
+     */
+    public function checkTemplateCompiled($templateFilename)
+    {
+        $this->jigRender->checkTemplateCompiled($templateFilename);
+    }
+
+    /**
+     * @param $templateName
+     * @return string
+     */
+    public function getTemplateCompiledClassname($templateName)
+    {
+        return $this->jigConfig->getFullClassname($templateName);
+    }
+
+    /**
+     * @param $classname
+     */
+    public function addDefaultHelper($classname)
+    {
+        $classname = (string)$classname;
+        
+        $this->jigConverter->addDefaultHelper($classname);
+    }
+
+    /**
+     * @param $filterName
+     * @param callable $callback
+     */
+    public function addFilter($filterName, callable $callback)
+    {
+        $this->jigRender->addFilter($filterName, $callback);
     }
 }

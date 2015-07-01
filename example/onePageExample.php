@@ -1,87 +1,49 @@
 <?php
 
+use Auryn\Injector;
+use Jig\JigConfig;
 
+use Jig\Jig;
+
+// Register some directories in the autoloader - we don't do this in composer.json
+// to avoid any confusion with users of the library.
 $autoloader = require_once realpath(__DIR__).'/../vendor/autoload.php';
-
+$autoloader->add('JigDemo', [realpath(__DIR__).'/']);
 $autoloader->add('Jig', [realpath(__DIR__).'/compile/']);
 
 
-use Jig\JigConfig;
-use Jig\JigRender;
+$injector = new Injector();
 
+// Setting the Jig config
 $jigConfig = new JigConfig(
     __DIR__."/templates/",
     __DIR__."/compile/",
     "php.tpl",
-    JigRender::COMPILE_ALWAYS
+    Jig::COMPILE_ALWAYS
 );
 
+// Tell the DIC that every class that needs an instance of JigConfig 
+// should use this one.
+$injector->share($jigConfig);
 
-class ExampleViewModel extends \Jig\ViewModel\BasicTemplateHelper {
-    function testMethod() {
-        return "This is a method in the ViewModel. It can be called without being explicitly bound.";
-    }
-}
+// Alias an interface to a concrete class so that it can be found in 
+// the template.
+$injector->alias('JigDemo\Model\ColorScheme', '\JigDemo\Model\PrimaryColorscheme');
 
+// This is the template we will be compiling. 
+$templateName = 'onePageExample';
 
-interface ColorScheme {
-    function getColors();
-}
+// Create the Jig renderer
+$jig = new Jig($jigConfig);
 
-class PrimaryColorscheme implements ColorScheme {
-    
-    function getColors() {
-        return ['red', 'green', 'blue'];
-    }
-}
+// Tell Jig to make sure the template is compiled.
+$jig->checkTemplateCompiled($templateName);
 
+// Get the classname that the template will be called
+$className = $jig->getTemplateCompiledClassname($templateName);
 
-$provider = new \Auryn\Provider();
+// Call the template
+$contents = $injector->execute([$className, 'render']);
 
-$provider->alias('ColorScheme', 'PrimaryColorscheme');
-
-$renderer = new JigRender($jigConfig, $provider);
-
-
-
-
-$viewModel = new ExampleViewModel();
-
-
-function warningBlockStart() {
-    $output = "<div class='warning'>";
-    $output .= "<span class='warningTitle'>* Warning *</span>";
-    echo $output;
-}
-
-function warningBlockEnd($content) {
-    $output = $content;
-    $output .= "</div>";
-    echo $output;
-}
-
-function boundFunction($username) {
-    echo "Hello $username";
-}
-
-$viewModel->setVariable('user', "anonymouse user");
-$viewModel->setVariable('text', "<i>this is <u>some</u> text</i>");
-
-
-$viewModel->bindFunction('boundFunction', 'boundFunction');
-$viewModel->bindFunction('boundCallable', function() {echo "This is a callable";});
-
-
-
-
-$renderer->bindRenderBlock(
-    'warning',          //Block name
-    'warningBlockEnd',  //Block end callable
-    'warningBlockStart' //Block start callable.
-);
-
-
-
-$contents = $renderer->renderTemplateFile('onePageExample', $viewModel);
 echo $contents;
 

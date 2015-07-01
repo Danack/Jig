@@ -1,6 +1,6 @@
 
 
-{inject name='blogPostList' value='Mapper\BlogPostList'}
+{inject name='blogPostList' type='Mapper\BlogPostList'}
 
 <h4>Blog posts</h4>
 

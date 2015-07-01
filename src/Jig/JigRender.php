@@ -24,6 +24,8 @@ class JigRender
      */
     private $jigConfig;
 
+    private $filters = [];
+
     public function __construct(
         Jigconfig $jigConfig,
         JigConverter $jigConverter
@@ -32,11 +34,6 @@ class JigRender
         $this->jigConverter = $jigConverter;
     }
 
-    public function callFilter($text, $filterName)
-    {
-        return $this->jigConverter->callFilter($text, $filterName);
-    }
-    
     public function getClassName($templateFilename)
     {
         return $this->jigConfig->getFullClassname($templateFilename);
@@ -89,7 +86,7 @@ class JigRender
         }
 
         try {
-            $parsedTemplate = $this->jigConverter->createFromLines($fileLines);
+            $parsedTemplate = $this->jigConverter->createFromLines($fileLines, $this);
             $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
             $parsedTemplate->setClassName($className);
 
@@ -102,13 +99,9 @@ class JigRender
 
     /**
      * @param $templateFilename
-     * //TODO rename this to a better name.
-     * //TODO this duplicates a significant portion of getParsedTemplateFromString
-     * @param $mappedClasses
-     * @param bool $proxied
      * @throws JigException
      */
-    public function checkTemplateCompiled($templateFilename, $proxied = false)
+    public function checkTemplateCompiled($templateFilename)
     {
         if ($this->jigConfig->compileCheck == Jig::COMPILE_NEVER) {
             //This is useful when debugging templates. It allows you to edit the
@@ -116,7 +109,7 @@ class JigRender
             return;
         }
         
-        $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename, $proxied);
+        $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename);
         if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
                 return;
@@ -132,16 +125,15 @@ class JigRender
         }
 
         //Either class file did not exist or it was out of date. 
-        $this->compileTemplate($className, $templateFilename, $proxied);
+        $this->compileTemplate($className, $templateFilename);
     }
 
     /**
      * @param $className
      * @param $templateFilename
-     * @param $proxied
      * @throws JigException
      */
-    public function compileTemplate($className, $templateFilename, $proxied)
+    public function compileTemplate($className, $templateFilename)
     {
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename);
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
@@ -151,15 +143,14 @@ class JigRender
         }
 
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
-            $this->jigConfig->templateCompileDirectory,
-            $proxied
+            $this->jigConfig->templateCompileDirectory
         );
 
         if (class_exists($className, false) == false) {
             if (function_exists('opcache_invalidate') == true) {
                 opcache_invalidate($outputFilename);
             }
-            //This is fucking stupid. We should be able to auto-load the class
+            //This is very stupid. We should be able to auto-load the class
             //if and only if it is required. But the Composer autoloader caches
             //the 'class doesn't exist' result from earlier, which means we
             //have to load it by hand.
@@ -184,7 +175,7 @@ class JigRender
         $templateString = str_replace("<?php", "&lt;php", $templateString);
         $templateString = str_replace("?>", "?&gt;", $templateString);
 
-        $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
+        $parsedTemplate = $this->jigConverter->createFromLines(array($templateString), $this);
         $parsedTemplate->setClassName($cacheName);
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
 
@@ -199,7 +190,7 @@ class JigRender
             false
         );
         
-        //This is fucking stupid. We should be able to auto-load the class
+        //This is very stupid. We should be able to auto-load the class
         //if and only if it is required. But the Composer autoloader caches
         //the 'class doesn't exist' result from earlier, which means we
         //have to load it by hand.
@@ -216,7 +207,7 @@ class JigRender
      */
     public function startRenderBlock($blockName, $segmentText)
     {
-        $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
+        $blockFunction = $this->jigConverter->getRenderBlockFunction($blockName);
         $startFunctionCallable = $blockFunction[0];
 
         if ($startFunctionCallable) {
@@ -232,12 +223,69 @@ class JigRender
     {
         $contents = ob_get_contents();
         ob_end_clean();
-        $blockFunction = $this->jigConverter->getProcessedBlockFunction($blockName);
+        $blockFunction = $this->jigConverter->getRenderBlockFunction($blockName);
         $endFunctionCallable = $blockFunction[1];
 
         if (!$endFunctionCallable) {
             throw new JigException("Block end function is null");
         }
         echo call_user_func($endFunctionCallable, $contents);
+    }
+    
+    
+
+        /**
+     * @param $filterName
+     * @param callable $callback
+     */
+    public function addFilter($filterName, callable $callback)
+    {
+        //TOOD - add checks on filterName
+        $this->filters[$filterName] = $callback;
+    }
+
+    /**
+     * @param $text
+     * @param $filterName
+     * @return mixed
+     * @throws JigException
+     */
+    public function callFilter($text, $filterName)
+    {
+        if (!array_key_exists($filterName, $this->filters)) {
+            throw new JigException(
+                "Compile error - unknown filter $filterName",
+                \Jig\JigException::UNKNOWN_FILTER
+            );
+        }
+        $callback = $this->filters[$filterName];
+
+        return $callback($text);
+    }
+
+    /**
+     * @return array
+     */
+    public function getUserFilters()
+    {
+        return $this->filters;
+    }
+    
+        /**
+     * Called by compiled templates.
+     * @param $filterName
+     * @return mixed
+     * @throws JigException
+     */
+    public function getUserFilterCallback($filterName)
+    {
+        if (array_key_exists($filterName, $this->filters)) {
+            return $this->filters[$filterName];
+        }
+
+        throw new JigException(
+            "Unknown filter '$filterName'",
+            \Jig\JigException::UNKNOWN_FILTER
+        );
     }
 }

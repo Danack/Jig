@@ -7,9 +7,13 @@ $autoloader->add('JigDemo', [realpath(__DIR__).'/']);
 $autoloader->add('Jig', [realpath(__DIR__).'/compile/']);
 
 
+use Auryn\Injector;
 use Jig\JigConfig;
-use Jig\JigRender;
+use Jig\Jig;
 use JigDemo\Response\StandardHTTPResponse;
+use JigDemo\Application\InjectionParams;
+use JigDemo\Application\Tier;
+use Jig\JigBase;
 
 function bootstrapInjector() {
 
@@ -17,42 +21,48 @@ function bootstrapInjector() {
         __DIR__."/templates/",
         __DIR__."/compile/",
         'php.tpl',
-        //JigRender::COMPILE_CHECK_MTIME
-        JigRender::COMPILE_ALWAYS
-        //JigRender::COMPILE_CHECK_EXISTS
+        Jig::COMPILE_CHECK_MTIME
     );
 
-    $provider = new Auryn\Provider();
-    $provider->share($jigConfig);
-    $provider->alias('Jig\ViewModel', 'Jig\ViewModel\BasicViewModel');
-    $provider->share($provider);
+    $injector = new Injector();
+    $injector->share($jigConfig);
+    $injector->share('Jig\JigRender');
+    $injector->share('Jig\Jig');
+    $injector->share('Jig\JigConverter');
+    $injector->share($injector); //yolo service locator
 
-    return $provider;
+    return $injector;
 }
 
 
-/**
- * @param \Auryn\Provider $injector
- * @param $handler
- * @param $vars
- * @return \JigDemo\Response\Response $response;
- */
-function process(\Auryn\Provider $injector, $handler, $vars) {
 
-    $lowried = [];
-    foreach ($vars as $key => $value) {
-        $lowried[':'.$key] = $value;
-    }
+function createTemplateResponse(JigBase $template)
+{
+    $text = $template->render();
 
-    $response = $injector->execute($handler, $lowried);
+    return new JigDemo\Response\TextResponse($text);
+}
 
-    return $response;
+function getTemplateCallable($templateName, array $sharedObjects = [])
+{
+    $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
+        $className = $jigRender->getTemplateCompiledClassname($templateName);
+        $jigRender->checkTemplateCompiled($templateName);
+
+        $alias = [];
+        $alias['Jig\JigBase'] = $className;
+        $injectionParams = new InjectionParams($sharedObjects, $alias, [], []);
+
+        return new Tier('createTemplateResponse', $injectionParams);
+    };
+
+    return new Tier($fn);
 }
 
 
-function servePage(\Auryn\Provider $injector, $routesFunction) {
+function getRouteCallable() {
 
-    $dispatcher = FastRoute\simpleDispatcher($routesFunction);
+    $dispatcher = FastRoute\simpleDispatcher('routesFunction');
 
     $httpMethod = 'GET'; //yay hard coding.
     $uri = '/';
@@ -83,21 +93,21 @@ function servePage(\Auryn\Provider $injector, $routesFunction) {
         case FastRoute\Dispatcher::FOUND: {
             $handler = $routeInfo[1];
             $vars = $routeInfo[2];
-            //TODO - support head?
-            return process($injector, $handler, $vars);
+            $params = InjectionParams::fromParams($vars);
+            
+            return new Tier($handler, $params);
         }
             
         default: {
             //Not supported
-            //return new StandardHTTPResponse(404, $uri, "Not found");
-            return null;
+            return new StandardHTTPResponse(404, $uri, "Not found");
             break;
         }
     }
 }
 
 
-$routesFunction = function(FastRoute\RouteCollector $r) {
+ function routesFunction(FastRoute\RouteCollector $r) {
     //Category indices
     $r->addRoute(
         'GET',
@@ -142,3 +152,28 @@ $routesFunction = function(FastRoute\RouteCollector $r) {
     );
 };
 
+
+function addInjectionParams(Injector $injector, Tier $tier)
+{
+    $injectionParams = $tier->getInjectionParams();
+    
+    if (!$injectionParams) {
+        return;
+    }
+        
+    foreach ($injectionParams->getAliases() as $original => $alias) {
+        $injector->alias($original, $alias);
+    }
+    
+    foreach ($injectionParams->getShares() as $share) {
+        $injector->share($share);
+    }
+    
+    foreach ($injectionParams->getParams() as $paramName => $value) {
+        $injector->defineParam($paramName, $value);
+    }
+    
+    foreach ($injectionParams->getDelegates() as $className => $callable) {
+        $injector->delegate($className, $callable);
+    }
+}

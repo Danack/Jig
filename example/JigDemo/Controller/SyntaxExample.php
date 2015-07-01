@@ -3,8 +3,8 @@
 namespace JigDemo\Controller;
 
 use Jig\JigRender;
-use Jig\ViewModel;
-use Jig\ViewModel\BasicTemplateHelper;
+//use Jig\ViewModel;
+use Jig\TemplateHelper\BasicTemplateHelper;
 use JigDemo\Response\TextResponse;
 
 
@@ -17,12 +17,12 @@ class SyntaxExample {
     }
 
     function display() {
-        $viewModel = new BasicTemplateHelper();
-        $viewModel->setVariable('htmlString', 'Example string with <i>embedded</i> HTML');
-        $viewModel->bindFunction('greet', function($username) {return sprintf("Hello %s!", $username);} );
-        $viewModel->bindFunction('getColors', function() {return ['red', 'green', 'blue'];} );
-        $output = $this->jigRender->renderTemplateFile('SyntaxExample', $viewModel);
-        return new TextResponse($output);
+//        $helper = new BasicTemplateHelper();
+//
+
+        
+        return getTemplateCallable('SyntaxExample');
+        
     }
 }
 

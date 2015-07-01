@@ -7,19 +7,6 @@ use Jig\JigException;
 
 class BasicTemplateHelper implements \Jig\TemplateHelper
 {
-    /**
-     * @var array Stores the bound functions that are available through the helper
-     */
-    private $boundFunctions = array();
-
-    /**
-     * @param $functionName
-     * @param callable $callable
-     */
-    public function bindFunction($functionName, callable $callable)
-    {
-        $this->boundFunctions[$functionName] = $callable;
-    }
 
     /**
      * @param $functionName
@@ -31,7 +18,7 @@ class BasicTemplateHelper implements \Jig\TemplateHelper
             return true;
         }
 
-        return array_key_exists($functionName, $this->boundFunctions);
+        return false;
     }
 
     /**
@@ -44,10 +31,6 @@ class BasicTemplateHelper implements \Jig\TemplateHelper
      */
     public function call($functionName, array $params)
     {
-        if (array_key_exists($functionName, $this->boundFunctions) == true) {
-            return call_user_func_array($this->boundFunctions[$functionName], $params);
-        }
-
         if (method_exists($this, $functionName) == true) {
             return call_user_func_array([$this, $functionName], $params);
         }

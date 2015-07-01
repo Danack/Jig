@@ -28,15 +28,9 @@ class VariableTest{
     }
 }
 
-function testCallableFunction() {
-    echo "I am a callable function";
-}
-
 
 class JigConverterTest extends \Jig\Base\BaseTestCase
 {
-
-    private $startOBLevel;
 
     private $templateDirectory;
 
@@ -46,13 +40,8 @@ class JigConverterTest extends \Jig\Base\BaseTestCase
     /**
      * @var \Auryn\Injector
      */
-    private $provider;
+    private $injector;
 
-
-    function classBoundFunction()
-    {
-        echo "This is a class function.";
-    }
 
     /**
      * @var \Jig\JigDispatcher
@@ -60,24 +49,14 @@ class JigConverterTest extends \Jig\Base\BaseTestCase
     private $jig = null;
 
     /**
-     * @var \Jig\JigRender
-     */
-    private $jigRender = null;
-
-    /**
      * @var \Jig\JigConfig
      */
     private $jigConfig;
 
-    /**
-     * @var \Jig\Converter\JigConverter
-     */
-    private $jigConverter;
-
-    /**
-     * @var \Jig\PlaceHolder\PlaceHolderHelper
-     */
-    private $helper;
+//    /**
+//     * @var \Jig\PlaceHolder\PlaceHolderHelper
+//     */
+//    private $helper;
 
     private $emptyHelper;
 
@@ -87,7 +66,6 @@ class JigConverterTest extends \Jig\Base\BaseTestCase
 
         $this->templateDirectory = dirname(__DIR__)."/../templates/";
         $this->compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
-        $this->helper = new PlaceHolderHelper();
 
         $jigConfig = new JigConfig(
             $this->templateDirectory,
@@ -96,21 +74,10 @@ class JigConverterTest extends \Jig\Base\BaseTestCase
             Jig::COMPILE_ALWAYS
         );
 
-        $this->jigConfig = $jigConfig;
-
-        $provider = new \Auryn\Injector();
-        $this->provider = $provider;
-        $this->jigConverter = new JigConverter($jigConfig);
-
-        $provider->share($jigConfig);
-        $provider->share($provider);
-        $provider->share($this->helper);
-        $provider->share($this->jigConverter);
-
-        $this->jigRender = new JigRender($jigConfig, $this->jigConverter);
-        $this->jig = new JigDispatcher($jigConfig, $this->jigRender, $this->jigConverter, $provider);
-        $this->helper->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
-        $this->emptyHelper = new PlaceHolderHelper();
+        $injector = new \Auryn\Injector();
+        $this->injector = $injector;
+        
+        $this->jig = new JigDispatcher($jigConfig, $injector);
     }
 
     public function teardown()
@@ -121,20 +88,14 @@ class JigConverterTest extends \Jig\Base\BaseTestCase
     function testBasicConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $contents = $this->jig->renderTemplateFile('basic/basic', $this->helper);
+        $contents = $this->jig->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
     }
 
     function testForeachConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
-        //$this->helper->setVariable('colors', ['red', 'green', 'blue']);
-        $this->helper->bindFunction('getColors',
-            function () {
-                return ['red', 'green', 'blue'];
-            }
-        );
-        $contents = $this->jig->renderTemplateFile('basic/foreachTest', $this->helper);
+        $contents = $this->jig->renderTemplateFile('basic/foreachTest');
         $this->assertContains("Direct: redgreenblue", $contents);
         $this->assertContains("From function: redgreenblue", $contents);
     }
@@ -158,10 +119,10 @@ class JigConverterTest extends \Jig\Base\BaseTestCase
 
         $templateName = 'basic/DependencyInsertion';
         //$className = $this->jigRender->getClassName('basic/DependencyInsertion');
-        $className = $this->jigConfig->getFullClassname('basic/DependencyInsertion');
-        $this->jigRender->checkTemplateCompiled($templateName);
+        $className = $this->jig->getTemplateCompiledClassname('basic/DependencyInsertion');
+        $this->jig->checkTemplateCompiled($templateName);
 
-        $contents = $this->provider->execute([$className, 'render']);
+        $contents = $this->injector->execute([$className, 'render']);
 
         $this->assertContains("Twitter", $contents);
         $this->assertContains("Stackoverflow", $contents);
@@ -194,9 +155,7 @@ END;
     function testBasicCoversExistsConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $renderer = $this->jig;
-        $this->helper->bindFunction('testCallableFunction', 'Tests\PHPTemplate\testCallableFunction');
-        $contents = $renderer->renderTemplateFile('basic/basic', $this->helper);
+        $contents = $this->jig->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
     }
 
@@ -231,46 +190,39 @@ END;
      */
     function testStandardExtends()
     {
-        $className = $this->jigRender->getClassName('extendTest/child');
-        $this->jigRender->checkTemplateCompiled('extendTest/child');
+        $className = $this->jig->getTemplateCompiledClassname('extendTest/child');
+        $this->jig->checkTemplateCompiled('extendTest/child');
 
-        $contents = $this->provider->execute([$className, 'render']);
+        $contents = $this->injector->execute([$className, 'render']);
 
         $this->assertContains("This is the second child block.", $contents);
         $this->assertContains(\Jig\PlaceHolder\ChildDependency::output, $contents);
         $this->assertContains(\Jig\PlaceHolder\ParentDependency::output, $contents);
     }
 
+    /**
+     * @group wat
+     */
     function testFunctionBinding()
     {
-        $this->helper->bindFunction('testFunction1', 'testFunction1');
-        $this->helper->bindFunction('testFunction2', [$this, 'classBoundFunction']);
-        $this->helper->bindFunction('testFunction3',
-            function () {
-                echo "This is a closure function.";
-            }
-        );
-
-        $this->helper->bindFunction('isAllowed',
-            function () {
-                return true;
-            }
-        );
-
+        $this->jig->addDefaultHelper('Jig\PlaceHolder\PlaceHolderHelper');
         $contents = $this->jig->renderTemplateFile('binding/binding');
-        $this->assertContains("This is a global function.", $contents);
-        $this->assertContains("This is a class function.", $contents);
-        $this->assertContains("This is a closure function.", $contents);
-        $this->assertContains("isAllowed was true", $contents);
+        $this->assertContains(
+            \Jig\PlaceHolder\PlaceHolderHelper::FUNCTION_MESSAGE,
+            $contents
+        );
+        
     }
 
     function testBlockEscaping()
     {
+        $helper = new PlaceHolderHelper();
 
-        $this->jig->bindRenderBlock('htmlEntityDecode', [$this->helper, 'htmlEntityDecode']);
-        $contents = $this->jig->renderTemplateFile('binding/blocks', $this->helper);
+        $this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
+        $this->injector->share($helper);
+        $contents = $this->jig->renderTemplateFile('binding/blocks', $helper);
         $this->assertContains("€¥™<>", $contents);
-        //$this->assertContains("This is a variable", $contents);
+
     }
 
     function testBlockEscapingFromString()
@@ -284,7 +236,11 @@ END;
 The above should be decoded to characters
 
 END;
-        $this->jig->bindRenderBlock('htmlEntityDecode', [$this->helper, 'htmlEntityDecode']);
+        
+        $helper = new PlaceHolderHelper();
+        
+        $this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
+        $this->jig->addHelper($helper);
 
         $contents = $this->jig->renderTemplateFromString(
             $string,
@@ -295,7 +251,7 @@ END;
 
     function testDynamicInclude()
     {
-        $contents = $this->jig->renderTemplateFile('includeFile/dynamicIncludeTest', $this->helper);
+        $contents = $this->jig->renderTemplateFile('includeFile/dynamicIncludeTest');
         $this->assertContains("This is include 1.", $contents);
     }
 
@@ -305,10 +261,10 @@ END;
     function testInclude()
     {
         $templateName = 'includeFile/includeTest';
-        $className = $this->jigRender->getClassName($templateName);
-        $this->jigRender->checkTemplateCompiled($templateName);
+        $className = $this->jig->getTemplateCompiledClassname($templateName);
+        $this->jig->checkTemplateCompiled($templateName);
 
-        $contents = $this->provider->execute([$className, 'render']);
+        $contents = $this->injector->execute([$className, 'render']);
 
         $this->assertContains("Included start", $contents);
         $this->assertContains("Included end", $contents);
@@ -319,17 +275,8 @@ END;
 
     function testNoOutput()
     {
-        $this->helper->bindFunction('testNoOutput',
-            function () {
-                return 'This is some output';
-            }
-        );
-        $this->helper->bindFunction('getBar',
-            function () {
-                return 'bar';
-            }
-        );
-
+        $helper = new PlaceHolderHelper();
+        $this->jig->addHelper($helper);
         $contents = $this->jig->renderTemplateFile('coverageTesting/nooutput');
         $this->assertEquals(0, strlen(trim($contents)), "Output of [$contents] found when none expected.");
     }
@@ -436,22 +383,18 @@ END;
 
     function testStringCoverageObject()
     {
-        $this->helper->bindFunction('getObject',
-            function () {
-                return new \StdClass;
-            }
-        );
+        $helper = new PlaceHolderHelper();
+
+        $this->jig->addHelper($helper);
         $this->setExpectedException('Jig\JigException');
         $this->jig->renderTemplateFile('coverageTesting/stringCoverageObject');
     }
 
     function testStringCoverageArray()
     {
-        $this->helper->bindFunction('getArray',
-            function () {
-                return [];
-            }
-        );
+        $helper = new PlaceHolderHelper();
+        
+        $this->jig->addHelper($helper);
         $this->setExpectedException('Jig\JigException', \Jig\JigException::IMPLICIT_ARRAY_TO_STRING);
         $this->jig->renderTemplateFile('coverageTesting/stringCoverageArray');
     }
@@ -477,13 +420,13 @@ END;
             $this->templateDirectory,
             $this->compileDirectory,
             "php.tpl",
-            Jig::COMPILE_CHECK_EXISTS,
-            ""
+            Jig::COMPILE_CHECK_EXISTS
         );
 
         $provider = new \Auryn\Injector();
         $provider->share($jigConfig);
         $provider->share($provider);
+
         $jig = $provider->make('Jig\JigDispatcher');
         $jig->renderTemplateFile("basic/simplest");
         $jig->renderTemplateFile("basic/simplest");
@@ -502,7 +445,7 @@ END;
         $provider->share($jigConfig);
         $provider->share($provider);
 
-        $jig = $provider->make('Jig\JigDispatcher');
+        $jig = new \Jig\JigDispatcher($jigConfig, $provider);
         $templateName = "coverageTesting/mtimeonce";
         $this->jig->deleteCompiledFile($templateName);
         $jig->renderTemplateFile($templateName);
@@ -519,12 +462,12 @@ END;
         $warningBlockStart = function ($segmentText) use (&$blockStartCallCount, &$passedSegementText) {
             $blockStartCallCount++;
             $passedSegementText = $segmentText;
-            return "processedBlockStart";
+            return "<span class='warning'>";
         };
 
         $warningBlockEnd = function ($contents) use (&$blockEndCallCount) {
             $blockEndCallCount++;
-            return $contents."processedBlockEnd";
+            return $contents."\n</span>";
         };
 
         $this->jig->bindRenderBlock(
@@ -534,13 +477,14 @@ END;
         );
 
         $contents = $this->jig->renderTemplateFile('block/renderBlock');
+        
 
         $this->assertEquals($blockStartCallCount, 1);
         $this->assertEquals($blockEndCallCount, 1);
         $this->assertEquals("foo='bar'", $passedSegementText);
         $this->assertContains("This is in a warning block", $contents);
-        $this->assertContains("processedBlockEnd", $contents);
-        $this->assertContains("processedBlockStart", $contents);
+        $this->assertContains("</span>", $contents);
+        $this->assertContains("<span class='warning'>", $contents);
 
         $this->assertContains("This is in a warning block", $contents);
     }
@@ -622,8 +566,9 @@ END;
             return strtoupper($text);
         };
 
-        $this->jigConverter->addFilter('toupper', $fn);
+        $this->jig->addFilter('toupper', $fn);
         $contents = $this->jig->renderTemplateFile("filter/userFilter");
+
         $this->assertContains('HELLO', $contents);
     }
     

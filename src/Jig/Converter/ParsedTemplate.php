@@ -177,26 +177,17 @@ class ParsedTemplate
 
     /**
      * @param $compilePath
-     * @param $proxied
      * @return string
      * @throws \Jig\JigException
      */
-    public function saveCompiledTemplate($compilePath, $proxied)
+    public function saveCompiledTemplate($compilePath)
     {
         $fullClassName = \Jig\getFQCN($this->baseNamespace, $this->getClassName());
         $fullClassName = str_replace("/", "\\", $fullClassName);
 
         $namespace = \Jig\getNamespace($fullClassName);
         $className = \Jig\getClassName($fullClassName);
-
-        if ($proxied == true) {
-            $parentFullClassName = $fullClassName;
-            $className = 'Proxied'.$className;
-        }
-        else{
-            $parentFullClassName = $this->getParentClass();
-        }
-
+        $parentFullClassName = $this->getParentClass();
         $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
 
         $outputFilename = \Jig\convertNamespaceClassToFilepath($namespace."\\".$className);
@@ -219,8 +210,7 @@ class ParsedTemplate
         if (strlen(trim($namespace))) {
             $namespaceString = "namespace $namespace;";
         }
-        
-        
+
         $startSection = <<< END
 <?php
 
@@ -251,10 +241,7 @@ END;
             $this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
         }
 
-
-        if ($this->getExtends() == null) {//&&
-//            $this->dynamicExtends == null &&
-//            $proxied == false) {
+        if ($this->getExtends() == null) {
             $remainingSegments = $this->getLines();
             $this->writeFunction($outputFileHandle, 'renderInternal', $remainingSegments);
         }

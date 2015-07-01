@@ -13,7 +13,7 @@ This is between the blocks
     This is the second parent block.
 {/block}
 
-{inject name='parent' value='Jig\PlaceHolder\ParentDependency'}
+{inject name='parent' type='Jig\PlaceHolder\ParentDependency'}
 
 {$parent->render()}
 

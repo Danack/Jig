@@ -1,7 +1,7 @@
 {
     "name": "danack/jig",
-    "description": "Lightweight, fast, flexible PHP templating system. Just like all the others.",
-    "keywords": ["intahwebz", "core", "library"],
+    "description": "Lightweight, fast, flexible PHP templating system that uses real dependency injection.",
+    "keywords": ["jig", "template", "view", "library"],
 
     "license": "MIT",
     "repositories": [

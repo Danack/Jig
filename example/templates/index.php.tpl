@@ -1,6 +1,6 @@
 {include file='pageStart'}
 
-{inject name='navItems' value='JigDemo\Model\NavItems'}
+{inject name='navItems' type='JigDemo\Model\NavItems'}
 
 <div class="container">
 

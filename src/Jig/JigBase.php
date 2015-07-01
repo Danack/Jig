@@ -23,12 +23,6 @@ abstract class JigBase
      */
     protected $templateHelpers = [];
 
-
-    public function __construct(JigRender $jigRender)
-    {
-        $this->jigRender = $jigRender;
-    }
-
     /**
      * @return mixed
      */
@@ -43,34 +37,17 @@ abstract class JigBase
         return [];
     }
 
-    /**
-     * @return array
-     */
-    public function getInjections()
-    {
-        return [];
-    }
-
-    /**
-     * Render this template
-     * @return mixed
-     */
-    public function renderDirect()
-    {
-        return $this->renderInternal();
-    }
 
     public function addTemplateHelper(TemplateHelper $templateHelper)
     {
         $this->templateHelpers[] = $templateHelper;
     }
-    
+
 
     /**
-     * @param $placeHolder
-     * @internal param array $functionArgs
-     * @return mixed|void
-     * @todo - if this template has $functionName - call it?
+     * @param $functionName
+     * @return mixed
+     * @throws JigException
      */
     public function call($functionName)
     {
@@ -91,14 +68,17 @@ abstract class JigBase
 
         return $this->jigRender->callFilter($text, $filterName);
     }
-    
-    
+
+    /**
+     * @return string
+     * @throws JigException
+     */
     public function render()
     {
         ob_start();
 
         try {
-            $this->renderDirect();
+            $this->renderInternal();
             $contents = ob_get_contents();
         }
         catch(JigException $je) {

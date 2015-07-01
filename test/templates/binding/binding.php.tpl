@@ -4,13 +4,9 @@ Function test
 
 {helper type='Jig\PlaceHolder\PlaceHolderHelper'}
 
-{testFunction1()}
 
+{placeHolderFunc()}
 
-{testFunction2()}
-
-
-{testFunction3()}
 
 {if isAllowed('admin', 'edit')}
     isAllowed was true

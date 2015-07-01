@@ -1,0 +1,12 @@
+{
+    "methodCalls": [
+        {
+            "class": "\\Auryn\\Provider",
+            "method": "make",
+            "position": 0
+        }
+    ],
+    "functionCalls": [
+        
+    ]
+}
