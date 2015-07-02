@@ -2,8 +2,8 @@
 {block name='mainContent'}
 
 
-{inject name='colors' type='Jig\PlaceHolder\Values\Colors'}
-{helper type='Jig\Helper\ColorsHelper'}
+{inject name='colors' type='JigTest\PlaceHolder\Values\Colors'}
+{helper type='JigTest\Helper\ColorsHelper'}
 
 Direct: {foreach $colors->getColors() as $color}{trim}
 {$color}

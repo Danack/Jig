@@ -1,5 +1,5 @@
 
-{inject name='test' type='Jig\PlaceHolder\DynamicIncludeTest'}
+{inject name='test' type='JigTest\PlaceHolder\DynamicIncludeTest'}
 
 
 {if $test->includeFile1()} 

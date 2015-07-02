@@ -1,7 +1,7 @@
 <?php
 
-namespace Jig {
 
+namespace Jig {
     $GLOBALS['mkdirCallable'] = null;
     function mkdir($pathname,$mode = 0777, $recursive = false , $context = null ){
 
@@ -35,19 +35,19 @@ namespace Jig {
 namespace {
 
 use Jig\JigConfig;
-use Jig\JigRender;
+use JigTest\BaseTestCase;
 use Jig\Jig;
-use Jig\PlaceHolder\PlaceHolderHelper;
+use JigTest\PlaceHolder\PlaceHolderHelper;
     
-class CoverageTest extends \Jig\Base\BaseTestCase {
+class CoverageTest extends BaseTestCase {
 
     private $templateDirectory;
     private $compileDirectory;
 
     public function setUp() {
         parent::setup();
-        $this->templateDirectory = dirname(__DIR__)."/../templates/";
-        $this->compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
+        $this->templateDirectory = dirname(__DIR__)."/./templates/";
+        $this->compileDirectory = dirname(__DIR__)."/./../tmp/generatedTemplates/";
     }
 
     function testNamespaceCoverage() {
@@ -72,16 +72,35 @@ class CoverageTest extends \Jig\Base\BaseTestCase {
             Jig::COMPILE_ALWAYS
         );
 
-        $provider = new \Auryn\Injector();
-        $provider->share($jigConfig);
-        $provider->share($provider);
-        $jig = $provider->make('Jig\JigDispatcher');
+        $injector = new \Auryn\Injector();
+        $injector->share($jigConfig);
+        $injector->share($injector);
+        $jig = $injector->make('Jig\JigDispatcher');
         $jig->deleteCompiledFile("basic/basic");
         $this->setExpectedException('Jig\JigException', "does not exist and could not be created");
         $viewModel = new PlaceHolderHelper();
 
         $jig->renderTemplateFile("basic/basic", $viewModel);
     }
-
+    
+    
+//    function testPHPUnitCoverage()
+//    {
+//        $jigConfig = new JigConfig(
+//            $this->templateDirectory,
+//            $this->compileDirectory,
+//            "php.tpl",
+//            Jig::COMPILE_ALWAYS
+//        );
+//        
+//        $injector = new \Auryn\Injector();
+//        $injector->share($jigConfig);
+//        $jig = $injector->make('Jig\JigDispatcher');
+//        
+//        $jig->renderTemplateFile("basic/basic", $viewModel);
+//    }
+    
 }
+    
+    
 }

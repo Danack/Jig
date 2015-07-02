@@ -14,7 +14,6 @@ use PHPParser_Error;
  */
 class PHPTemplateSegment extends TemplateSegment
 {
-
     /**
      * @var JigRender
      */
@@ -73,40 +72,34 @@ class PHPTemplateSegment extends TemplateSegment
 
     public function removeFilters()
     {
-        $knownFilters = array('nofilter', 'urlencode', 'nooutput', 'nophp');
-        
-        $userFiltersNames = array_keys($this->jigRender->getUserFilters());
-        
-        $knownFilters = array_merge($knownFilters, $userFiltersNames);
-        
-        $filterString = implode('|', $knownFilters);
-        $pattern = '/\|\s*('.$filterString.')+/u';
+        $pattern = '/\|\s*([\w\s]+)/u';
 
-        $filterCount = preg_match_all($pattern, $this->text, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
+        $filterMatch = preg_match($pattern, $this->text, $matches, PREG_OFFSET_CAPTURE);
 
-        $filters = array();
-
-        $chomp = false;
-
-        if ($filterCount != 0) {
-            foreach ($matches as $match) {
-                $filters[] = $match[1][0];
-                $position = $match[0][1];
-                if ($chomp == false || $position < $chomp) {
-                    $chomp = $position;
-                }
-            }
+        if (!$filterMatch) {
+            return [];
         }
 
-        if ($chomp !== false) {
-            $this->text = substr($this->text, 0, $chomp);
-        }
+        $filterStartPosition = $matches[0][1];
+        $filterText = $matches[1][0];
+        $filterText = str_replace("\t", ' ', $filterText);
+        $filters = explode(' ', $filterText);
+
+        $this->text = substr($this->text, 0, $filterStartPosition);
 
         return $filters;
     }
-    
+
+    /**
+     * @param ParsedTemplate $parsedTemplate
+     * @param array $extraFilters
+     * @return string
+     * @throws JigException
+     */
     public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array())
     {
+        //TODO this function is too big and needs to cache some
+        //information to avoid repeating the same operations.
         $filters = $this->removeFilters();
 
         $filters = array_merge($filters, $extraFilters);
@@ -141,13 +134,21 @@ class PHPTemplateSegment extends TemplateSegment
         $segmentText = substr($segmentText, 0, strrpos($segmentText, ';'));
         
         $filters = array_merge($filters, $printer->getFilters());
-
+    
+        $knownFilters = $parsedTemplate->getKnownFilters();
         
         foreach ($filters as $filter) {
             if ($filter == 'nofilter' ||
                 $filter == 'nooutput' ||
                 $filter == 'nophp') {
                 continue;
+            }
+            
+            if (in_array($filter, $knownFilters) == false) {
+                throw new JigException(
+                    "Template is trying to use filter '$filter', which is not known.",
+                    JigException::UNKNOWN_FILTER
+                );
             }
 
             $segmentText = '$this->callFilter('.$segmentText.", '$filter')";

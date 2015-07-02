@@ -1,7 +1,7 @@
 
 
 
-{inject name='navLinks' type='Jig\PlaceHolder\SiteNavLinks'}
+{inject name='navLinks' type='JigTest\PlaceHolder\SiteNavLinks'}
 
 
 {foreach $navLinks as $navLink}

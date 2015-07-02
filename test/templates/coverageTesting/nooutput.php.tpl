@@ -1,3 +1,3 @@
-{helper type="Jig\PlaceHolder\PlaceHolderHelper"}
+{helper type="JigTest\PlaceHolder\PlaceHolderHelper"}
 
 {$foo = getBar()}

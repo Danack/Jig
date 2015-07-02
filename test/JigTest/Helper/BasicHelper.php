@@ -1,6 +1,6 @@
 <?php
 
-namespace Jig\Helper;
+namespace JigTest\Helper;
 
 class BasicHelper extends \Jig\TemplateHelper\BasicTemplateHelper {
 

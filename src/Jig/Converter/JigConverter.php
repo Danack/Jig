@@ -68,8 +68,16 @@ class JigConverter
      */
     private $activeBlockName = null;
 
+    /**
+     * @var array
+     */
     private $defaultHelpers = [];
 
+    /**
+     * @var array
+     */
+    private $defaultFilters = [];
+    
     /**
      * @param JigConfig $jigConfig
      */
@@ -87,7 +95,13 @@ class JigConverter
         $this->defaultHelpers[] = $name;
     }
 
-
+    
+    public function addDefaultFilter($name)
+    {
+        $this->defaultFilters[] = $name;
+    }
+    
+    
     /**
      * @param $blockName
      * @return null|callable
@@ -136,6 +150,10 @@ class JigConverter
         $this->parsedTemplate = new ParsedTemplate($this->jigConfig->compiledNamespace);
         foreach($this->defaultHelpers as $defaultHelper) {
             $this->parsedTemplate->addHelper($defaultHelper);
+        }
+
+        foreach($this->defaultFilters as $defaultFilter) {
+            $this->parsedTemplate->addFilter($defaultFilter);
         }
 
         foreach ($fileLines as $fileLine) {
@@ -324,6 +342,9 @@ class JigConverter
             else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) == 0){
                 $this->processInject($segmentText);
             }
+            else if (strncmp($segmentText, 'injectfilter ', mb_strlen('injectfilter ')) == 0){
+                $this->processInjectFilter($segmentText);
+            }
             else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
                 $this->processInclude($segmentText);
             }
@@ -457,6 +478,25 @@ class JigConverter
         }
 
         $this->parsedTemplate->addInjection($name, $value);
+    }
+
+    protected function processInjectFilter($segmentText)
+    {
+        $valuePattern = '#type=[\'"](.*)[\'"]#u';
+        $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
+
+        if ($valueMatchCount == 0) {
+            throw new JigException("Failed to get value for injection");
+        }
+
+        $classname = $valueMatches[1];
+        //TODO - validate classname is valid
+        
+        if(strlen($classname) == 0) {
+            throw new JigException("Type for filter must not be zero length");
+        }
+
+        $this->parsedTemplate->addFilter($classname);
     }
 
     /**

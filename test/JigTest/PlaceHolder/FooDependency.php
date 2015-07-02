@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Jig\PlaceHolder;
+namespace JigTest\PlaceHolder;
 
 
 class FooDependency {

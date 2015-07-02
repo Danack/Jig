@@ -4,6 +4,7 @@ namespace Jig;
 
 use Jig\JigException;
 use Jig\TemplateHelper;
+use Jig\Filter;
 
 /**
  * Class JigBase
@@ -24,6 +25,11 @@ abstract class JigBase
     protected $templateHelpers = [];
 
     /**
+     * @var Filter[]
+     */
+    protected $filters = [];
+    
+    /**
      * @return mixed
      */
     abstract public function renderInternal();
@@ -37,12 +43,15 @@ abstract class JigBase
         return [];
     }
 
-
     public function addTemplateHelper(TemplateHelper $templateHelper)
     {
         $this->templateHelpers[] = $templateHelper;
     }
 
+    public function addFilter(Filter $filter)
+    {
+        $this->filters[] = $filter;
+    }
 
     /**
      * @param $functionName
@@ -65,8 +74,13 @@ abstract class JigBase
     
     public function callFilter($text, $filterName)
     {
+        foreach ($this->filters as $filter) {
+            if ($filter->hasFilter($filterName)) {
+                return $filter->call($filterName, $text);
+            }
+        }
 
-        return $this->jigRender->callFilter($text, $filterName);
+        throw new JigException("Filter $filterName not known.");
     }
 
     /**
@@ -93,7 +107,7 @@ abstract class JigBase
             
             throw new JigException(
                 "Failed to render template: ".$e->getMessage(),
-                $e->getCode(),
+                JigException::FAILED_TO_RENDER,
                 $e
             );
         }

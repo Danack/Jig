@@ -1,6 +1,6 @@
 <?php
 
-namespace Jig\Helper;
+namespace JigTest\Helper;
 
 class GenericExceptionHelper extends \Jig\TemplateHelper\BasicTemplateHelper {
 
@@ -10,6 +10,5 @@ class GenericExceptionHelper extends \Jig\TemplateHelper\BasicTemplateHelper {
     {
         throw new \Exception(self::message);
     }
-    
 }
 

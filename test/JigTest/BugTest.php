@@ -1,16 +1,17 @@
 <?php
 
+namespace JigTest;
+
 use Jig\Jig;
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\JigRender;
-use Jig\PlaceHolder\BasicTemplateHelper;
-use Jig\PlaceHolder\PlaceHolderHelper;
 
-class BugTest extends \Jig\Base\BaseTestCase {
+
+class BugTest extends BaseTestCase {
 
     /**
-     * @var \Jig\PlaceHolder\PlaceHolderHelper
+     * @var \JigTest\PlaceHolder\PlaceHolderHelper
      */
     private $helper;
 
@@ -28,8 +29,8 @@ class BugTest extends \Jig\Base\BaseTestCase {
 
         parent::setUp();
 
-        $templateDirectory = dirname(__DIR__)."/../templates/";
-        $compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
+        $templateDirectory = dirname(__DIR__)."/./templates/";
+        $compileDirectory = dirname(__DIR__)."/./../tmp/generatedTemplates/";
 
         $jigConfig = new JigConfig(
             $templateDirectory,

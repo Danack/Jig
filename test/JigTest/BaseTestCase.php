@@ -1,7 +1,6 @@
 <?php
 
-namespace Jig\Base;
-
+namespace JigTest;
 
 /**
  * Class TestBase

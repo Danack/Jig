@@ -34,6 +34,8 @@ class ParsedTemplate
     
     private $helpers = array();
     
+    private $filters = array();
+    
     private $includeFiles = array();
 
     public function __construct($baseNamespace)
@@ -54,6 +56,67 @@ class ParsedTemplate
     public function addHelper($name)
     {
         $this->helpers[] = $name;
+    }
+    
+    public function addFilter($filterClassname)
+    {
+        $this->filters[] = $filterClassname;
+    }
+    
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
+    /**
+     * @return array
+     * @throws JigException
+     */
+    public function getKnownFilters()
+    {
+        $knownFilters = [];
+        
+        foreach ($this->filters as $filterClassname) {
+            try {
+                $reflection = new \ReflectionMethod($filterClassname, 'getFilterList');
+                if ($reflection->isStatic() == false) {
+                    throw new JigException(
+                        "Method getFilterList for filter class $filterClassname must be static.",
+                        JigException::FILTER_NO_INFO
+                    );
+                }
+
+                $closure = $reflection->getClosure(null);
+                $filters = $closure();
+                if (is_array($filters) == false) {
+                    throw new JigException(
+                        "Method getFilterList for filter class $filterClassname must return an array of the names of filters, and the names must be strings",
+                        JigException::FILTER_NO_INFO
+                    );
+                }
+
+                foreach ($filters as $filter) {
+                    if (is_string($filter) == false) {
+                        throw new JigException(
+                            "Method getFilterList for filter class $filterClassname must return an array of the names of filters, and the names must be strings",
+                            JigException::FILTER_NO_INFO
+                        );
+                    }
+                }
+
+                //TODO - should we detect duplicate filters here?
+                $knownFilters = array_merge($knownFilters, $filters);
+            }
+            catch (\ReflectionException $re) {
+                throw new JigException(
+                    "Filter class $filterClassname does not have a static method getFilterList",
+                    JigException::FILTER_NO_INFO,
+                    $re
+                );
+            }
+        }
+
+        return $knownFilters;
     }
 
     public function addIncludeFile($filename, $paramName, $className)
@@ -223,17 +286,14 @@ class $className extends $parentClassName {
 
 END;
 
-
         $parentDependencies = call_user_func([$parentFullClassName, 'getDependencyList']); 
-        
-        // TODO - check no clashes on names.
 
+        // TODO - check no clashes on names.
         fwrite($outputFileHandle, $startSection);
 
         $this->writeProperties($outputFileHandle);
         $this->writeConstructor($outputFileHandle, $parentDependencies);
         $this->writeDependencyList($outputFileHandle);
-
 
         $functionBlocks = $this->getFunctionBlocks();
 
@@ -345,12 +405,6 @@ END;
         $separator = "";
 
         $fullDependencies = array_merge($this->injections, $parentDependencies);
-        
-        //$fullDependencies = array_merge($fullDependencies, $this->helpers);
-        
-        
-
-        
 
         foreach ($fullDependencies as $name => $type) {
             $depdendencies .= $separator."       \\$type \$$name";
@@ -363,13 +417,12 @@ END;
             $separator = ",\n";
         }
 
+        foreach ($this->filters as $filter) {
+            $filterParam = convertTypeToParam($filter);
+            $depdendencies .= $separator."       \\$filter \$$filterParam";
+            $separator = ",\n";
+        }
         
-//        foreach ($this->helpers as $helper) {
-//            $helperParam = convertTypeToParam($helper);
-//            $depdendencies .= $separator."       \\$helper \$$helperParam";
-//            $separator = ",\n";
-//        }
-
         $output = "
     function __construct(
 $depdendencies$separator        JigRender \$jigRender
@@ -387,6 +440,11 @@ $depdendencies$separator        JigRender \$jigRender
             $output .=  "        \$this->addTemplateHelper(\$$helperParam);\n";
         }
 
+        foreach ($this->filters as $filter) {
+            $filterParam = convertTypeToParam($filter);
+            $output .=  "        \$this->addFilter(\$$filterParam);\n";
+        }
+        
         if (count($parentDependencies)) {
             $output .=  "        
         parent::__construct(\n";
@@ -418,8 +476,12 @@ $depdendencies$separator        JigRender \$jigRender
             $output .=  "            '$name' => '$type',\n";
         }
 
-        
         foreach ($this->helpers as $type) {
+            $name = convertTypeToParam($type);
+            $output .=  "            '$name' => '$type',\n";
+        }
+        
+        foreach ($this->filters as $type) {
             $name = convertTypeToParam($type);
             $output .=  "            '$name' => '$type',\n";
         }
@@ -432,31 +494,4 @@ $depdendencies$separator        JigRender \$jigRender
         fwrite($outputFileHandle, $output);
         fwrite($outputFileHandle, "\n");
     }
-    
-    
-//    /**
-//     * @param $outputFileHandle
-//     */
-//    public function writeInjectionFunctions($outputFileHandle)
-//    {
-//        $output = "    
-//    function getInjections() {
-//        \$parentInjections = parent::getInjections();
-//
-//        return array_merge(\$parentInjections, \$this->injections);
-//    }\n\n";
-//
-//
-//        $output .= "   function getVariable(\$name) {
-//            if (property_exists(\$this, \$name) == true) {
-//                return \$this->{\$name};
-//            }
-//
-//            return parent::getVariable(\$name);
-//        }\n\n";
-//
-//        fwrite($outputFileHandle, "\n");
-//        fwrite($outputFileHandle, $output);
-//        fwrite($outputFileHandle, "\n");
-//    }
 }

@@ -24,8 +24,6 @@ class JigRender
      */
     private $jigConfig;
 
-    private $filters = [];
-
     public function __construct(
         Jigconfig $jigConfig,
         JigConverter $jigConverter
@@ -230,62 +228,5 @@ class JigRender
             throw new JigException("Block end function is null");
         }
         echo call_user_func($endFunctionCallable, $contents);
-    }
-    
-    
-
-        /**
-     * @param $filterName
-     * @param callable $callback
-     */
-    public function addFilter($filterName, callable $callback)
-    {
-        //TOOD - add checks on filterName
-        $this->filters[$filterName] = $callback;
-    }
-
-    /**
-     * @param $text
-     * @param $filterName
-     * @return mixed
-     * @throws JigException
-     */
-    public function callFilter($text, $filterName)
-    {
-        if (!array_key_exists($filterName, $this->filters)) {
-            throw new JigException(
-                "Compile error - unknown filter $filterName",
-                \Jig\JigException::UNKNOWN_FILTER
-            );
-        }
-        $callback = $this->filters[$filterName];
-
-        return $callback($text);
-    }
-
-    /**
-     * @return array
-     */
-    public function getUserFilters()
-    {
-        return $this->filters;
-    }
-    
-        /**
-     * Called by compiled templates.
-     * @param $filterName
-     * @return mixed
-     * @throws JigException
-     */
-    public function getUserFilterCallback($filterName)
-    {
-        if (array_key_exists($filterName, $this->filters)) {
-            return $this->filters[$filterName];
-        }
-
-        throw new JigException(
-            "Unknown filter '$filterName'",
-            \Jig\JigException::UNKNOWN_FILTER
-        );
     }
 }

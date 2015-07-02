@@ -1,6 +1,6 @@
 <?php
 
-namespace Jig\Helper;
+namespace JigTest\Helper;
 
 class ColorsHelper extends \Jig\TemplateHelper\BasicTemplateHelper {
     public function getColors()

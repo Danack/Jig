@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit bootstrap="phpunit_bootstrap.php">
-
     <php>
     </php>
 
     <testsuites>
         <testsuite name="Jig Test Suite">
-            <directory>../test/Jig/Tests/</directory>
-            <exclude>*/BaseTestCase.php</exclude> <!-- This doens't seem to work-->
+            <directory>../test/</directory>
+            <exclude>BaseTestCase.php</exclude> <!-- This doens't seem to work-->
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
             <directory>../src/Jig</directory>
+            <directory>../tmp/generatedTemplates/Jig</directory>
         </whitelist>
     </filter>
 

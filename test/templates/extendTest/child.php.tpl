@@ -1,7 +1,7 @@
 
 {extends file="extendTest/parentTemplate"}
 
-{inject name='child' type='Jig\PlaceHolder\ChildDependency'}
+{inject name='child' type='JigTest\PlaceHolder\ChildDependency'}
 
 {block name='secondBlock'}
     

@@ -14,11 +14,7 @@ class BasicTemplateHelper implements \Jig\TemplateHelper
      */
     public function hasFunction($functionName)
     {
-        if (method_exists($this, $functionName)) {
-            return true;
-        }
-
-        return false;
+        return method_exists($this, $functionName);
     }
 
     /**
@@ -35,6 +31,6 @@ class BasicTemplateHelper implements \Jig\TemplateHelper
             return call_user_func_array([$this, $functionName], $params);
         }
 
-        throw new JigException("No bound function called [$functionName]");
+        throw new JigException("No function called [$functionName] in BasicTemplateHelper");
     }
 }

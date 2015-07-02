@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Tests\PHPTemplate;
+namespace JigTest;
 
 
 use Jig\Jig;
@@ -11,61 +11,34 @@ use Jig\JigConfig;
 use Jig\JigException;
 use Jig\JigRender;
 use Jig\TemplateHelper\BasicTemplateHelper;
-use Jig\PlaceHolder\PlaceHolderHelper;
-use Jig\Helper\GenericExceptionHelper;
+use JigTest\PlaceHolder\PlaceHolderHelper;
+use JigTest\Helper\GenericExceptionHelper;
     
 
-class VariableTest{
 
-    private $value;
-
-    function __construct($value) {
-        $this->value = $value;
-    }
-
-    function getValue() {
-        return $this->value;
-    }
-}
-
-
-class JigConverterTest extends \Jig\Base\BaseTestCase
+class JigConverterTest extends BaseTestCase
 {
 
     private $templateDirectory;
 
     private $compileDirectory;
 
-
     /**
      * @var \Auryn\Injector
      */
     private $injector;
-
 
     /**
      * @var \Jig\JigDispatcher
      */
     private $jig = null;
 
-    /**
-     * @var \Jig\JigConfig
-     */
-    private $jigConfig;
-
-//    /**
-//     * @var \Jig\PlaceHolder\PlaceHolderHelper
-//     */
-//    private $helper;
-
-    private $emptyHelper;
-
     function setUp()
     {
         parent::setUp();
 
-        $this->templateDirectory = dirname(__DIR__)."/../templates/";
-        $this->compileDirectory = dirname(__DIR__)."/../../tmp/generatedTemplates/";
+        $this->templateDirectory = dirname(__DIR__)."/./templates/";
+        $this->compileDirectory = dirname(__DIR__)."/./../tmp/generatedTemplates/";
 
         $jigConfig = new JigConfig(
             $this->templateDirectory,
@@ -106,7 +79,7 @@ class JigConverterTest extends \Jig\Base\BaseTestCase
     function testHelperBasic()
     {
         $contents = $this->jig->renderTemplateFile('basic/helper');
-        $this->assertContains(\Jig\Helper\BasicHelper::message, $contents);
+        $this->assertContains(\JigTest\Helper\BasicHelper::message, $contents);
     }
 
     /**
@@ -147,8 +120,7 @@ END;
 
         $renderedText = $this->jig->renderTemplateFromString(
             $templateString,
-            "testStringExtendsConversion123",
-            $this->emptyHelper
+            "testStringExtendsConversion123"
         );
     }
 
@@ -196,8 +168,8 @@ END;
         $contents = $this->injector->execute([$className, 'render']);
 
         $this->assertContains("This is the second child block.", $contents);
-        $this->assertContains(\Jig\PlaceHolder\ChildDependency::output, $contents);
-        $this->assertContains(\Jig\PlaceHolder\ParentDependency::output, $contents);
+        $this->assertContains(\JigTest\PlaceHolder\ChildDependency::output, $contents);
+        $this->assertContains(\JigTest\PlaceHolder\ParentDependency::output, $contents);
     }
 
     /**
@@ -205,10 +177,10 @@ END;
      */
     function testFunctionBinding()
     {
-        $this->jig->addDefaultHelper('Jig\PlaceHolder\PlaceHolderHelper');
+        $this->jig->addDefaultHelper('JigTest\PlaceHolder\PlaceHolderHelper');
         $contents = $this->jig->renderTemplateFile('binding/binding');
         $this->assertContains(
-            \Jig\PlaceHolder\PlaceHolderHelper::FUNCTION_MESSAGE,
+            \JigTest\PlaceHolder\PlaceHolderHelper::FUNCTION_MESSAGE,
             $contents
         );
         
@@ -545,7 +517,7 @@ END;
     {
         $this->setExpectedException('Jig\JigException', GenericExceptionHelper::message);
         $templateString = "
-    {helper type='Jig\\Helper\\GenericExceptionHelper'}
+    {helper type='JigTest\\Helper\\GenericExceptionHelper'}
     
     This throws {throwup()}";
         $this->jig->renderTemplateFromString($templateString, "Exception1");
@@ -558,25 +530,15 @@ END;
     }
 
     /**
-     * @group wat
+     * @group filtertest
      */
     function testFilterBinding()
     {
-        $fn = function ($text) {
-            return strtoupper($text);
-        };
-
-        $this->jig->addFilter('toupper', $fn);
+        $this->jig->addDefaultFilter('Jig\Filter\BasicFilter');
         $contents = $this->jig->renderTemplateFile("filter/userFilter");
-
         $this->assertContains('HELLO', $contents);
     }
-    
-    
-    
-        /**
-     * @group wat
-     */
+
     function testUnknownFilter()
     {
         $this->setExpectedException(
@@ -587,5 +549,4 @@ END;
 
         $contents = $this->jig->renderTemplateFile("filter/userFilter");
     }
-    
 }

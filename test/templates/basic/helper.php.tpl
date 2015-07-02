@@ -1,5 +1,5 @@
 
-{helper type="Jig\Helper\BasicHelper"}
+{helper type="JigTest\Helper\BasicHelper"}
 
 {helperSayHello()}
 

@@ -1,6 +1,6 @@
 
 
-{inject name='foo' type='Jig\PlaceHolder\FooDependency'}
+{inject name='foo' type='JigTest\PlaceHolder\FooDependency'}
 
 {$foo->render()}
 

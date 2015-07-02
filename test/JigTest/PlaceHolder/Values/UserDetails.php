@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Jig\PlaceHolder\Values;
+namespace JigTest\PlaceHolder\Values;
 
 
 class UserDetails {

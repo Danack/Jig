@@ -1,5 +1,5 @@
 
-{helper type='Jig\PlaceHolder\PlaceHolderHelper'}
+{helper type='JigTest\PlaceHolder\PlaceHolderHelper'}
 
 {$someArray = getArray()}
 {$someArray}

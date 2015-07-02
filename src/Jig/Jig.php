@@ -124,13 +124,26 @@ class Jig
         
         $this->jigConverter->addDefaultHelper($classname);
     }
+    
+    
 
     /**
-     * @param $filterName
-     * @param callable $callback
+     * @param $classname
      */
-    public function addFilter($filterName, callable $callback)
+    public function addDefaultFilter($classname)
     {
-        $this->jigRender->addFilter($filterName, $callback);
+        $classname = (string)$classname;
+        
+        $this->jigConverter->addDefaultFilter($classname);
     }
+
+
+//    /**
+//     * @param $filterName
+//     * @param callable $callback
+//     */
+//    public function addFilter($filterName, callable $callback)
+//    {
+//        $this->jigRender->addFilter($filterName, $callback);
+//    }
 }
