@@ -8,7 +8,6 @@ use Auryn\Injector;
 
 class JigDispatcher extends Jig
 {
-
     /**
      * @var \Auryn\Injector
      */
@@ -33,8 +32,7 @@ class JigDispatcher extends Jig
         $this->injector->share($jigRender);
         $this->injector->share($jigConverter);
     }
-    
-    
+
        /**
      * @param $templateFilename
      * @throws JigException
@@ -42,15 +40,13 @@ class JigDispatcher extends Jig
      */
     public function renderTemplateFile($templateFilename)
     {
-        
         $this->jigRender->checkTemplateCompiled($templateFilename);
         $className = $this->jigConfig->getFullClassname($templateFilename);
         $contents = $this->injector->execute([$className, 'render']);
 
         return $contents;
     }
-    
-    
+
     /**
      * Renders
      * @param $templateString string The template to compile.

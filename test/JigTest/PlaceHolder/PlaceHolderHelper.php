@@ -22,9 +22,7 @@ class PlaceHolderHelper extends BasicTemplateHelper {
         var_dump($foo);
     }
 
-    function htmlEntityDecode($content) {
-        echo html_entity_decode($content);
-    }
+
 
     function someFunction($blah) {
         $this->setHasBeenCalled('someFunction', $blah);

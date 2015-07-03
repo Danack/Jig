@@ -47,12 +47,6 @@ class JigConverter
     private $compileBlockFunctions = array();
 
     /**
-     * These block function operate after the block has been converted.
-     * @var array
-     */
-    private $renderBlockFunctions = array();
-
-    /**
      * @var ParsedTemplate
      */
     private $parsedTemplate = null;
@@ -77,13 +71,17 @@ class JigConverter
      * @var array
      */
     private $defaultFilters = [];
+
+    /**
+     * @var array
+     */
+    private $defaultRenderBlocks = [];
     
     /**
      * @param JigConfig $jigConfig
      */
     public function __construct(JigConfig $jigConfig)
     {
-        $this->bindRenderBlock('trim', [$this, 'processTrimEnd']);
         $this->jigConfig = $jigConfig;
     }
 
@@ -95,12 +93,15 @@ class JigConverter
         $this->defaultHelpers[] = $name;
     }
 
-    
     public function addDefaultFilter($name)
     {
         $this->defaultFilters[] = $name;
     }
-    
+
+    public function addDefaultRenderBlock($name)
+    {
+        $this->defaultRenderBlocks[] = $name;
+    }
     
     /**
      * @param $blockName
@@ -122,17 +123,15 @@ class JigConverter
      * @param $blockName
      * @return null|callable
      */
-    public function getRenderBlockFunction($blockName)
+    public function doesRenderBlockExist($blockName)
     {
-        //TODO - this is being matched on variables.
-        if (array_key_exists($blockName, $this->renderBlockFunctions)) {
-            return $this->renderBlockFunctions[$blockName];
+        $knownRenderBlocks = $this->parsedTemplate->getKnownRenderBlocks();
+
+        if (in_array($blockName, $knownRenderBlocks, true)) {
+            return true;
         }
-        
-        return null;
-        //TODO - we should be able to throw exceptions when an unknown render
-        //block is requested, but currently other patterns are matching
-        //e.g. {$foo = bar()}
+
+        return false;
     }
 
     
@@ -154,6 +153,10 @@ class JigConverter
 
         foreach($this->defaultFilters as $defaultFilter) {
             $this->parsedTemplate->addFilter($defaultFilter);
+        }
+
+        foreach($this->defaultRenderBlocks as $defaultRenderBlock) {
+            $this->parsedTemplate->addRenderBlock($defaultRenderBlock);
         }
 
         foreach ($fileLines as $fileLine) {
@@ -281,7 +284,8 @@ class JigConverter
 
     /**
      * @param TemplateSegment $segment
-     * @throws \Exception
+     * @param JigRender $jigRender
+     * @throws JigException
      */
     public function addSegment(TemplateSegment $segment, JigRender $jigRender)
     {
@@ -298,10 +302,12 @@ class JigConverter
                 return;
             }
         }
-
-        foreach ($this->renderBlockFunctions as $blockName => $blockFunctions) {
-            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0) {
-                $this->addCode("\$this->jigRender->endRenderBlock('$blockName');");
+        
+        if (preg_match('#/\w*#', $segmentText)) {
+            $blockName = substr($segmentText, 1);
+            $knownBlocks = $this->parsedTemplate->getKnownRenderBlocks();
+            if (in_array($blockName, $knownBlocks, true)) {
+                $this->addCode("\$this->endRenderBlock('$blockName');");
                 return;
             }
         }
@@ -392,24 +398,21 @@ class JigConverter
                     $compileBlockFunction[0]($this, $remainingText);
                     return;
                 }
-                
-                if ($processedBlockFunction = $this->getRenderBlockFunction($blockFunctionName)) {
-                    $startFunctionName = $processedBlockFunction[0];
-                    if ($startFunctionName != null) {
 
-                        $paramText = addslashes($remainingText);
-                        
-                        $this->addCode("\$this->jigRender->startRenderBlock('$blockFunctionName', '$paramText');");
-                    }
-                    $this->addCode("ob_start();");
-
+                if ($processedBlockFunction = $this->doesRenderBlockExist($blockFunctionName)) {
+                    $paramText = addslashes($remainingText);
+                    $this->addCode("\$this->startRenderBlock('$blockFunctionName', '$paramText');");
+                    //$this->addCode("ob_start();");
                     return;
                 }
 
                 if (strpos($segmentText, '/') === 0) {
-                    throw new JigException("Detected end of unknown block. Did you forget to bind ".$segmentText."?");
+                    throw new JigException(
+                        "Detected end of unknown block: ".$segmentText,
+                        JigException::UNKNOWN_BLOCK
+                    );
                 }
-                
+
                 //It's a line of code that needs to be included.
                 $this->addLineInternal($segment->getString($this->parsedTemplate));
             }
@@ -577,16 +580,6 @@ class JigConverter
     }
 
     /**
-     * @param $content
-     * @return string
-     */
-    public function processTrimEnd($content)
-    {
-        return trim($content);
-    }
-
-
-    /**
      * @param $segmentText
      * @throws \RuntimeException
      * @throws \Jig\JigException
@@ -687,17 +680,17 @@ class JigConverter
         $this->compileBlockFunctions[$blockName] = array($startCallback, $endCallback);
     }
 
-    /**
-     * Creates a 'named block' that is processed each time the template is rendered 
-     * and binds a start and end callable to it. 
-     * @param $blockName
-     * @param $endFunctionCallable
-     * @param null|callable $startFunctionCallable
-     */
-    public function bindRenderBlock($blockName, $endFunctionCallable, $startFunctionCallable = null)
-    {
-        $this->renderBlockFunctions[$blockName] = array($startFunctionCallable, $endFunctionCallable);
-    }
+//    /**
+//     * Creates a 'named block' that is processed each time the template is rendered 
+//     * and binds a start and end callable to it. 
+//     * @param $blockName
+//     * @param $endFunctionCallable
+//     * @param null|callable $startFunctionCallable
+//     */
+//    public function bindRenderBlock($blockName, $endFunctionCallable, $startFunctionCallable = null)
+//    {
+//        $this->renderBlockFunctions[$blockName] = array($startFunctionCallable, $endFunctionCallable);
+//    }
 
     /**
      *

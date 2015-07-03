@@ -36,6 +36,8 @@ class ParsedTemplate
     
     private $filters = array();
     
+    private $renderBlocks = array(); 
+    
     private $includeFiles = array();
 
     public function __construct($baseNamespace)
@@ -62,26 +64,32 @@ class ParsedTemplate
     {
         $this->filters[] = $filterClassname;
     }
+
+    public function addRenderBlock($renderBlockClassname)
+    {
+        $this->renderBlocks[] = $renderBlockClassname;
+    }
+
+    public function getRenderBlockClassnames()
+    {
+        return $this->renderBlocks;
+    }
     
     public function getFilters()
     {
         return $this->filters;
     }
 
-    /**
-     * @return array
-     * @throws JigException
-     */
-    public function getKnownFilters()
+    private function callStaticInfoMethod($classnames, $methodName)
     {
-        $knownFilters = [];
-        
-        foreach ($this->filters as $filterClassname) {
+        $knownItems = [];
+
+        foreach ($classnames as $classname) {
             try {
-                $reflection = new \ReflectionMethod($filterClassname, 'getFilterList');
+                $reflection = new \ReflectionMethod($classname, $methodName);
                 if ($reflection->isStatic() == false) {
                     throw new JigException(
-                        "Method getFilterList for filter class $filterClassname must be static.",
+                        "Method $methodName for filter class $classname must be static.",
                         JigException::FILTER_NO_INFO
                     );
                 }
@@ -90,7 +98,7 @@ class ParsedTemplate
                 $filters = $closure();
                 if (is_array($filters) == false) {
                     throw new JigException(
-                        "Method getFilterList for filter class $filterClassname must return an array of the names of filters, and the names must be strings",
+                        "Method $methodName for class $classname must return an array of the names, and the names must be strings",
                         JigException::FILTER_NO_INFO
                     );
                 }
@@ -98,25 +106,39 @@ class ParsedTemplate
                 foreach ($filters as $filter) {
                     if (is_string($filter) == false) {
                         throw new JigException(
-                            "Method getFilterList for filter class $filterClassname must return an array of the names of filters, and the names must be strings",
+                            "Method getFilterList for filter class $classname must return an array of the names of filters, and the names must be strings",
                             JigException::FILTER_NO_INFO
                         );
                     }
                 }
 
                 //TODO - should we detect duplicate filters here?
-                $knownFilters = array_merge($knownFilters, $filters);
+                $knownItems = array_merge($knownItems, $filters);
             }
             catch (\ReflectionException $re) {
                 throw new JigException(
-                    "Filter class $filterClassname does not have a static method getFilterList",
+                    "Class $classname does not have a static method $methodName",
                     JigException::FILTER_NO_INFO,
                     $re
                 );
             }
         }
 
-        return $knownFilters;
+        return $knownItems;
+    }
+    
+    /**
+     * @return array
+     * @throws JigException
+     */
+    public function getKnownFilters()
+    {
+        return $this->callStaticInfoMethod($this->filters, 'getFilterList');
+    }
+    
+    public function getKnownRenderBlocks()
+    {
+        return $this->callStaticInfoMethod($this->renderBlocks, 'getBlockList');
     }
 
     public function addIncludeFile($filename, $paramName, $className)
@@ -280,7 +302,7 @@ class ParsedTemplate
 $namespaceString
 
 use $parentFullClassName;
-use Jig\JigRender;
+//use Jig\JigRender;
 
 class $className extends $parentClassName {
 
@@ -422,14 +444,22 @@ END;
             $depdendencies .= $separator."       \\$filter \$$filterParam";
             $separator = ",\n";
         }
-        
+
+        foreach ($this->renderBlocks as $renderBlock) {
+            $renderBlockParam = convertTypeToParam($renderBlock);
+            $depdendencies .= $separator."       \\$renderBlock \$$renderBlockParam";
+            $separator = ",\n";
+        }
+
         $output = "
     function __construct(
-$depdendencies$separator        JigRender \$jigRender
+$depdendencies
     )
     {
-        \$this->jigRender = \$jigRender;
+        //\$this->jigRender = \$jigRender;
 ";
+        
+               //JigRender \$jigRender
 
         foreach ($this->injections as $name => $type) {
             $output .=  "        \$this->$name = \$$name;\n";
@@ -444,15 +474,22 @@ $depdendencies$separator        JigRender \$jigRender
             $filterParam = convertTypeToParam($filter);
             $output .=  "        \$this->addFilter(\$$filterParam);\n";
         }
+
+        foreach ($this->renderBlocks as $renderBlock) {
+            $renderParam = convertTypeToParam($renderBlock);
+            $output .=  "        \$this->addRenderBlock(\$$renderParam);\n";
+        }
         
         if (count($parentDependencies)) {
             $output .=  "        
         parent::__construct(\n";
+            $separator = '';
             foreach ($parentDependencies as $name => $type) {
-                $output .=  "            \$$name,\n";
+                $output .=  $separator."\$$name";
+                $separator = ",\n            ";
             }
             $output .=  
-"            \$jigRender
+"//            \$jigRender
         );\n";  
         }
 
@@ -482,6 +519,11 @@ $depdendencies$separator        JigRender \$jigRender
         }
         
         foreach ($this->filters as $type) {
+            $name = convertTypeToParam($type);
+            $output .=  "            '$name' => '$type',\n";
+        }
+        
+        foreach ($this->renderBlocks as $type) {
             $name = convertTypeToParam($type);
             $output .=  "            '$name' => '$type',\n";
         }

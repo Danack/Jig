@@ -66,16 +66,6 @@ class Jig
     }
 
     /**
-     * @param $blockName
-     * @param $endFunctionName
-     * @param null $startFunctionName
-     */
-    public function bindRenderBlock($blockName, $endFunctionName, $startFunctionName = null)
-    {
-        $this->jigConverter->bindRenderBlock($blockName, $endFunctionName, $startFunctionName);
-    }
-
-    /**
      * Delete the compiled version of a template.
      * @param $templateName
      * @return bool
@@ -124,8 +114,6 @@ class Jig
         
         $this->jigConverter->addDefaultHelper($classname);
     }
-    
-    
 
     /**
      * @param $classname
@@ -137,13 +125,14 @@ class Jig
         $this->jigConverter->addDefaultFilter($classname);
     }
 
+        /**
+     * @param $classname
+     */
+    public function addDefaultBlockRender($classname)
+    {
+        $classname = (string)$classname;
+        
+        $this->jigConverter->addDefaultRenderBlock($classname);
+    }
 
-//    /**
-//     * @param $filterName
-//     * @param callable $callback
-//     */
-//    public function addFilter($filterName, callable $callback)
-//    {
-//        $this->jigRender->addFilter($filterName, $callback);
-//    }
 }

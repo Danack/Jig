@@ -70,7 +70,6 @@ class JigRender
 
     /**
      * @param $templateFilename
-     * @param $extension
      * @throws JigException
      * @return \Jig\Converter\ParsedTemplate
      */
@@ -159,7 +158,6 @@ class JigRender
             //Warn - file was compiled when class already exists?
         }
     }
-    
 
     /**
      *
@@ -196,37 +194,5 @@ class JigRender
         require($outputFilename);
 
         return $this->jigConfig->getFullClassname($parsedTemplate->getClassName());
-    }
-
-
-    /**
-     * @param $blockName
-     * @return mixed|null
-     */
-    public function startRenderBlock($blockName, $segmentText)
-    {
-        $blockFunction = $this->jigConverter->getRenderBlockFunction($blockName);
-        $startFunctionCallable = $blockFunction[0];
-
-        if ($startFunctionCallable) {
-            echo call_user_func($startFunctionCallable, $segmentText);
-        }
-    }
-
-    /**
-     * @param $blockName
-     * @return mixed
-     */
-    public function endRenderBlock($blockName)
-    {
-        $contents = ob_get_contents();
-        ob_end_clean();
-        $blockFunction = $this->jigConverter->getRenderBlockFunction($blockName);
-        $endFunctionCallable = $blockFunction[1];
-
-        if (!$endFunctionCallable) {
-            throw new JigException("Block end function is null");
-        }
-        echo call_user_func($endFunctionCallable, $contents);
     }
 }

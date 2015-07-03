@@ -15,8 +15,7 @@ class BasicFilter implements Filter {
     {
         return method_exists(get_class(), $filterName);
     }
-    
-    
+
     public static function getFilterList()
     {
         return ['upper', 'lower'];

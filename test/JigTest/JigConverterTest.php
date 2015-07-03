@@ -9,16 +9,13 @@ use Jig\JigDispatcher;
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\JigException;
-use Jig\JigRender;
 use Jig\TemplateHelper\BasicTemplateHelper;
 use JigTest\PlaceHolder\PlaceHolderHelper;
 use JigTest\Helper\GenericExceptionHelper;
-    
 
 
 class JigConverterTest extends BaseTestCase
 {
-
     private $templateDirectory;
 
     private $compileDirectory;
@@ -65,9 +62,13 @@ class JigConverterTest extends BaseTestCase
         $this->assertContains("Basic test passed.", $contents);
     }
 
+    /**
+     * @group basic
+     */
     function testForeachConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
+        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
         $contents = $this->jig->renderTemplateFile('basic/foreachTest');
         $this->assertContains("Direct: redgreenblue", $contents);
         $this->assertContains("From function: redgreenblue", $contents);
@@ -173,7 +174,7 @@ END;
     }
 
     /**
-     * @group wat
+     * @group functions
      */
     function testFunctionBinding()
     {
@@ -186,11 +187,14 @@ END;
         
     }
 
+    /**
+     * @group functions
+     */
     function testBlockEscaping()
     {
         $helper = new PlaceHolderHelper();
-
-        $this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
+        //$this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
+        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
         $this->injector->share($helper);
         $contents = $this->jig->renderTemplateFile('binding/blocks', $helper);
         $this->assertContains("€¥™<>", $contents);
@@ -209,11 +213,13 @@ The above should be decoded to characters
 
 END;
         
-        $helper = new PlaceHolderHelper();
-        
-        $this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
-        $this->jig->addHelper($helper);
+//        $helper = new PlaceHolderHelper();
+//        
+////        $this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
+//        $this->jig->addHelper($helper);
 
+        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
+        
         $contents = $this->jig->renderTemplateFromString(
             $string,
             'Foo1'
@@ -349,7 +355,7 @@ END;
 
     function testBlockNotSet()
     {
-        $this->setExpectedException('Jig\JigException', "Detected end of unknown block.");
+        $this->setExpectedException('Jig\JigException', '', JigException::UNKNOWN_BLOCK);
         $this->jig->renderTemplateFile('coverageTesting/blockNotSet');
     }
 
@@ -428,32 +434,15 @@ END;
 
     function testRenderBlock()
     {
-        $blockStartCallCount = 0;
-        $blockEndCallCount = 0;
-        $passedSegementText = null;
-        $warningBlockStart = function ($segmentText) use (&$blockStartCallCount, &$passedSegementText) {
-            $blockStartCallCount++;
-            $passedSegementText = $segmentText;
-            return "<span class='warning'>";
-        };
+        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
+        $this->injector->share('JigTest\BlockRender\BasicBlockRender');
 
-        $warningBlockEnd = function ($contents) use (&$blockEndCallCount) {
-            $blockEndCallCount++;
-            return $contents."\n</span>";
-        };
-
-        $this->jig->bindRenderBlock(
-            'warning',
-            $warningBlockEnd,
-            $warningBlockStart
-        );
-
+        $blockRender = $this->injector->make('JigTest\BlockRender\BasicBlockRender');
         $contents = $this->jig->renderTemplateFile('block/renderBlock');
-        
 
-        $this->assertEquals($blockStartCallCount, 1);
-        $this->assertEquals($blockEndCallCount, 1);
-        $this->assertEquals("foo='bar'", $passedSegementText);
+        $this->assertEquals(1, $blockRender->blockStartCallCount);
+        $this->assertEquals(1, $blockRender->blockEndCallCount);
+        $this->assertEquals("foo='bar'", $blockRender->passedSegementText);
         $this->assertContains("This is in a warning block", $contents);
         $this->assertContains("</span>", $contents);
         $this->assertContains("<span class='warning'>", $contents);
@@ -535,7 +524,13 @@ END;
     function testFilterBinding()
     {
         $this->jig->addDefaultFilter('Jig\Filter\BasicFilter');
-        $contents = $this->jig->renderTemplateFile("filter/userFilter");
+        $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
+        $this->assertContains('HELLO', $contents);
+    }
+
+    function testFilterInjection()
+    {
+        $contents = $this->jig->renderTemplateFile("filter/injectedFilter");
         $this->assertContains('HELLO', $contents);
     }
 
@@ -547,6 +542,6 @@ END;
             \Jig\JigException::UNKNOWN_FILTER
         );
 
-        $contents = $this->jig->renderTemplateFile("filter/userFilter");
+        $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
     }
 }

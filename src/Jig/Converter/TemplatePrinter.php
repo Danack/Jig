@@ -2,6 +2,7 @@
 
 namespace Jig\Converter;
 
+// This whole file is removed from coding standards
 // @codingStandardsIgnoreStart
 
 /**
@@ -45,76 +46,15 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         $this->parsedTemplate->addLocalVariable($name);
     }
 
-//    public function pParam(\PHPParser_Node_Param $node) {
-//        return ($node->type ? (is_string($node->type) ? $node->type : $this->p($node->type)) . ' ' : '')
-//             . ($node->byRef ? '&' : '')
-//             . '$' . $node->name
-//             . ($node->default ? ' = ' . $this->p($node->default) : '');
-//    }
-
     public function pArg(\PHPParser_Node_Arg $node) {
         return ($node->byRef ? '&' : '') . $this->p($node->value);
     }
-
-//    public function pConst(\PHPParser_Node_Const $node) {
-//        return $node->name . ' = ' . $this->p($node->value);
-//    }
 
     // Names
 
     public function pName(\PHPParser_Node_Name $node) {
         return implode('\\', $node->parts);
     }
-
-//    public function pName_FullyQualified(\PHPParser_Node_Name_FullyQualified $node) {
-//        return '\\' . implode('\\', $node->parts);
-//    }
-
-//    public function pName_Relative(\PHPParser_Node_Name_Relative $node) {
-//        return 'namespace\\' . implode('\\', $node->parts);
-//    }
-
-    // Magic Constants
-
-//    public function pScalar_ClassConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_ClassConst $node) {
-//        return '__CLASS__';
-//    }
-
-//    public function pScalar_TraitConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_TraitConst $node) {
-//        return '__TRAIT__';
-//    }
-//
-//    public function pScalar_DirConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_DirConst $node) {
-//        return '__DIR__';
-//    }
-//
-//    public function pScalar_FileConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_FileConst $node) {
-//        return '__FILE__';
-//    }
-//
-//    public function pScalar_FuncConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_FuncConst $node) {
-//        return '__FUNCTION__';
-//    }
-//
-//    public function pScalar_LineConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_LineConst $node) {
-//        return '__LINE__';
-//    }
-//
-//    public function pScalar_MethodConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_MethodConst $node) {
-//        return '__METHOD__';
-//    }
-//
-//    public function pScalar_NSConst(/** @noinspection PhpUnusedParameterInspection */
-//        \PHPParser_Node_Scalar_NSConst $node) {
-//        return '__NAMESPACE__';
-//    }
 
     // Scalars
 
@@ -912,15 +852,12 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
     }
 
 
-    
     protected function pInfixOp($type, \PHPParser_Node $leftNode, $operatorString, \PHPParser_Node $rightNode) {
         list($precedence, $associativity) = $this->precedenceMap[$type];
 
         $result = $this->pPrec($leftNode, $precedence, $associativity, -1);
         $result .= $operatorString;
-
         $this->rightSide = true;
-
         $result .= $this->pPrec($rightNode, $precedence, $associativity, 1);
 
 

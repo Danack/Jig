@@ -2,7 +2,6 @@
 
 namespace Jig;
 
-use Jig\JigException;
 use Jig\TemplateHelper;
 use Jig\Filter;
 
@@ -28,6 +27,12 @@ abstract class JigBase
      * @var Filter[]
      */
     protected $filters = [];
+
+
+    /**
+     * @var BlockRender[]
+     */
+    protected $blockRenderList = [];
     
     /**
      * @return mixed
@@ -43,14 +48,19 @@ abstract class JigBase
         return [];
     }
 
-    public function addTemplateHelper(TemplateHelper $templateHelper)
+    protected function addTemplateHelper(TemplateHelper $templateHelper)
     {
         $this->templateHelpers[] = $templateHelper;
     }
 
-    public function addFilter(Filter $filter)
+    protected function addFilter(Filter $filter)
     {
         $this->filters[] = $filter;
+    }
+    
+    protected function addRenderBlock(BlockRender $blockRender)
+    {
+        $this->blockRenderList[] = $blockRender;
     }
 
     /**
@@ -58,7 +68,7 @@ abstract class JigBase
      * @return mixed
      * @throws JigException
      */
-    public function call($functionName)
+    protected function call($functionName)
     {
         $functionArgs = func_get_args();
         $params = array_splice($functionArgs, 1);
@@ -72,7 +82,7 @@ abstract class JigBase
         throw new JigException("Function $functionName not known.");
     }
     
-    public function callFilter($text, $filterName)
+    protected function callFilter($text, $filterName)
     {
         foreach ($this->filters as $filter) {
             if ($filter->hasFilter($filterName)) {
@@ -81,6 +91,32 @@ abstract class JigBase
         }
 
         throw new JigException("Filter $filterName not known.");
+    }
+    
+    protected function startRenderBlock($blockName, $segmentText)
+    {
+        foreach ($this->blockRenderList as $renderBlock) {
+            if ($renderBlock->hasBlock($blockName)) {
+                echo $renderBlock->callStart($blockName, $segmentText);
+                ob_start();
+                return;
+            }
+        }
+        throw new JigException("Block $blockName not known for starting block.");
+    }
+    
+    protected function endRenderBlock($blockName)
+    {
+        $contents = ob_get_contents();
+        ob_end_clean();
+        foreach ($this->blockRenderList as $renderBlock) {
+            if ($renderBlock->hasBlock($blockName)) {
+                echo $renderBlock->callEnd($blockName, $contents);
+                return;
+            }
+        }
+        echo $contents;
+        throw new JigException("Block $blockName not known for ending block.");
     }
 
     /**
