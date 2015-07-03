@@ -4,12 +4,6 @@
     "keywords": ["jig", "template", "view", "library"],
 
     "license": "MIT",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Danack/Auryn"
-        }
-    ],
     "authors": [
         {
             "name": "Dan Ackroyd",
@@ -27,11 +21,10 @@
         "mockery/mockery": "0.9.1",
         "nikic/fast-route": "~0.2.0",
         "phpunit/phpunit": "3.7.*",
-        "rdlowrey/auryn": "dev-master",
+        "rdlowrey/auryn": "v1.0.0-alpha",
         "squizlabs/php_codesniffer": "^2.0.0"
     },
     "require":{
         "nikic/php-parser": "^0.9.3"
-    },
-    "minimum-stability": "dev"
+    }
 }
