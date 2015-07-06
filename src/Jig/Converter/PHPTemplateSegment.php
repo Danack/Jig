@@ -14,14 +14,8 @@ use PHPParser_Error;
  */
 class PHPTemplateSegment extends TemplateSegment
 {
-    /**
-     * @var JigRender
-     */
-    private $jigRender;
-
-    public function __construct(JigRender $jigRender, $text)
+    public function __construct($text)
     {
-        $this->jigRender = $jigRender;
         parent::__construct($text);
     }
     
@@ -134,24 +128,36 @@ class PHPTemplateSegment extends TemplateSegment
         $segmentText = substr($segmentText, 0, strrpos($segmentText, ';'));
         
         $filters = array_merge($filters, $printer->getFilters());
-    
-        $knownFilters = $parsedTemplate->getKnownFilters();
-        
-        foreach ($filters as $filter) {
-            if ($filter == 'nofilter' ||
-                $filter == 'nooutput' ||
-                $filter == 'nophp') {
+
+        //$knownFilters = $parsedTemplate->getKnownFilters();
+
+        foreach ($filters as $filterName) {
+            if ($filterName == 'nofilter' ||
+                $filterName == 'nooutput' ||
+                $filterName == 'nophp') {
                 continue;
             }
-            
-            if (in_array($filter, $knownFilters) == false) {
-                throw new JigException(
-                    "Template is trying to use filter '$filter', which is not known.",
-                    JigException::UNKNOWN_FILTER
-                );
+                        
+            foreach ($parsedTemplate->getPlugins() as $pluginClasname) {
+                $filterList = $pluginClasname::getFilterList();
+
+                if (in_array($filterName, $filterList, true)) {
+                    $filterParam = convertClassnameToParam($pluginClasname);
+                    $segmentText = sprintf(
+                        "\$this->%s->%s(%s)",
+                        $filterParam,
+                        $filterName,
+                        $segmentText
+                    );
+
+                    continue 2;
+                }
             }
 
-            $segmentText = '$this->callFilter('.$segmentText.", '$filter')";
+            throw new JigException(
+                "Template is trying to use filter '$filterName', which is not known.",
+                JigException::UNKNOWN_FILTER
+            );
         }
         
         if (in_array('nofilter', $filters) == false) {

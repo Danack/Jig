@@ -105,34 +105,12 @@ class Jig
         return $this->jigConfig->getFullClassname($templateName);
     }
 
-    /**
-     * @param $classname
-     */
-    public function addDefaultHelper($classname)
+    
+    public function addDefaultPlugin($classname)
     {
         $classname = (string)$classname;
         
-        $this->jigConverter->addDefaultHelper($classname);
-    }
-
-    /**
-     * @param $classname
-     */
-    public function addDefaultFilter($classname)
-    {
-        $classname = (string)$classname;
-        
-        $this->jigConverter->addDefaultFilter($classname);
-    }
-
-        /**
-     * @param $classname
-     */
-    public function addDefaultBlockRender($classname)
-    {
-        $classname = (string)$classname;
-        
-        $this->jigConverter->addDefaultRenderBlock($classname);
+        $this->jigConverter->addDefaultPlugin($classname);
     }
 
 }

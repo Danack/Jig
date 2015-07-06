@@ -363,10 +363,9 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
     public function pExpr_FuncCall(\PHPParser_Node_Expr_FuncCall $node) {
         $functionName = $this->p($node->name);
         if (count($node->args)) {
-            return '$this->call("'.$functionName.'", '.$this->pCommaSeparated($node->args). ')';
+            return '$this->callFunction("'.$functionName.'", '.$this->pCommaSeparated($node->args). ')';
         }
-        return '$this->call("'.$functionName.'")';
-        // return $this->p($node->name) . '(' . $this->pCommaSeparated($node->args) . ')';
+        return '$this->callFunction("'.$functionName.'")';
     }
 
     /** @codeCoverageIgnore */

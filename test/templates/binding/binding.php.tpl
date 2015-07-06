@@ -2,7 +2,7 @@
 
 Function test
 
-{helper type='JigTest\PlaceHolder\PlaceHolderHelper'}
+{plugin type='JigTest\PlaceHolder\PlaceHolderPlugin'}
 
 
 {placeHolderFunc()}

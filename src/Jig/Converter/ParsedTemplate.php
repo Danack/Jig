@@ -32,17 +32,22 @@ class ParsedTemplate
 
     private $injections = array();
     
-    private $helpers = array();
-    
-    private $filters = array();
-    
-    private $renderBlocks = array(); 
+    private $plugins = array();
     
     private $includeFiles = array();
 
-    public function __construct($baseNamespace)
+    public function __construct($baseNamespace, $defaultPlugins)
     {
         $this->baseNamespace = $baseNamespace;
+        $this->plugins = $defaultPlugins;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlugins()
+    {
+        return $this->plugins;
     }
 
     public function addTextLine($string)
@@ -55,37 +60,23 @@ class ParsedTemplate
         $this->injections[$name] = $value;
     }
 
-    public function addHelper($name)
-    {
-        $this->helpers[] = $name;
-    }
-    
-    public function addFilter($filterClassname)
-    {
-        $this->filters[] = $filterClassname;
-    }
-
-    public function addRenderBlock($renderBlockClassname)
-    {
-        $this->renderBlocks[] = $renderBlockClassname;
-    }
-
-    public function getRenderBlockClassnames()
-    {
-        return $this->renderBlocks;
-    }
-    
-    public function getFilters()
-    {
-        return $this->filters;
-    }
-
     private function callStaticInfoMethod($classnames, $methodName)
     {
         $knownItems = [];
 
+        if (!is_array($classnames)) {
+            echo "hmmsdf";
+        }
+        
         foreach ($classnames as $classname) {
             try {
+                if (class_exists($classname) == false) {
+                    throw new JigException(
+                        "Class $classname does not exist.",
+                        JigException::FILTER_NO_INFO
+                    );
+                }
+                
                 $reflection = new \ReflectionMethod($classname, $methodName);
                 if ($reflection->isStatic() == false) {
                     throw new JigException(
@@ -133,18 +124,29 @@ class ParsedTemplate
      */
     public function getKnownFilters()
     {
-        return $this->callStaticInfoMethod($this->filters, 'getFilterList');
+        return $this->callStaticInfoMethod($this->plugins, 'getFilterList');
     }
     
     public function getKnownRenderBlocks()
     {
-        return $this->callStaticInfoMethod($this->renderBlocks, 'getBlockList');
+        return $this->callStaticInfoMethod($this->plugins, 'getBlockRenderList');
+    }
+
+    public function getKnownFunctions()
+    {
+        return $this->callStaticInfoMethod($this->plugins, 'getFunctionList');
     }
 
     public function addIncludeFile($filename, $paramName, $className)
     {
         $this->addInjection($paramName, $className);
         $this->includeFiles[] = $filename;
+    }
+
+    public function addPlugin($pluginClassname)
+    {
+        //TODO - validate $pluginClassname is a valid php classname
+        $this->plugins[] = $pluginClassname;
     }
 
     /**
@@ -302,7 +304,6 @@ class ParsedTemplate
 $namespaceString
 
 use $parentFullClassName;
-//use Jig\JigRender;
 
 class $className extends $parentClassName {
 
@@ -414,6 +415,11 @@ END;
             $output .=  "\n    private \$$name;";
         }
 
+        foreach (array_unique($this->plugins) as $plugin) {
+            $name = convertTypeToParam($plugin);
+            $output .=  "\n    private \$$name;";
+        }
+
         fwrite($outputFileHandle, $output);
     }
 
@@ -433,21 +439,9 @@ END;
             $separator = ",\n";
         }
 
-        foreach ($this->helpers as $helper) {
-            $helperParam = convertTypeToParam($helper);
-            $depdendencies .= $separator."       \\$helper \$$helperParam";
-            $separator = ",\n";
-        }
-
-        foreach ($this->filters as $filter) {
-            $filterParam = convertTypeToParam($filter);
-            $depdendencies .= $separator."       \\$filter \$$filterParam";
-            $separator = ",\n";
-        }
-
-        foreach ($this->renderBlocks as $renderBlock) {
-            $renderBlockParam = convertTypeToParam($renderBlock);
-            $depdendencies .= $separator."       \\$renderBlock \$$renderBlockParam";
+        foreach ($this->plugins as $plugin) {
+            $pluginParam = convertTypeToParam($plugin);
+            $depdendencies .= $separator."       \\$plugin \$$pluginParam";
             $separator = ",\n";
         }
 
@@ -456,30 +450,18 @@ END;
 $depdendencies
     )
     {
-        //\$this->jigRender = \$jigRender;
 ";
-        
-               //JigRender \$jigRender
 
         foreach ($this->injections as $name => $type) {
             $output .=  "        \$this->$name = \$$name;\n";
         }
 
-        foreach ($this->helpers as $helper) {
-            $helperParam = convertTypeToParam($helper);
-            $output .=  "        \$this->addTemplateHelper(\$$helperParam);\n";
+        foreach (array_unique($this->plugins) as $plugin) {
+            $pluginParam = convertTypeToParam($plugin);
+            $output .=  "        \$this->$pluginParam = \$$pluginParam;\n";
+            $output .=  "        \$this->addPlugin(\$$pluginParam);\n";
         }
 
-        foreach ($this->filters as $filter) {
-            $filterParam = convertTypeToParam($filter);
-            $output .=  "        \$this->addFilter(\$$filterParam);\n";
-        }
-
-        foreach ($this->renderBlocks as $renderBlock) {
-            $renderParam = convertTypeToParam($renderBlock);
-            $output .=  "        \$this->addRenderBlock(\$$renderParam);\n";
-        }
-        
         if (count($parentDependencies)) {
             $output .=  "        
         parent::__construct(\n";
@@ -513,19 +495,9 @@ $depdendencies
             $output .=  "            '$name' => '$type',\n";
         }
 
-        foreach ($this->helpers as $type) {
-            $name = convertTypeToParam($type);
-            $output .=  "            '$name' => '$type',\n";
-        }
-        
-        foreach ($this->filters as $type) {
-            $name = convertTypeToParam($type);
-            $output .=  "            '$name' => '$type',\n";
-        }
-        
-        foreach ($this->renderBlocks as $type) {
-            $name = convertTypeToParam($type);
-            $output .=  "            '$name' => '$type',\n";
+        foreach ($this->plugins as $plugin) {
+            $name = convertTypeToParam($plugin);
+            $output .=  "            '$name' => '$plugin',\n";
         }
 
         $output .= "        ];

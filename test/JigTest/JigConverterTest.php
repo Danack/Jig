@@ -9,9 +9,7 @@ use Jig\JigDispatcher;
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\JigException;
-use Jig\TemplateHelper\BasicTemplateHelper;
-use JigTest\PlaceHolder\PlaceHolderHelper;
-use JigTest\Helper\GenericExceptionHelper;
+use JigTest\PlaceHolder\PlaceHolderPlugin;
 
 
 class JigConverterTest extends BaseTestCase
@@ -68,7 +66,7 @@ class JigConverterTest extends BaseTestCase
     function testForeachConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
-        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $contents = $this->jig->renderTemplateFile('basic/foreachTest');
         $this->assertContains("Direct: redgreenblue", $contents);
         $this->assertContains("From function: redgreenblue", $contents);
@@ -80,7 +78,7 @@ class JigConverterTest extends BaseTestCase
     function testHelperBasic()
     {
         $contents = $this->jig->renderTemplateFile('basic/helper');
-        $this->assertContains(\JigTest\Helper\BasicHelper::message, $contents);
+        $this->assertContains(PlaceHolderPlugin::greetings_message, $contents);
     }
 
     /**
@@ -178,13 +176,11 @@ END;
      */
     function testFunctionBinding()
     {
-        $this->jig->addDefaultHelper('JigTest\PlaceHolder\PlaceHolderHelper');
         $contents = $this->jig->renderTemplateFile('binding/binding');
         $this->assertContains(
-            \JigTest\PlaceHolder\PlaceHolderHelper::FUNCTION_MESSAGE,
+            \JigTest\PlaceHolder\PlaceHolderPlugin::FUNCTION_MESSAGE,
             $contents
         );
-        
     }
 
     /**
@@ -192,11 +188,7 @@ END;
      */
     function testBlockEscaping()
     {
-        $helper = new PlaceHolderHelper();
-        //$this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
-        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
-        $this->injector->share($helper);
-        $contents = $this->jig->renderTemplateFile('binding/blocks', $helper);
+        $contents = $this->jig->renderTemplateFile('binding/blocks');
         $this->assertContains("€¥™<>", $contents);
 
     }
@@ -212,13 +204,8 @@ END;
 The above should be decoded to characters
 
 END;
-        
-//        $helper = new PlaceHolderHelper();
-//        
-////        $this->jig->bindRenderBlock('htmlEntityDecode', [$helper, 'htmlEntityDecode']);
-//        $this->jig->addHelper($helper);
 
-        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         
         $contents = $this->jig->renderTemplateFromString(
             $string,
@@ -253,53 +240,39 @@ END;
 
     function testNoOutput()
     {
-        $helper = new PlaceHolderHelper();
-        $this->jig->addHelper($helper);
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $contents = $this->jig->renderTemplateFile('coverageTesting/nooutput');
         $this->assertEquals(0, strlen(trim($contents)), "Output of [$contents] found when none expected.");
     }
 
     function testIsset()
     {
-        $viewModel = new BasicTemplateHelper();
-        $contents = $this->jig->renderTemplateFile('coverageTesting/checkIsset', $viewModel);
+        $contents = $this->jig->renderTemplateFile('coverageTesting/checkIsset');
         $this->assertEquals(0, strlen(trim($contents)));
     }
 
     function testBadIssetCall()
     {
         $this->setExpectedException('Jig\JigException');
-        $viewModel = new BasicTemplateHelper();
-        $this->jig->renderTemplateFile(
-            'coverageTesting/badIssetCall',
-            $viewModel
-        );
+        $this->jig->renderTemplateFile('coverageTesting/badIssetCall');
     }
 
     function testFunctionNotBound()
     {
         $this->setExpectedException('Jig\JigException');
-        $viewModel = new BasicTemplateHelper();
-        $this->jig->renderTemplateFile(
-            'coverageTesting/functionNotDefined',
-            $viewModel
-        );
+        $this->jig->renderTemplateFile('coverageTesting/functionNotDefined');
     }
 
     function testInjectBadName1()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
-        $viewModel = new BasicTemplateHelper();
-        $this->jig->renderTemplateFile(
-            'coverageTesting/injectBadName1',
-            $viewModel
-        );
+        $this->jig->renderTemplateFile('coverageTesting/injectBadName1');
     }
 
     function testInjectBadName2()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
-        $viewModel = new BasicTemplateHelper();
+        $viewModel = new PlaceHolderPlugin();
         $this->jig->renderTemplateFile(
             'coverageTesting/injectBadName2',
             $viewModel
@@ -309,7 +282,7 @@ END;
     function testInjectBadValue1()
     {
         $this->setExpectedException('Jig\JigException', "Value must not be zero length");
-        $viewModel = new BasicTemplateHelper();
+        $viewModel = new PlaceHolderPlugin();
         $this->jig->renderTemplateFile(
             'coverageTesting/injectBadValue1',
             $viewModel
@@ -319,7 +292,7 @@ END;
     function testInjectBadValue2()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get value for injection");
-        $viewModel = new BasicTemplateHelper();
+        $viewModel = new PlaceHolderPlugin();
         $this->jig->renderTemplateFile(
             'coverageTesting/injectBadValue2',
             $viewModel
@@ -361,18 +334,15 @@ END;
 
     function testStringCoverageObject()
     {
-        $helper = new PlaceHolderHelper();
 
-        $this->jig->addHelper($helper);
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $this->setExpectedException('Jig\JigException');
         $this->jig->renderTemplateFile('coverageTesting/stringCoverageObject');
     }
 
     function testStringCoverageArray()
     {
-        $helper = new PlaceHolderHelper();
-        
-        $this->jig->addHelper($helper);
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $this->setExpectedException('Jig\JigException', \Jig\JigException::IMPLICIT_ARRAY_TO_STRING);
         $this->jig->renderTemplateFile('coverageTesting/stringCoverageArray');
     }
@@ -434,10 +404,9 @@ END;
 
     function testRenderBlock()
     {
-        $this->jig->addDefaultBlockRender('JigTest\BlockRender\BasicBlockRender');
-        $this->injector->share('JigTest\BlockRender\BasicBlockRender');
-
-        $blockRender = $this->injector->make('JigTest\BlockRender\BasicBlockRender');
+        $blockRender = $this->injector->make('JigTest\PlaceHolder\PlaceHolderPlugin');
+        
+        $this->jig->addPlugin($blockRender);
         $contents = $this->jig->renderTemplateFile('block/renderBlock');
 
         $this->assertEquals(1, $blockRender->blockStartCallCount);
@@ -504,9 +473,9 @@ END;
 
     function testRenderFromStringGenericExceptionHandling()
     {
-        $this->setExpectedException('Jig\JigException', GenericExceptionHelper::message);
+        $this->setExpectedException('Jig\JigException', PlaceHolderPlugin::message);
         $templateString = "
-    {helper type='JigTest\\Helper\\GenericExceptionHelper'}
+    {plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
     
     This throws {throwup()}";
         $this->jig->renderTemplateFromString($templateString, "Exception1");
@@ -523,7 +492,7 @@ END;
      */
     function testFilterBinding()
     {
-        $this->jig->addDefaultFilter('Jig\Filter\BasicFilter');
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
         $this->assertContains('HELLO', $contents);
     }

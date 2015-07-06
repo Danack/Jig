@@ -7,7 +7,6 @@ namespace Jig;
  */
 class JigConfig
 {
-    
     public $templateSourceDirectory;
     public $templateCompileDirectory;
     public $extension;

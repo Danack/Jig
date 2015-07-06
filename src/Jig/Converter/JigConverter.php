@@ -76,6 +76,11 @@ class JigConverter
      * @var array
      */
     private $defaultRenderBlocks = [];
+
+    /**
+     * @var array
+     */
+    private $defaultPlugins = [];
     
     /**
      * @param JigConfig $jigConfig
@@ -101,6 +106,11 @@ class JigConverter
     public function addDefaultRenderBlock($name)
     {
         $this->defaultRenderBlocks[] = $name;
+    }
+    
+    public function addDefaultPlugin($name)
+    {
+        $this->defaultPlugins[] = $name;
     }
     
     /**
@@ -140,30 +150,22 @@ class JigConverter
      * @throws \Exception
      * @return ParsedTemplate
      */
-     public function createFromLines($fileLines, JigRender $jigRender)
+     public function createFromLines($fileLines)
      {
         if ($this->parsedTemplate != null) {
             throw new \Exception("Trying to convert template while in the middle of converting another one.");
         }
         
-        $this->parsedTemplate = new ParsedTemplate($this->jigConfig->compiledNamespace);
-        foreach($this->defaultHelpers as $defaultHelper) {
-            $this->parsedTemplate->addHelper($defaultHelper);
-        }
-
-        foreach($this->defaultFilters as $defaultFilter) {
-            $this->parsedTemplate->addFilter($defaultFilter);
-        }
-
-        foreach($this->defaultRenderBlocks as $defaultRenderBlock) {
-            $this->parsedTemplate->addRenderBlock($defaultRenderBlock);
-        }
+        $this->parsedTemplate = new ParsedTemplate(
+            $this->jigConfig->compiledNamespace,
+            $this->defaultPlugins
+        );
 
         foreach ($fileLines as $fileLine) {
-            $nextSegments = $this->getLineSegments($fileLine, $jigRender);
+            $nextSegments = $this->getLineSegments($fileLine);
 
             foreach ($nextSegments as $segment) {
-                $this->addSegment($segment, $jigRender);
+                $this->addSegment($segment);
             }
         }
 
@@ -177,7 +179,7 @@ class JigConverter
      * @param $fileLine
      * @return TemplateSegment[]
      */
-    public function getLineSegments($fileLine, JigRender $jigRender)
+    public function getLineSegments($fileLine)
     {
         $segments = array();
         $matches = array();
@@ -246,7 +248,7 @@ class JigConverter
                     continue;
                 }
 
-                $segments[] = new PHPTemplateSegment($jigRender, $code);
+                $segments[] = new PHPTemplateSegment($code);
             }
 
             $remainingString = mb_substr($fileLine, $position);
@@ -287,7 +289,7 @@ class JigConverter
      * @param JigRender $jigRender
      * @throws JigException
      */
-    public function addSegment(TemplateSegment $segment, JigRender $jigRender)
+    public function addSegment(TemplateSegment $segment)
     {
         $segmentText = $segment->text;
 
@@ -323,7 +325,7 @@ class JigConverter
             $this->addLineInternal($segment->getString($this->parsedTemplate));
         }
         else if ($segment instanceof PHPTemplateSegment) {
-            $this->parseJigSegment($segment, $jigRender);
+            $this->parseJigSegment($segment);
         }
         else if ($segment instanceof CommentTemplateSegment) {
             $this->addCode($segment->getString($this->parsedTemplate));
@@ -335,9 +337,10 @@ class JigConverter
 
     /**
      * @param TemplateSegment $segment
-     * @throws \Jig\JigException
+     * @param JigRender $jigRender
+     * @throws JigException
      */
-    public function parseJigSegment(TemplateSegment $segment, JigRender $jigRender)
+    public function parseJigSegment(TemplateSegment $segment)
     {
         $segmentText = $segment->text;
 
@@ -348,14 +351,11 @@ class JigConverter
             else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) == 0){
                 $this->processInject($segmentText);
             }
-            else if (strncmp($segmentText, 'injectfilter ', mb_strlen('injectfilter ')) == 0){
-                $this->processInjectFilter($segmentText);
+            else if (strncmp($segmentText, 'plugin ', mb_strlen('plugin ')) == 0){
+                $this->processPlugin($segmentText);
             }
             else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
                 $this->processInclude($segmentText);
-            }
-            else if (strncmp($segmentText, 'helper ', mb_strlen('helper ')) == 0){
-                $this->processHelper($segmentText);
             }
             else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0){
                 $this->processBlockStart($segmentText);
@@ -364,7 +364,7 @@ class JigConverter
                 $this->processBlockEnd();
             }
             else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0){
-                $this->processForeachStart($segmentText, $jigRender);
+                $this->processForeachStart($segmentText);
             }
             else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0){
                 $this->processForeachEnd();
@@ -402,7 +402,6 @@ class JigConverter
                 if ($processedBlockFunction = $this->doesRenderBlockExist($blockFunctionName)) {
                     $paramText = addslashes($remainingText);
                     $this->addCode("\$this->startRenderBlock('$blockFunctionName', '$paramText');");
-                    //$this->addCode("ob_start();");
                     return;
                 }
 
@@ -483,7 +482,7 @@ class JigConverter
         $this->parsedTemplate->addInjection($name, $value);
     }
 
-    protected function processInjectFilter($segmentText)
+    protected function processPlugin($segmentText)
     {
         $valuePattern = '#type=[\'"](.*)[\'"]#u';
         $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
@@ -499,30 +498,30 @@ class JigConverter
             throw new JigException("Type for filter must not be zero length");
         }
 
-        $this->parsedTemplate->addFilter($classname);
+        $this->parsedTemplate->addPlugin($classname);
     }
 
-    /**
-     * @param $segmentText
-     * @throws JigException
-     */
-    protected function processHelper($segmentText)
-    {
-        $namePattern = '#type=[\'"](.*)[\'"]#u';
-        $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
-
-        if ($nameMatchCount == 0) {
-            throw new JigException("Failed to get name of helper");
-        }
-
-        $name = $nameMatches[1];
-        
-        if(strlen($name) == 0) {
-            throw new JigException("Type must not be zero length");
-        }
-
-        $this->parsedTemplate->addHelper($name);
-    }
+//    /**
+//     * @param $segmentText
+//     * @throws JigException
+//     */
+//    protected function processHelper($segmentText)
+//    {
+//        $namePattern = '#type=[\'"](.*)[\'"]#u';
+//        $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
+//
+//        if ($nameMatchCount == 0) {
+//            throw new JigException("Failed to get name of helper");
+//        }
+//
+//        $name = $nameMatches[1];
+//        
+//        if(strlen($name) == 0) {
+//            throw new JigException("Type must not be zero length");
+//        }
+//
+//        $this->parsedTemplate->addHelper($name);
+//    }
 
     /**
      * @param $segmentText
@@ -584,7 +583,7 @@ class JigConverter
      * @throws \RuntimeException
      * @throws \Jig\JigException
      */
-    public function processForeachStart($segmentText, JigRender $jigRender) {
+    public function processForeachStart($segmentText) {
 
         //find the variable and replace it with new version
         $pattern = '/foreach\s+(\$?\w+[^\s\=]*)\s/u';
@@ -603,7 +602,7 @@ class JigConverter
             $this->addLineInternal( $segmentText.'){' );
         }
         else{
-            $segment = new PHPTemplateSegment($jigRender, $foreachItem);
+            $segment = new PHPTemplateSegment($foreachItem);
             $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
             $segmentText = str_replace($foreachItem, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
@@ -679,18 +678,6 @@ class JigConverter
     {
         $this->compileBlockFunctions[$blockName] = array($startCallback, $endCallback);
     }
-
-//    /**
-//     * Creates a 'named block' that is processed each time the template is rendered 
-//     * and binds a start and end callable to it. 
-//     * @param $blockName
-//     * @param $endFunctionCallable
-//     * @param null|callable $startFunctionCallable
-//     */
-//    public function bindRenderBlock($blockName, $endFunctionCallable, $startFunctionCallable = null)
-//    {
-//        $this->renderBlockFunctions[$blockName] = array($startFunctionCallable, $endFunctionCallable);
-//    }
 
     /**
      *

@@ -37,7 +37,7 @@ namespace {
 use Jig\JigConfig;
 use JigTest\BaseTestCase;
 use Jig\Jig;
-use JigTest\PlaceHolder\PlaceHolderHelper;
+use JigTest\PlaceHolder\PlaceHolderPlugin;
     
 class CoverageTest extends BaseTestCase {
 
@@ -78,7 +78,7 @@ class CoverageTest extends BaseTestCase {
         $jig = $injector->make('Jig\JigDispatcher');
         $jig->deleteCompiledFile("basic/basic");
         $this->setExpectedException('Jig\JigException', "does not exist and could not be created");
-        $viewModel = new PlaceHolderHelper();
+        $viewModel = new PlaceHolderPlugin();
 
         $jig->renderTemplateFile("basic/basic", $viewModel);
     }

@@ -1,5 +1,5 @@
 
-{helper type="JigTest\Helper\BasicHelper"}
+{plugin type="JigTest\PlaceHolder\PlaceHolderPlugin"}
 
 {helperSayHello()}
 

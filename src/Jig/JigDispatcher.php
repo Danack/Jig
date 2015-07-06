@@ -63,9 +63,9 @@ class JigDispatcher extends Jig
         return $contents;
     }
     
-    public function addHelper($helper)
+    public function addPlugin($helper)
     {
         $this->injector->share($helper);
-        $this->addDefaultHelper(get_class($helper));
+        $this->addDefaultPlugin(get_class($helper));
     }
 }

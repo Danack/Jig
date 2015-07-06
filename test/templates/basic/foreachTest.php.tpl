@@ -3,7 +3,7 @@
 
 
 {inject name='colors' type='JigTest\PlaceHolder\Values\Colors'}
-{helper type='JigTest\Helper\ColorsHelper'}
+{plugin type='JigTest\PlaceHolder\PlaceHolderPlugin'}
 
 Direct: {foreach $colors->getColors() as $color}{trim}
 {$color}

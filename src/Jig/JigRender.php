@@ -171,7 +171,7 @@ class JigRender
         $templateString = str_replace("<?php", "&lt;php", $templateString);
         $templateString = str_replace("?>", "?&gt;", $templateString);
 
-        $parsedTemplate = $this->jigConverter->createFromLines(array($templateString), $this);
+        $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setClassName($cacheName);
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
 

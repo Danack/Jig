@@ -2,8 +2,7 @@
 
 namespace Jig;
 
-use Jig\TemplateHelper;
-use Jig\Filter;
+use Jig\Plugin;
 
 /**
  * Class JigBase
@@ -14,26 +13,10 @@ use Jig\Filter;
 abstract class JigBase
 {
     /**
-     * @var JigRender
+     * @var Plugin[]
      */
-    protected $jigRender;
+    protected $plugins = [];
 
-    /**
-     * @var TemplateHelper[]
-     */
-    protected $templateHelpers = [];
-
-    /**
-     * @var Filter[]
-     */
-    protected $filters = [];
-
-
-    /**
-     * @var BlockRender[]
-     */
-    protected $blockRenderList = [];
-    
     /**
      * @return mixed
      */
@@ -48,56 +31,36 @@ abstract class JigBase
         return [];
     }
 
-    protected function addTemplateHelper(TemplateHelper $templateHelper)
+    protected function addPlugin(Plugin $plugin)
     {
-        $this->templateHelpers[] = $templateHelper;
+        $this->plugins[] = $plugin;
     }
-
-    protected function addFilter(Filter $filter)
-    {
-        $this->filters[] = $filter;
-    }
-    
-    protected function addRenderBlock(BlockRender $blockRender)
-    {
-        $this->blockRenderList[] = $blockRender;
-    }
-
+ 
     /**
      * @param $functionName
      * @return mixed
      * @throws JigException
      */
-    protected function call($functionName)
+    protected function callFunction($functionName)
     {
         $functionArgs = func_get_args();
         $params = array_splice($functionArgs, 1);
         
-        foreach ($this->templateHelpers as $templateHelper) {
-            if ($templateHelper->hasFunction($functionName)) {
-                return $templateHelper->call($functionName, $params);
+        foreach ($this->plugins as $plugin) {
+
+            if ($plugin->hasFunction($functionName)) {
+                return $plugin->callFunction($functionName, $params);
             }
         }
 
         throw new JigException("Function $functionName not known.");
     }
-    
-    protected function callFilter($text, $filterName)
-    {
-        foreach ($this->filters as $filter) {
-            if ($filter->hasFilter($filterName)) {
-                return $filter->call($filterName, $text);
-            }
-        }
 
-        throw new JigException("Filter $filterName not known.");
-    }
-    
     protected function startRenderBlock($blockName, $segmentText)
     {
-        foreach ($this->blockRenderList as $renderBlock) {
+        foreach ($this->plugins as $renderBlock) {
             if ($renderBlock->hasBlock($blockName)) {
-                echo $renderBlock->callStart($blockName, $segmentText);
+                echo $renderBlock->callBlockRenderStart($blockName, $segmentText);
                 ob_start();
                 return;
             }
@@ -109,9 +72,9 @@ abstract class JigBase
     {
         $contents = ob_get_contents();
         ob_end_clean();
-        foreach ($this->blockRenderList as $renderBlock) {
+        foreach ($this->plugins as $renderBlock) {
             if ($renderBlock->hasBlock($blockName)) {
-                echo $renderBlock->callEnd($blockName, $contents);
+                echo $renderBlock->callBlockRenderEnd($blockName, $contents);
                 return;
             }
         }

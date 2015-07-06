@@ -1,2 +1,2 @@
-{injectfilter type="Jig\Filter\BasicFilter"}
+{plugin type="JigTest\PlaceHolder\PlaceHolderPlugin"}
 {"Hello" | upper}
