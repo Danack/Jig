@@ -439,7 +439,7 @@ END;
             $separator = ",\n";
         }
 
-        foreach ($this->plugins as $plugin) {
+        foreach (array_unique($this->plugins) as $plugin) {
             $pluginParam = convertTypeToParam($plugin);
             $depdendencies .= $separator."       \\$plugin \$$pluginParam";
             $separator = ",\n";
