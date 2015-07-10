@@ -513,4 +513,28 @@ END;
 
         $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
     }
+    
+    function unknownVariableTemplateProvider()
+    {
+        return [ 
+            ["errors/unknownVariable"],
+            ["errors/unknownVariableForEach"],
+            ["errors/unknownVariableWithFunction"]
+        ];
+    }
+
+    /**
+     * @group injection
+     * @dataprovider unknownVariableTemplateProvider
+     */
+   function testUnknownVariable($templateName)
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            '',
+            \Jig\JigException::UNKNOWN_VARIABLE
+        );
+
+       $this->jig->checkTemplateCompiled($templateName);
+    }
 }

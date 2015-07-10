@@ -440,6 +440,8 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
             return '${' . $this->p($node->name) . '}';
         } else {
 
+            $this->parsedTemplate->checkVariableKnown($node->name);
+            
             if ($this->parsedTemplate->hasLocalVariable($node->name) == true) {
                 return '$' . $node->name;
             }

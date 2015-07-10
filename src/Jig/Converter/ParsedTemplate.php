@@ -55,9 +55,9 @@ class ParsedTemplate
         $this->textLines[] = $string;
     }
 
-    public function addInjection($name, $value)
+    public function addInjection($name, $type)
     {
-        $this->injections[$name] = $value;
+        $this->injections[$name] = $type;
     }
 
     private function callStaticInfoMethod($classnames, $methodName)
@@ -185,6 +185,25 @@ class ParsedTemplate
         return in_array($variableName, $this->localVariables);
     }
 
+    public function checkVariableKnown($variableName) {
+        
+        if (in_array($variableName, $this->localVariables)) {
+            return;
+        }
+        
+        if (array_key_exists($variableName, $this->injections) == true) {
+            return;
+        }
+        
+        //plugins?
+        
+        throw new JigException(
+            "Unknown variable '$variableName'",
+            \Jig\JigException::UNKNOWN_VARIABLE
+        );
+    }
+    
+    
     /**
      * Add a local variable so that any usage of it doesn't
      * trigger trying to fetch it from the ViewModel
