@@ -57,6 +57,21 @@ class ParsedTemplate
 
     public function addInjection($name, $type)
     {
+        if (array_key_exists($name, $this->injections)) {
+            if (strcmp($type, $this->injections[$name]) !== 0) {
+                $message = sprintf(
+                    "Template already has injection of type %s cannot inject it again as %s",
+                    $this->injections[$name],
+                    $type
+                );
+
+                throw new JigException(
+                    $message,
+                    JigException::INJECTION_ERROR
+                );
+            }
+        }
+
         $this->injections[$name] = $type;
     }
 
@@ -64,10 +79,6 @@ class ParsedTemplate
     {
         $knownItems = [];
 
-        if (!is_array($classnames)) {
-            echo "hmmsdf";
-        }
-        
         foreach ($classnames as $classname) {
             try {
                 if (class_exists($classname) == false) {

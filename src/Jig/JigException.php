@@ -19,5 +19,6 @@ class JigException extends \Exception {
     const FAILED_TO_RENDER = 4;
     const UNKNOWN_FILTER = 5;
     const UNKNOWN_BLOCK = 6;
-    const UNKNOWN_VARIABLE = 6;
+    const UNKNOWN_VARIABLE = 7;
+    const INJECTION_ERROR = 8;
 }

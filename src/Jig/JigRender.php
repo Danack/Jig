@@ -90,7 +90,7 @@ class JigRender
             return $parsedTemplate;
         }
         catch(JigException $pte) {
-            throw new JigException("Error in file $templateFilename: ".$pte->getMessage(), $pte->getCode(), $pte);
+            throw new JigException("Error in template $templateFilename: ".$pte->getMessage(), $pte->getCode(), $pte);
         }
     }
 

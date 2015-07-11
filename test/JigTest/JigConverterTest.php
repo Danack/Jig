@@ -517,22 +517,25 @@ END;
     function unknownVariableTemplateProvider()
     {
         return [ 
-            ["errors/unknownVariable"],
-            ["errors/unknownVariableForEach"],
-            ["errors/unknownVariableWithFunction"]
+            ["errors/unknownVariable", \Jig\JigException::UNKNOWN_VARIABLE],
+            ["errors/unknownVariableForEach", \Jig\JigException::UNKNOWN_VARIABLE],
+            ["errors/unknownVariableWithFunction", \Jig\JigException::UNKNOWN_VARIABLE],
+            ["errors/injectVariableAsTwoTypes", \Jig\JigException::INJECTION_ERROR],
         ];
     }
+    
+    
 
     /**
      * @group injection
-     * @dataprovider unknownVariableTemplateProvider
+     * @dataProvider unknownVariableTemplateProvider
      */
-   function testUnknownVariable($templateName)
+   function testErrorTemplates($templateName, $expectedExceptionCode)
     {
         $this->setExpectedException(
             'Jig\JigException',
             '',
-            \Jig\JigException::UNKNOWN_VARIABLE
+            $expectedExceptionCode
         );
 
        $this->jig->checkTemplateCompiled($templateName);
