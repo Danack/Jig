@@ -483,7 +483,9 @@ END;
 
     function testCheckInlinePHP()
     {
-        $contents = $this->jig->renderTemplateFile("inlinePHP/simple");
+        $this->markTestSkipped("inline PHP is currently unsupported.");
+        return;
+        $contents = $this->jig->renderTemplateFile("testCheckInlinePHP");
         $this->assertContains('value is 5', $contents);
     }
 
@@ -540,4 +542,39 @@ END;
 
        $this->jig->checkTemplateCompiled($templateName);
     }
+    
+    
+    
+    function bindTestStart(JigConverter $jigConverter, $segmentText)
+    {
+        $jigConverter->addHTML("Segment text was ".$segmentText);
+        $jigConverter->addHTML("This is the start");
+    }
+    
+    /**
+     * @param JigConverter $jigConverter
+     * @param $segmentText
+     */
+    function bindTestEnd(JigConverter $jigConverter, $segmentText)
+    {
+        $jigConverter->addHTML("Segment text was ".$segmentText);
+        $jigConverter->addHTML("This is the end");
+    }
+
+    /**
+     * @group compiletime
+     */
+    function testContainsPHPOpening()
+    {
+        $this->jig->bindCompileBlock(
+            'bindTest',
+            [$this, 'bindTestStart'],
+            [$this, 'bindTestEnd']
+        );
+        
+        $result = $this->jig->renderTemplateFile('testContainsPHPOpening');
+
+        $this->assertContains('<?php', $result);
+    }
+    
 }
