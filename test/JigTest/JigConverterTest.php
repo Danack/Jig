@@ -577,4 +577,15 @@ END;
         $this->assertContains('<?php', $result);
     }
     
+    /**
+     * @group phptags
+     */
+    function testLiteralPHPOpening()
+    {
+        $result = $this->jig->renderTemplateFile('testLiteralPHPOpening');
+
+        $this->assertContains('<?php', $result);
+    }
+    
+    
 }
