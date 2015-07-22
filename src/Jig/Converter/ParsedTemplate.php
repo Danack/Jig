@@ -518,14 +518,13 @@ $depdendencies
     {
         $output = "
     public static function getDependencyList() {
-    
         return [\n";
         
         foreach ($this->injections as $name => $type) {
             $output .=  "            '$name' => '$type',\n";
         }
 
-        foreach ($this->plugins as $plugin) {
+        foreach (array_unique($this->plugins) as $plugin) {
             $name = convertTypeToParam($plugin);
             $output .=  "            '$name' => '$plugin',\n";
         }

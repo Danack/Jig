@@ -586,6 +586,28 @@ END;
 
         $this->assertContains('<?php', $result);
     }
+
+    /**
+     * @group debug 
+     */
+    function testStubReqeatOnlyInsertedOnce()
+    {
+        $templateString = <<< TPL
+{plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
+{plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
+
+TPL;
+
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+
+        $className = $this->jig->getJigRender()->getParsedTemplateFromString(
+            $templateString,
+            "testStubReqeatOnlyInsertedOnce1"
+        );
+
+        $result = call_user_func([$className, 'getDependencyList']);
+    }
+    
     
     
 }

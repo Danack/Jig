@@ -10,7 +10,6 @@ class TextTemplateSegment extends TemplateSegment
 {
     public function getRawString()
     {
-        //return $this->text;
         return str_replace("<?php", "<?php echo '<?php'; ?>", $this->text);
     }
 

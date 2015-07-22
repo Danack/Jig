@@ -105,7 +105,6 @@ class Jig
         return $this->jigConfig->getFullClassname($templateName);
     }
 
-    
     public function addDefaultPlugin($classname)
     {
         $classname = (string)$classname;
@@ -113,4 +112,8 @@ class Jig
         $this->jigConverter->addDefaultPlugin($classname);
     }
 
+    public function getParsedTemplateFromString($templateString, $cacheName)
+    {
+        $this->jigRender->getParsedTemplateFromString($templateString, $cacheName);
+    }
 }
