@@ -64,9 +64,6 @@ class ParsedTemplate
     {
         $knownItems = [];
 
-        if (!is_array($classnames)) {
-            echo "hmmsdf";
-        }
         
         foreach ($classnames as $classname) {
             try {
