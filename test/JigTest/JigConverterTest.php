@@ -483,7 +483,9 @@ END;
 
     function testCheckInlinePHP()
     {
-        $contents = $this->jig->renderTemplateFile("inlinePHP/simple");
+        $this->markTestSkipped("inline PHP is currently unsupported.");
+        return;
+        $contents = $this->jig->renderTemplateFile("testCheckInlinePHP");
         $this->assertContains('value is 5', $contents);
     }
 
@@ -513,4 +515,99 @@ END;
 
         $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
     }
+    
+    function unknownVariableTemplateProvider()
+    {
+        return [ 
+            ["errors/unknownVariable", \Jig\JigException::UNKNOWN_VARIABLE],
+            ["errors/unknownVariableForEach", \Jig\JigException::UNKNOWN_VARIABLE],
+            ["errors/unknownVariableWithFunction", \Jig\JigException::UNKNOWN_VARIABLE],
+            ["errors/injectVariableAsTwoTypes", \Jig\JigException::INJECTION_ERROR],
+        ];
+    }
+    
+    
+
+    /**
+     * @group injection
+     * @dataProvider unknownVariableTemplateProvider
+     */
+   function testErrorTemplates($templateName, $expectedExceptionCode)
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            '',
+            $expectedExceptionCode
+        );
+
+       $this->jig->checkTemplateCompiled($templateName);
+    }
+    
+    
+    
+    function bindTestStart(JigConverter $jigConverter, $segmentText)
+    {
+        $jigConverter->addHTML("Segment text was ".$segmentText);
+        $jigConverter->addHTML("This is the start");
+    }
+    
+    /**
+     * @param JigConverter $jigConverter
+     * @param $segmentText
+     */
+    function bindTestEnd(JigConverter $jigConverter, $segmentText)
+    {
+        $jigConverter->addHTML("Segment text was ".$segmentText);
+        $jigConverter->addHTML("This is the end");
+    }
+
+    /**
+     * @group compiletime
+     */
+    function testContainsPHPOpening()
+    {
+        $this->jig->bindCompileBlock(
+            'bindTest',
+            [$this, 'bindTestStart'],
+            [$this, 'bindTestEnd']
+        );
+        
+        $result = $this->jig->renderTemplateFile('testContainsPHPOpening');
+
+        $this->assertContains('<?php', $result);
+    }
+    
+    /**
+     * @group phptags
+     */
+    function testLiteralPHPOpening()
+    {
+        $result = $this->jig->renderTemplateFile('testLiteralPHPOpening');
+
+        $this->assertContains('<?php', $result);
+    }
+
+    /**
+     * @group debug 
+     */
+    function testStubReqeatOnlyInsertedOnce()
+    {
+        $templateString = <<< TPL
+{plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
+{plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
+
+TPL;
+
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+
+        $className = $this->jig->getJigRender()->getParsedTemplateFromString(
+            $templateString,
+            "testStubReqeatOnlyInsertedOnce1"
+        );
+
+        $result = call_user_func([$className, 'getDependencyList']);
+    }
+    
+    
+    
 }

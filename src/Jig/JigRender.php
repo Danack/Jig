@@ -90,7 +90,7 @@ class JigRender
             return $parsedTemplate;
         }
         catch(JigException $pte) {
-            throw new JigException("Error in file $templateFilename: ".$pte->getMessage(), $pte->getCode(), $pte);
+            throw new JigException("Error in template $templateFilename: ".$pte->getMessage(), $pte->getCode(), $pte);
         }
     }
 
@@ -182,8 +182,7 @@ class JigRender
         //This has to be after checking the dependencies are compiled
         //to ensure the getDepedency function is available.
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
-            $this->jigConfig->templateCompileDirectory,
-            false
+            $this->jigConfig->templateCompileDirectory
         );
         
         //This is very stupid. We should be able to auto-load the class

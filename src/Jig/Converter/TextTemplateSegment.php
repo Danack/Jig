@@ -10,11 +10,11 @@ class TextTemplateSegment extends TemplateSegment
 {
     public function getRawString()
     {
-        return $this->text;
+        return str_replace("<?php", "<?php echo '<?php'; ?>", $this->text);
     }
 
     public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array())
     {
-        return $this->text;
+        return str_replace("<?php", "<?php echo '<?php'; ?>", $this->text);
     }
 }
