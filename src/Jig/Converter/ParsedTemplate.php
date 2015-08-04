@@ -182,6 +182,24 @@ class ParsedTemplate
         return in_array($variableName, $this->localVariables);
     }
 
+    public function checkVariableKnown($variableName)
+    {
+        if (in_array($variableName, $this->localVariables)) {
+            return;
+        }
+        
+        if (array_key_exists($variableName, $this->injections) == true) {
+            return;
+        }
+
+        throw new JigException(
+            "Unknown variable '$variableName'",
+            \Jig\JigException::UNKNOWN_VARIABLE
+        );
+    }
+
+    
+    
     /**
      * Add a local variable so that any usage of it doesn't
      * trigger trying to fetch it from the ViewModel

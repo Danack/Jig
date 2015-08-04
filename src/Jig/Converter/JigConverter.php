@@ -427,7 +427,8 @@ class JigConverter
      */
     public function addHTML($text)
     {
-        $test = str_replace("<?", "&lt;?", $text);
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $text = str_replace("<?", "&lt;?", $text);
         $this->addLineInternal($text);
     }
 

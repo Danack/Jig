@@ -3,7 +3,7 @@
 
 namespace Jig\Converter;
 
-use Jig\JigRender;
+
 use Jig\JigException;
 use PHPParser_Lexer;
 use PHPParser_Parser;
