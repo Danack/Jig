@@ -109,22 +109,58 @@ class JigRender
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename);
         if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
-                return;
+                goto check_dependencies;
             }
         }
 
         if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_MTIME) {
             if ($this->isGeneratedFileOutOfDate($templateFilename) == false) {
                 if (class_exists($className) == true) {
-                    return;
+                    goto check_dependencies;
                 }
             }
         }
 
         //Either class file did not exist or it was out of date. 
         $this->compileTemplate($className, $templateFilename);
+        
+check_dependencies:
+        
+        $templatesUsed = $className::getTemplatesUsed();
+        foreach ($templatesUsed as $templateUsed) {
+            $this->checkTemplateCompiled($templateUsed);
+        }
     }
 
+/*
+
+                                                  .--.__
+                                                .~ (@)  ~~~---_
+                                               {     `-_~,,,,,,)
+                                               {    (_  ',
+                                                ~    . = _',
+                                                 ~-   '.  =-'
+                                                   ~     :
+.                                             _,.-~     ('');
+'.                                         .-~        \  \ ;
+  ':-_                                _.--~            \  \;      _-=,.
+    ~-:-.__                       _.-~                 {  '---- _'-=,.
+       ~-._~--._             __.-~                     ~---------=,.`
+           ~~-._~~-----~~~~~~       .+++~~~~~~~~-__   /
+                ~-.,____           {   -     +   }  _/
+                        ~~-.______{_    _ -=\ / /_.~
+                             :      ~--~    // /         ..-
+                             :   / /      // /         ((
+                             :  / /      {   `-------,. ))
+                             :   /        ''=--------. }o
+                .=._________,'  )                     ))
+                )  _________ -''                     ~~
+               / /  _ _
+              (_.-.'O'-'.        "Deinonychus"
+*/
+    
+    
+    
     /**
      * @param $className
      * @param $templateFilename

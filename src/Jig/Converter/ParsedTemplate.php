@@ -35,6 +35,8 @@ class ParsedTemplate
     private $plugins = array();
     
     private $includeFiles = array();
+    
+    private $templatesUsed = array();
 
     public function __construct($baseNamespace, $defaultPlugins)
     {
@@ -64,7 +66,6 @@ class ParsedTemplate
     {
         $knownItems = [];
 
-        
         foreach ($classnames as $classname) {
             try {
                 if (class_exists($classname) == false) {
@@ -138,6 +139,7 @@ class ParsedTemplate
     {
         $this->addInjection($paramName, $className);
         $this->includeFiles[] = $filename;
+        $this->templatesUsed[] = $filename;
     }
 
     public function addPlugin($pluginClassname)
@@ -241,6 +243,7 @@ class ParsedTemplate
     public function setExtends($filename)
     {
         $this->extends = $filename;
+        $this->templatesUsed[] = $filename;
     }
 
     /**
@@ -324,13 +327,14 @@ class $className extends $parentClassName {
 
 END;
 
-        $parentDependencies = call_user_func([$parentFullClassName, 'getDependencyList']); 
+        $parentDependencies = call_user_func([$parentFullClassName, 'getDependencyList']);
 
         // TODO - check no clashes on names.
         fwrite($outputFileHandle, $startSection);
 
         $this->writeProperties($outputFileHandle);
         $this->writeConstructor($outputFileHandle, $parentDependencies);
+        $this->writeTemplatesUsed($outputFileHandle);
         $this->writeDependencyList($outputFileHandle);
 
         $functionBlocks = $this->getFunctionBlocks();
@@ -499,7 +503,7 @@ $depdendencies
     /**
      * @param $outputFileHandle
      */
-    function writeDependencyList($outputFileHandle)
+    public function writeDependencyList($outputFileHandle)
     {
         $output = "
     public static function getDependencyList() {
@@ -518,7 +522,25 @@ $depdendencies
         $output .= "        ];
     }
         ";
+        fwrite($outputFileHandle, "\n");
+        fwrite($outputFileHandle, $output);
+        fwrite($outputFileHandle, "\n");
+    }
+    
+    public function writeTemplatesUsed($outputFileHandle)
+    {
+        $output = "
+    public static function getTemplatesUsed() {
 
+        return [\n";
+
+        foreach ($this->templatesUsed as $name) {
+            $output .=  "            '$name',\n";
+        }
+
+        $output .= "        ];
+    }
+        ";
         fwrite($outputFileHandle, "\n");
         fwrite($outputFileHandle, $output);
         fwrite($outputFileHandle, "\n");

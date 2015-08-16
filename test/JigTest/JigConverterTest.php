@@ -595,7 +595,6 @@ END;
         $templateString = <<< TPL
 {plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
 {plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
-
 TPL;
 
         $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
@@ -607,7 +606,43 @@ TPL;
 
         $result = call_user_func([$className, 'getDependencyList']);
     }
+   
+    function testUpdatedIncludedTemplateIsCompiled()
+    {
+        $directory = realpath(__DIR__.'/../templates/includedTemplateIsCompiled/');
+        $time = ''.time();
+        file_put_contents(
+            $directory.'/fileToInclude.php.tpl',
+            " //This file is intentionally not in git.
+            Time is $time"
+        );
+        
+        $renderedOutput = $this->jig->renderTemplateFile('includedTemplateIsCompiled/includedTemplateIsCompiled');
+        $this->assertContains($time, $renderedOutput);
+    }
     
     
-    
+    function testUpdatedExtendedTemplateIsCompiled()
+    {
+        $directory = realpath(__DIR__.'/../templates/extendedTemplateIsCompiled/');
+        $time = ''.time();
+        
+        $baseTemplate = <<< TPL
+{block name='overridden'}
+    This is overridden by the extending template.
+{/block}
+
+{block name='notoverridden'}
+    Time is $time"
+{/block}
+TPL;
+
+        file_put_contents(
+            $directory.'/fileToExtend.php.tpl',
+            $baseTemplate
+        );
+
+        $renderedOutput = $this->jig->renderTemplateFile('includedTemplateIsCompiled/includedTemplateIsCompiled');
+        $this->assertContains($time, $renderedOutput);
+    }
 }

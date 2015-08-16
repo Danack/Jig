@@ -2,3 +2,4 @@ vendor
 src/Intahwebz/Jig/Tests/generatedTemplates
 test/Tests/generatedTemplates
 
+fileToInclude.php.tpl
