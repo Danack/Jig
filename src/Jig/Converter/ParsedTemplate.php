@@ -57,9 +57,24 @@ class ParsedTemplate
         $this->textLines[] = $string;
     }
 
-    public function addInjection($name, $value)
+    public function addInjection($name, $type)
     {
-        $this->injections[$name] = $value;
+        if (array_key_exists($name, $this->injections)) {
+            if (strcasecmp($type, $this->injections[$name]) !== 0) {    
+                $message = sprintf(
+                    "Cannot inject type %s as name %s, it is already injected as type %s",
+                    $type,
+                    $name,
+                    $this->injections[$name]
+                );
+                throw new JigException(
+                    $message,
+                    JigException::INJECTION_ERROR
+                );
+            }
+        }
+        
+        $this->injections[$name] = $type;
     }
 
     private function callStaticInfoMethod($classnames, $methodName)
@@ -86,16 +101,28 @@ class ParsedTemplate
                 $closure = $reflection->getClosure(null);
                 $filters = $closure();
                 if (is_array($filters) == false) {
+                    $message = sprintf(
+                        "Method %s for class %s must return an array of the names, and the names must be strings",
+                        $methodName,
+                        $classname
+                    );
+                    
                     throw new JigException(
-                        "Method $methodName for class $classname must return an array of the names, and the names must be strings",
+                        $message,
                         JigException::FILTER_NO_INFO
                     );
                 }
 
                 foreach ($filters as $filter) {
                     if (is_string($filter) == false) {
+                        $message = sprintf(
+                            "Method getFilterList for filter class %s must return an array of the ".
+                            "names of filters, and the names must be strings",
+                            $classname
+                        );
+                        
                         throw new JigException(
-                            "Method getFilterList for filter class $classname must return an array of the names of filters, and the names must be strings",
+                            $message,
                             JigException::FILTER_NO_INFO
                         );
                     }
@@ -489,9 +516,7 @@ $depdendencies
                 $output .=  $separator."\$$name";
                 $separator = ",\n            ";
             }
-            $output .=  
-"//            \$jigRender
-        );\n";  
+            $output .="\n        );\n";
         }
 
         $output .=  "    }\n";

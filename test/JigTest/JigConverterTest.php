@@ -515,34 +515,53 @@ END;
 
         $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
     }
-    
-    function unknownVariableTemplateProvider()
-    {
-        return [ 
-            ["errors/unknownVariable", \Jig\JigException::UNKNOWN_VARIABLE],
-            ["errors/unknownVariableForEach", \Jig\JigException::UNKNOWN_VARIABLE],
-            ["errors/unknownVariableWithFunction", \Jig\JigException::UNKNOWN_VARIABLE],
-            ["errors/injectVariableAsTwoTypes", \Jig\JigException::INJECTION_ERROR],
-        ];
-    }
-    
-    
 
     /**
      * @group injection
-     * @dataProvider unknownVariableTemplateProvider
      */
-   function testErrorTemplates($templateName, $expectedExceptionCode)
+   function testErrorUnknownVariable()
     {
         $this->setExpectedException(
             'Jig\JigException',
             '',
-            $expectedExceptionCode
+            JigException::UNKNOWN_VARIABLE
         );
 
-       $this->jig->checkTemplateCompiled($templateName);
+       $this->jig->checkTemplateCompiled("errors/unknownVariable");
     }
     
+    function testErrorUnknownVariableForEach()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            '',
+            JigException::UNKNOWN_VARIABLE
+        );
+
+       $this->jig->checkTemplateCompiled("errors/unknownVariableForEach");
+    }
+    
+    function unknownVariableWithFunction()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            '',
+            JigException::UNKNOWN_VARIABLE
+        );
+
+       $this->jig->checkTemplateCompiled("errors/unknownVariableWithFunction");
+    }
+    
+    function injectVariableAsTwoTypes()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            '',
+            JigException::INJECTION_ERROR
+        );
+
+       $this->jig->checkTemplateCompiled("errors/injectVariableAsTwoTypes");
+    }
     
     
     function bindTestStart(JigConverter $jigConverter, $segmentText)

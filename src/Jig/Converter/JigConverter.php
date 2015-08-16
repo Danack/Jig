@@ -222,7 +222,7 @@ class JigConverter
         if ($matchCount == 0) {
             $segments[] = new TextTemplateSegment($fileLine);
         }
-        else{
+        else {
             $position = 0;
 
             foreach ($matches as $matchInfo) {
@@ -475,13 +475,13 @@ class JigConverter
         }
 
         $name = $nameMatches[1];
-        $value = $valueMatches[1];
+        $type = $valueMatches[1];
         
-        if(strlen($value) == 0) {
+        if (strlen($type) == 0) {
             throw new JigException("Value must not be zero length");
         }
 
-        $this->parsedTemplate->addInjection($name, $value);
+        $this->parsedTemplate->addInjection($name, $type);
     }
 
     protected function processPlugin($segmentText)
