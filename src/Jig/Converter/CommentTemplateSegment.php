@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Jig\Converter;
 
 /**
@@ -11,7 +10,8 @@ class CommentTemplateSegment extends TemplateSegment
 {
     public function getRawString()
     {
-        return $this->text;
+        //The {}'s are stripped by the parse, so re-add them.
+        return '{'.$this->text.'}';
     }
     
     public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array())

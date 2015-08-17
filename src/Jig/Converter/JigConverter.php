@@ -38,6 +38,11 @@ class JigConverter
     // of the generated code.
     const FILTER_NO_PHP = 'nophp';
 
+    
+    const LITERAL_TEMPLATE = 'template';
+    
+    const LITERAL_PHP = 'php';
+    
     /**
      * Is the converter currently in literal mode.
      * @var bool
@@ -315,12 +320,14 @@ class JigConverter
     {
         $segmentText = $segment->text;
 
-        if (strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0) {
+        if ($this->literalMode == self::LITERAL_TEMPLATE &&
+            strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0) {
             $this->processLiteralEnd();
             return;
         }
         
-        if (strncmp($segmentText, '/php', mb_strlen('/php')) == 0){
+        if ($this->literalMode == self::LITERAL_PHP &&
+            strncmp($segmentText, '/php', mb_strlen('/php')) == 0) {
             $this->processPHPEnd();
             $this->processLiteralEnd();
             return;
@@ -342,8 +349,8 @@ class JigConverter
             }
         }
 
-        //Anything that escapes literal mode (i.e. /literal or /syntaxHighlighter) must be above this
-        if ($this->literalMode == true) {
+        //Anything that exits literal mode (i.e. /literal or /php) must be above this
+        if ($this->literalMode) {
             $this->addLineInternal($segment->getRawString());
             return;
         }
@@ -376,38 +383,38 @@ class JigConverter
         $segmentText = $segment->text;
 
         try {
-            if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0){
+            if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0) {
                 $this->processExtends($segmentText);
             }
-            else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) == 0){
+            else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) == 0) {
                 $this->processInject($segmentText);
             }
-            else if (strncmp($segmentText, 'plugin ', mb_strlen('plugin ')) == 0){
+            else if (strncmp($segmentText, 'plugin ', mb_strlen('plugin ')) == 0) {
                 $this->processPlugin($segmentText);
             }
-            else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0){
+            else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0) {
                 $this->processInclude($segmentText);
             }
-            else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0){
+            else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0) {
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->processBlockStart($segmentText);
             }
-            else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0){
+            else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0) {
                 $this->processBlockEnd();
             }
-            else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0){
+            else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0) {
                 $this->processForeachStart($segmentText);
             }
-            else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0){
+            else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0) {
                 $this->processForeachEnd();
             }
-            else if (strncmp($segmentText, 'php', mb_strlen('php')) == 0){
+            else if (strncmp($segmentText, 'php', mb_strlen('php')) == 0) {
                 $this->processPHPStart($segmentText);
             }
-            else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0){
+            else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0) {
                 $this->processLiteralStart();
             }
-            else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0){
+            else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0) {
                 $segment->text = substr($segmentText, 3);
                 $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
                 $this->changeOutputMode(self::MODE_CODE);
@@ -659,7 +666,7 @@ class JigConverter
     public function processPHPStart($segmentText)
     {
         $this->addCode(" \n");
-        $this->setLiteralMode(true);
+        $this->setLiteralMode(self::LITERAL_PHP);
     }
     
     public function processPHPEnd()
@@ -686,7 +693,7 @@ class JigConverter
      */
     private function processLiteralStart()
     {
-        $this->setLiteralMode(true);
+        $this->setLiteralMode(self::LITERAL_TEMPLATE);
     }
 
     /**

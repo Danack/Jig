@@ -563,8 +563,7 @@ END;
 
        $this->jig->checkTemplateCompiled("errors/injectVariableAsTwoTypes");
     }
-    
-    
+
     function bindTestStart(JigConverter $jigConverter, $segmentText)
     {
         $jigConverter->addHTML("Segment text was ".$segmentText);
@@ -603,8 +602,7 @@ END;
     function testLiteralPHPOpening()
     {
         $result = $this->jig->renderTemplateFile('testLiteralPHPOpening');
-
-        $this->assertContains('<?php', $result);
+        $this->assertContains('{php}', $result);
     }
 
     /**
@@ -664,5 +662,15 @@ TPL;
 
         $renderedOutput = $this->jig->renderTemplateFile('includedTemplateIsCompiled/includedTemplateIsCompiled');
         $this->assertContains($time, $renderedOutput);
+    }
+    
+    
+        /**
+     * @group phptags
+     */
+    function testCommentInsideLiteral()
+    {
+        $result = $this->jig->renderTemplateFile('coverageTesting/commentInsideLiteral');
+        $this->assertContains('{* This is a comment *}', $result);
     }
 }
