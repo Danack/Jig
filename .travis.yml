@@ -8,7 +8,9 @@ php:
 before_script:
   - composer install
   
-script: php vendor/bin/phpunit -c test/phpunit.xml --coverage-text
+script:
+  - php vendor/bin/phpcs --standard=./test/codesniffer.xml -s --encoding=utf-8 ./src
+  - php vendor/bin/phpunit -c test/phpunit.xml --coverage-text
 
 notifications:
   email:
