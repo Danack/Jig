@@ -6,8 +6,8 @@ use Jig\Plugin;
 
 use Jig\JigException;
 
-class BasicPlugin implements Plugin {
-
+class BasicPlugin implements Plugin
+{
     static private $functionList = [
         'var_dump'
     ];
@@ -137,4 +137,3 @@ class BasicPlugin implements Plugin {
         return strtolower($string);
     }
 }
-

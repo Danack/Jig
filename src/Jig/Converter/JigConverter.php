@@ -169,18 +169,18 @@ class JigConverter
         return false;
     }
 
-    
+
     /**
      * @param $fileLines
      * @throws \Exception
      * @return ParsedTemplate
      */
-     public function createFromLines($fileLines)
-     {
+    public function createFromLines($fileLines)
+    {
         if ($this->parsedTemplate != null) {
             throw new \Exception("Trying to convert template while in the middle of converting another one.");
         }
- 
+
         $this->parsedTemplate = new ParsedTemplate(
             $this->jigConfig->compiledNamespace,
             $this->defaultPlugins
@@ -194,8 +194,6 @@ class JigConverter
             }
         }
 
-        //$this->changeOutputMode(self::MODE_CODE);
-         
         $parsedTemplate = $this->parsedTemplate;
         $this->parsedTemplate = null;
 
@@ -368,7 +366,7 @@ class JigConverter
         else if ($segment instanceof CommentTemplateSegment) {
             $this->addCode($segment->getString($this->parsedTemplate));
         }
-        else{
+        else {
             throw new \Jig\JigException("Unknown Segment type ".get_class($segment));
         }
     }
@@ -429,8 +427,7 @@ class JigConverter
             else if (strncmp($segmentText, 'else', mb_strlen('else')) == 0) {
                 $this->addCode(" } else { ");
             }
-            else{
-                
+            else {
                 $blockFunctionName = $segmentText;
                 $remainingText = '';
                 $position = strpos($blockFunctionName, ' ');
@@ -464,7 +461,7 @@ class JigConverter
                 $this->addLineInternal($segment->getString($this->parsedTemplate));
             }
         }
-        catch(\Exception $e) {
+        catch (\Exception $e) {
             $message = "Could not parse template segment [{".$segmentText."}]: ".$e->getMessage();
             throw new \Jig\JigException($message, $e->getCode(), $e);
         }
@@ -546,7 +543,7 @@ class JigConverter
         $classname = $valueMatches[1];
         //TODO - validate classname is valid
         
-        if(strlen($classname) == 0) {
+        if (strlen($classname) == 0) {
             throw new JigException("Type for filter must not be zero length");
         }
 
@@ -616,8 +613,8 @@ class JigConverter
      * @throws \RuntimeException
      * @throws \Jig\JigException
      */
-    public function processForeachStart($segmentText) {
-
+    public function processForeachStart($segmentText)
+    {
         //find the variable and replace it with new version
         $pattern = '/foreach\s+(\$?\w+[^\s\=]*)\s/u';
 
@@ -632,9 +629,9 @@ class JigConverter
         $segmentText = str_replace('foreach', 'foreach (', $segmentText);
 
         if ($this->parsedTemplate->hasLocalVariable($foreachItem) == true) {
-            $this->addLineInternal( $segmentText.'){' );
+            $this->addLineInternal($segmentText.'){');
         }
-        else{
+        else {
             $segment = new PHPTemplateSegment($foreachItem);
             $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
             $segmentText = str_replace($foreachItem, $replace, $segmentText);
@@ -659,7 +656,8 @@ class JigConverter
     /**
      *
      */
-    private function processForeachEnd() {
+    private function processForeachEnd()
+    {
         $this->addCode(" } ");
     }
 
@@ -679,8 +677,9 @@ class JigConverter
     /**
      * @param $textLine
      */
-    private function addLineInternal($textLine) {
-        if ($this->activeBlock !== null){
+    private function addLineInternal($textLine)
+    {
+        if ($this->activeBlock !== null) {
             $this->activeBlock[] = $textLine;
         }
         else {
@@ -727,12 +726,11 @@ class JigConverter
 
     /**
      *
-     * 
      * @param $templateFilename
      * @return string
      */
-     public function getClassNameFromFileName($templateFilename)
-     {
+    public function getClassNameFromFileName($templateFilename)
+    {
         $templatePath = str_replace('/', '\\', $templateFilename);
         $templatePath = str_replace('-', '', $templatePath);
         return $templatePath;
@@ -743,7 +741,7 @@ class JigConverter
      * @param $templateFilename
      * @return string
      */
-    function getNamespacedClassNameFromFileName($templateFilename)
+    public function getNamespacedClassNameFromFileName($templateFilename)
     {
         $className = self::getClassNameFromFileName($templateFilename);
 

@@ -7,7 +7,9 @@ use Jig\Converter\JigConverter;
 
 class JigFunctions
 {
-    public static function load(){}
+    public static function load()
+    {
+    }
 }
 
 /**
@@ -32,7 +34,6 @@ function safeTextObject($string)
 {
     //TODO - add __toString calling
     if (is_object($string) == true) {
-        
         if (method_exists($string, '__toString') == false) {
             throw new JigException("Object of type ".get_class($string)." does not have a __toString method. Cannot use it as a string.");
         }

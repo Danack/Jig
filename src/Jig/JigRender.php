@@ -13,7 +13,6 @@ JigFunctions::load();
  */
 class JigRender
 {
-
     /**
      * @var Converter\JigConverter
      */
@@ -89,7 +88,7 @@ class JigRender
 
             return $parsedTemplate;
         }
-        catch(JigException $pte) {
+        catch (JigException $pte) {
             throw new JigException("Error in template $templateFilename: ".$pte->getMessage(), $pte->getCode(), $pte);
         }
     }
@@ -121,11 +120,11 @@ class JigRender
             }
         }
 
-        //Either class file did not exist or it was out of date. 
+        //Either class file did not exist or it was out of date.
         $this->compileTemplate($className, $templateFilename);
-        
+
 check_dependencies:
-        
+
         $templatesUsed = $className::getTemplatesUsed();
         foreach ($templatesUsed as $templateUsed) {
             $this->checkTemplateCompiled($templateUsed);

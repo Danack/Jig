@@ -1,11 +1,9 @@
 <?php
 
-
 namespace Jig;
 
-
-interface Plugin {
-
+interface Plugin
+{
     public static function getFilterList();
     
     public static function getFunctionList();
@@ -43,6 +41,4 @@ interface Plugin {
      * @return mixed
      */
     public function callBlockRenderEnd($blockName, $contents);
-    
 }
-

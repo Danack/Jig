@@ -47,7 +47,6 @@ abstract class JigBase
         $params = array_splice($functionArgs, 1);
         
         foreach ($this->plugins as $plugin) {
-
             if ($plugin->hasFunction($functionName)) {
                 return $plugin->callFunction($functionName, $params);
             }
@@ -94,12 +93,12 @@ abstract class JigBase
             $this->renderInternal();
             $contents = ob_get_contents();
         }
-        catch(JigException $je) {
+        catch (JigException $je) {
             ob_end_clean();
             //Just rethrow it to keep the stack trace the same
             throw $je;
         }
-        catch(\Exception $e) {
+        catch (\Exception $e) {
             //TODO - should put the bit that gave an error somewhere?
             //$contents = ob_get_contents();
             ob_end_clean();

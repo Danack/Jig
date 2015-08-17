@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Jig\Converter;
-
 
 use Jig\JigException;
 use PHPParser_Lexer;
@@ -185,5 +183,4 @@ class PHPTemplateSegment extends TemplateSegment
             //replace with $this->getVariable('".$variableName."')"
     
     //3. For all function calls - replace function with $this->call('functionName', $params).
-
 }

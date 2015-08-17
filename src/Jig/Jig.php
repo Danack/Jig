@@ -29,8 +29,8 @@ class Jig
     public function __construct(
         JigConfig $jigConfig,
         JigRender $jigRender = null,
-        JigConverter $jigConverter = null)
-    {
+        JigConverter $jigConverter = null
+    ) {
         if ($jigConverter == null) {
             $jigConverter = new JigConverter($jigConfig);
         }
