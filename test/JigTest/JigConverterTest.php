@@ -528,7 +528,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-       $this->jig->checkTemplateCompiled("errors/unknownVariable");
+       $this->jig->checkTemplateCompiled("unknownVariable/unknownVariable");
     }
     
     function testErrorUnknownVariableForEach()
@@ -539,10 +539,10 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-       $this->jig->checkTemplateCompiled("errors/unknownVariableForEach");
+       $this->jig->checkTemplateCompiled("unknownVariableForEach/unknownVariableForEach");
     }
     
-    function unknownVariableWithFunction()
+    function testUnknownVariableWithFunction()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -550,10 +550,10 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-       $this->jig->checkTemplateCompiled("errors/unknownVariableWithFunction");
+       $this->jig->checkTemplateCompiled("unknownVariableWithFunction/unknownVariableWithFunction");
     }
     
-    function injectVariableAsTwoTypes()
+    function testInjectVariableAsTwoTypes()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -561,7 +561,7 @@ END;
             JigException::INJECTION_ERROR
         );
 
-       $this->jig->checkTemplateCompiled("errors/injectVariableAsTwoTypes");
+       $this->jig->checkTemplateCompiled("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
     }
 
     function bindTestStart(JigConverter $jigConverter, $segmentText)
@@ -646,7 +646,9 @@ TPL;
         $time = ''.time();
         
         $baseTemplate = <<< TPL
+
 {block name='overridden'}
+    This file is intentionally not in git.
     This is overridden by the extending template.
 {/block}
 
