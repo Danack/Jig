@@ -481,11 +481,12 @@ END;
         $this->jig->renderTemplateFromString($templateString, "Exception1");
     }
 
+    /**
+     * @group inlinephp
+     */
     function testCheckInlinePHP()
     {
-        $this->markTestSkipped("inline PHP is currently unsupported.");
-        return;
-        $contents = $this->jig->renderTemplateFile("testCheckInlinePHP");
+        $contents = $this->jig->renderTemplateFile("testCheckInlinePHP/testCheckInlinePHP");
         $this->assertContains('value is 5', $contents);
     }
 

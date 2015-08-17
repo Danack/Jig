@@ -169,7 +169,8 @@ class PHPTemplateSegment extends TemplateSegment
         }
 
         if (in_array('nophp', $filters) == false) {
-            $segmentText = "<?php ".$segmentText."; ?>";
+            //$segmentText = "<?php ".$segmentText."; ? >";
+            $segmentText = $segmentText."; ";
         }
 
         return $segmentText;
@@ -186,4 +187,3 @@ class PHPTemplateSegment extends TemplateSegment
     //3. For all function calls - replace function with $this->call('functionName', $params).
 
 }
-

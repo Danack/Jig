@@ -60,7 +60,7 @@ class ParsedTemplate
     public function addInjection($name, $type)
     {
         if (array_key_exists($name, $this->injections)) {
-            if (strcasecmp($type, $this->injections[$name]) !== 0) {    
+            if (strcasecmp($type, $this->injections[$name]) !== 0) {
                 $message = sprintf(
                     "Cannot inject type %s as name %s, it is already injected as type %s",
                     $type,
@@ -412,14 +412,15 @@ END;
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "    function ".$functionName."() {\n");
-            fwrite($outputFileHandle, "?>");
+            fwrite($outputFileHandle, "echo <<< 'TEXT'\n");
 
             foreach ($lines as $line) {
                 fwrite($outputFileHandle, $line);
             }
 
             fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "<?php \n");
+            fwrite($outputFileHandle, "TEXT;\n");
+
             fwrite($outputFileHandle, "    }\n");
             fwrite($outputFileHandle, "\n");
         }
