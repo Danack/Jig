@@ -11,14 +11,14 @@ class JigConfig
     public $templateCompileDirectory;
     public $extension;
     public $compileCheck;
-    public $compiledNamespace = "Jig\\PHPCompiledTemplate";
+    public $compiledNamespace;
     
     public function __construct(
         $templateSourceDirectory,
         $templateCompileDirectory,
         $extension,
         $compileCheck,
-        $compiledNamespace = "Jig\\PHPCompiledTemplate"
+        $compiledNamespace = "Jig\\CompiledTemplate"
     ) {
         $this->templateSourceDirectory = $templateSourceDirectory;
         $this->templateCompileDirectory = $templateCompileDirectory;

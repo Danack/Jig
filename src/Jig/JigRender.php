@@ -5,11 +5,9 @@ namespace Jig;
 
 use Jig\Converter\JigConverter;
 
-JigFunctions::load();
-
 /**
  * Class JigRender
- *
+ * Make sures that all templates are reader to render.
  */
 class JigRender
 {
@@ -55,7 +53,7 @@ class JigRender
     public function isGeneratedFileOutOfDate($templateFilename)
     {
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
-        $classPath = getCompileFilename($templateFilename, $this->jigConverter, $this->jigConfig);
+        $classPath = Jig::getCompileFilenameInternal($templateFilename, $this->jigConverter, $this->jigConfig);
         $classPath = str_replace('\\', '/', $classPath);
         $templateTime = @filemtime($templateFullFilename);
         $classTime = @filemtime($classPath);

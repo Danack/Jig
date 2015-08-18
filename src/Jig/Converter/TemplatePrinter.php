@@ -35,7 +35,6 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
         
         return [];
     }
-    
 
     function reset() {
         $this->rightSide = false;

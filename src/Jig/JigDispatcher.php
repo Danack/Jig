@@ -5,6 +5,12 @@ namespace Jig;
 use Jig\Converter\JigConverter;
 use Auryn\Injector;
 
+/**
+ * Class JigDispatcher Allows compiled templates to be rendered by using
+ * Auryn as a service locator.
+ *
+ * @package Jig
+ */
 class JigDispatcher extends Jig
 {
     /**

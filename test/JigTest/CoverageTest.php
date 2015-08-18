@@ -1,7 +1,11 @@
 <?php
 
 
-namespace Jig {
+namespace Jig\Converter {
+    
+    // The following is a hack to allow us to test when mkdir and file_exists
+    // behave badly.
+
     $GLOBALS['mkdirCallable'] = null;
     function mkdir($pathname,$mode = 0777, $recursive = false , $context = null ){
 
@@ -54,7 +58,7 @@ class CoverageTest extends BaseTestCase
     public function testNamespaceCoverage()
     {
         \Jig\JigFunctions::load();
-        $namespace = \Jig\getNamespace(new StdClass);
+        $namespace = \Jig\Converter\getNamespace(new StdClass);
         $this->assertEmpty($namespace);
     }
     

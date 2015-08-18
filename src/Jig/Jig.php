@@ -4,6 +4,10 @@ namespace Jig;
 
 use Jig\Converter\JigConverter;
 
+/**
+ * Class Jig
+ * @package Jig
+ */
 class Jig
 {
     const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
@@ -53,7 +57,6 @@ class Jig
     {
         return $this->jigConverter;
     }
-    
 
     /**
      * @param $blockName
@@ -85,7 +88,7 @@ class Jig
      */
     public function getCompileFilename($templateFilename)
     {
-        return getCompileFilename($templateFilename, $this->jigConverter, $this->jigConfig);
+        return self::getCompileFilenameInternal($templateFilename, $this->jigConverter, $this->jigConfig);
     }
 
     /**
@@ -115,5 +118,17 @@ class Jig
     public function getParsedTemplateFromString($templateString, $cacheName)
     {
         return $this->jigRender->getParsedTemplateFromString($templateString, $cacheName);
+    }
+    
+    /**
+     * @param $templateName
+     * @return string
+     */
+    public static function getCompileFilenameInternal($templateName, JigConverter $jigConverter, JigConfig $jigConfig)
+    {
+        $className = $jigConverter->getClassNameFromFilename($templateName);
+        $compileFilename = $jigConfig->getCompiledFilename($className);
+    
+        return $compileFilename;
     }
 }

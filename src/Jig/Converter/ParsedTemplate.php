@@ -12,6 +12,78 @@ function convertTypeToParam($helper)
     return $helper;
 }
 
+/**
+ * Get the name space part of a fully namespaced class. Returns empty string
+ * if the class had no namespace part.
+ * @param $namespaceClass
+ * @return string
+ */
+function getNamespace($namespaceClass)
+{
+    if (is_object($namespaceClass)) {
+        $namespaceClass = get_class($namespaceClass);
+    }
+
+    $lastSlashPosition = mb_strrpos($namespaceClass, '\\');
+
+    if ($lastSlashPosition !== false) {
+        return mb_substr($namespaceClass, 0, $lastSlashPosition);
+    }
+
+    return "";
+}
+
+function getFQCN($namespace, $classname)
+{
+    if (strlen($namespace)) {
+        return $namespace."\\".$classname;
+    }
+
+    return $classname;
+}
+
+/**
+ * @param $namespaceClass
+ * @return mixed
+ */
+function convertNamespaceClassToFilepath($namespaceClass)
+{
+    return str_replace('\\', "/", $namespaceClass);
+}
+
+/**
+ * ensureDirectoryExists by creating it with 0755 permissions and throwing
+ * an exception if it does not exst after that mkdir call.
+ * @param $outputFilename
+ * @throws JigException
+ */
+function ensureDirectoryExists($outputFilename)
+{
+    $directoryName = dirname($outputFilename);
+    @mkdir($directoryName, 0755, true);
+
+    if (file_exists($directoryName) == false) {
+        throw new JigException("Directory $directoryName does not exist and could not be created");
+    }
+}
+
+
+/**
+ * Get the class part of a fully namespaced class name
+ * @param $namespaceClass
+ * @return string
+ */
+function getClassName($namespaceClass)
+{
+    $lastSlashPosition = mb_strrpos($namespaceClass, '\\');
+
+    if ($lastSlashPosition !== false) {
+        return mb_substr($namespaceClass, $lastSlashPosition + 1);
+    }
+
+    return $namespaceClass;
+}
+
 class ParsedTemplate
 {
     /**
@@ -226,8 +298,6 @@ class ParsedTemplate
         );
     }
 
-    
-    
     /**
      * Add a local variable so that any usage of it doesn't
      * trigger trying to fetch it from the ViewModel
@@ -282,7 +352,7 @@ class ParsedTemplate
         }
         $extendsClassName = str_replace('/', '\\', $this->extends);
         
-        return \Jig\getFQCN($this->baseNamespace, $extendsClassName);
+        return getFQCN($this->baseNamespace, $extendsClassName);
     }
 
     /**
@@ -313,18 +383,18 @@ class ParsedTemplate
      */
     public function saveCompiledTemplate($compilePath)
     {
-        $fullClassName = \Jig\getFQCN($this->baseNamespace, $this->getClassName());
+        $fullClassName = getFQCN($this->baseNamespace, $this->getClassName());
         $fullClassName = str_replace("/", "\\", $fullClassName);
 
-        $namespace = \Jig\getNamespace($fullClassName);
-        $className = \Jig\getClassName($fullClassName);
+        $namespace = getNamespace($fullClassName);
+        $className = getClassName($fullClassName);
         $parentFullClassName = $this->getParentClass();
         $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
 
-        $outputFilename = \Jig\convertNamespaceClassToFilepath($namespace."\\".$className);
+        $outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
         $outputFilename = $compilePath.$outputFilename.".php";
 
-        \Jig\ensureDirectoryExists($outputFilename);
+        ensureDirectoryExists($outputFilename);
 
         $directoryName = dirname($outputFilename);
         $tempFilename = tempnam($directoryName, 'jig');
@@ -335,7 +405,7 @@ class ParsedTemplate
             throw new JigException("Could not open file [$outputFilename] for writing template.");
         }
 
-        $parentClassName = \Jig\getClassName($parentFullClassName);
+        $parentClassName = getClassName($parentFullClassName);
 
         $namespaceString = '';
         if (strlen(trim($namespace))) {
