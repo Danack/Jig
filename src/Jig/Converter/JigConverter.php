@@ -173,8 +173,7 @@ class JigConverter
 
         return null;
     }
-    
-    
+
     /**
      * @param $blockName
      * @return null|callable
@@ -189,7 +188,6 @@ class JigConverter
 
         return false;
     }
-
 
     /**
      * @param $fileLines
@@ -417,6 +415,8 @@ class JigConverter
             else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0) {
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->processBlockStart($segmentText);
+                //Blocks start in template mode.
+                $this->outputMode = self::MODE_TEMPLATE;
             }
             else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0) {
                 $this->processBlockEnd();
@@ -599,13 +599,13 @@ class JigConverter
         $pattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
         $matchCount = preg_match($pattern, $segmentText, $matches);
         if ($matchCount == 0) {
-            throw new \Exception("Could not extract filename from [$segmentText] for blockStart.");
+            throw new JigException("Could not extract filename from [$segmentText] for blockStart.");
         }
 
         $blockName = $matches[1];
 
         if ($this->activeBlock != null) {
-            throw new \Exception("Trying to start block [$blockName] while still in a block. That's not possible.");
+            throw new JigException("Trying to start block [$blockName] while still in a block. That's not possible.");
         }
 
         $this->activeBlock = array();
@@ -617,9 +617,8 @@ class JigConverter
      */
     protected function processBlockEnd()
     {
-        //$this->changeOutputMode(self::MODE_CODE);
         $this->outputMode = self::MODE_CODE;
-        
+
         if ($this->parsedTemplate->getExtends() == null) {
             $this->parsedTemplate->addTextLine(" \$this->".$this->activeBlockName."(); \n");
         }

@@ -79,6 +79,11 @@ class JigRender
             throw new JigException("Could not open template [".$templateFullFilename."] for reading.");
         }
 
+        if (count($fileLines) == 0) {
+            // users probably prefer an empty template to it crashing.
+            $fileLines = [''];
+        }
+
         try {
             $parsedTemplate = $this->jigConverter->createFromLines($fileLines, $this);
             $className = $this->jigConverter->getClassNameFromFilename($templateFilename);

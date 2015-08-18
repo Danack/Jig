@@ -57,7 +57,6 @@ class CoverageTest extends BaseTestCase
     
     public function testNamespaceCoverage()
     {
-        \Jig\JigFunctions::load();
         $namespace = \Jig\Converter\getNamespace(new StdClass);
         $this->assertEmpty($namespace);
     }

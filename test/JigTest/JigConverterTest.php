@@ -679,4 +679,17 @@ TPL;
     {
         $result = $this->jig->renderTemplateFile('escapeJS/escapeJS');
     }
+    
+    /**
+     * This checks that no spurious characters have been outputted.
+     * The input template files are empty of characters.
+     *
+     * @group debuggg
+     */
+    public function testwhitespaceOnly()
+    {
+        $output = $this->jig->renderTemplateFile('whitespaceOnly/whitespaceParent');
+        $trimmedOutput = trim($output);
+        $this->assertEquals(0, strlen($trimmedOutput), "non-whitespace characters detected in '$output'");
+    }
 }
