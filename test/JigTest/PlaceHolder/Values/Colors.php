@@ -2,11 +2,10 @@
 
 namespace JigTest\PlaceHolder\Values;
 
-class Colors {
-
-    function getColors()
+class Colors
+{
+    public function getColors()
     {
         return ['red', 'green', 'blue'];
     }
 }
-

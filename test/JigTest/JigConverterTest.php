@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JigTest;
-
 
 use Jig\Jig;
 use Jig\JigDispatcher;
@@ -10,7 +8,6 @@ use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\JigException;
 use JigTest\PlaceHolder\PlaceHolderPlugin;
-
 
 class JigConverterTest extends BaseTestCase
 {
@@ -28,7 +25,7 @@ class JigConverterTest extends BaseTestCase
      */
     private $jig = null;
 
-    function setUp()
+    public function setUp()
     {
         parent::setUp();
 
@@ -53,7 +50,7 @@ class JigConverterTest extends BaseTestCase
         parent::teardown();
     }
 
-    function testBasicConversion()
+    public function testBasicConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         $contents = $this->jig->renderTemplateFile('basic/basic');
@@ -63,7 +60,7 @@ class JigConverterTest extends BaseTestCase
     /**
      * @group basic
      */
-    function testForeachConversion()
+    public function testForeachConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
         $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
@@ -75,16 +72,16 @@ class JigConverterTest extends BaseTestCase
     /**
      * @group helper
      */
-    function testHelperBasic()
+    public function testHelperBasic()
     {
         $contents = $this->jig->renderTemplateFile('basic/helper');
-        $this->assertContains(PlaceHolderPlugin::greetings_message, $contents);
+        $this->assertContains(PlaceHolderPlugin::GREETINGS_MESSAGE, $contents);
     }
 
     /**
      * @group blah
      */
-    function testDependencyInsertionConversion()
+    public function testDependencyInsertionConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
         //$contents = $this->jig->renderTemplateFile('basic/DependencyInsertion', $this->viewModel);
@@ -100,14 +97,14 @@ class JigConverterTest extends BaseTestCase
         $this->assertContains("Stackoverflow", $contents);
     }
 
-    function testFunctionCall()
+    public function testFunctionCall()
     {
         $contents = $this->jig->renderTemplateFile('basic/functionCall');
         $this->assertContains("checkRole works", $contents);
     }
 
     
-    function testStringExtendsConversion()
+    public function testStringExtendsConversion()
     {
         $templateString = <<< END
 {extends file='extendTest/parentTemplate'}
@@ -123,34 +120,34 @@ END;
         );
     }
 
-    function testBasicCoversExistsConversion()
+    public function testBasicCoversExistsConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         $contents = $this->jig->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
     }
 
-    function testNonExistentConversion()
+    public function testNonExistentConversion()
     {
         $this->setExpectedException('Jig\JigException');
         $this->jig->renderTemplateFile('nonExistantFile');
     }
 
-    function testMtimeCachesConversion()
+    public function testMtimeCachesConversion()
     {
         $this->jig->deleteCompiledFile('basic/simplest');
         $contents = $this->jig->renderTemplateFile('basic/simplest');
         $this->assertContains("Hello, this is a template.", $contents);
     }
 
-    function testBasicComment()
+    public function testBasicComment()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         $contents = $this->jig->renderTemplateFile('basic/comments');
         $this->assertContains("Basic comment test passed.", $contents);
     }
 
-    function testIncludeConversion()
+    public function testIncludeConversion()
     {
         $contents = $this->jig->renderTemplateFile('includeFile/includeTest');
         $this->assertContains("Include test passed.", $contents);
@@ -159,7 +156,7 @@ END;
     /**
      * @group blah
      */
-    function testStandardExtends()
+    public function testStandardExtends()
     {
         $className = $this->jig->getTemplateCompiledClassname('extendTest/child');
         $this->jig->checkTemplateCompiled('extendTest/child');
@@ -167,14 +164,14 @@ END;
         $contents = $this->injector->execute([$className, 'render']);
 
         $this->assertContains("This is the second child block.", $contents);
-        $this->assertContains(\JigTest\PlaceHolder\ChildDependency::output, $contents);
-        $this->assertContains(\JigTest\PlaceHolder\ParentDependency::output, $contents);
+        $this->assertContains(\JigTest\PlaceHolder\ChildDependency::OUTPUT, $contents);
+        $this->assertContains(\JigTest\PlaceHolder\ParentDependency::OUTPUT, $contents);
     }
 
     /**
      * @group functions
      */
-    function testFunctionBinding()
+    public function testFunctionBinding()
     {
         $contents = $this->jig->renderTemplateFile('binding/binding');
         $this->assertContains(
@@ -186,14 +183,14 @@ END;
     /**
      * @group functions
      */
-    function testBlockEscaping()
+    public function testBlockEscaping()
     {
         $contents = $this->jig->renderTemplateFile('binding/blocks');
         $this->assertContains("€¥™<>", $contents);
 
     }
 
-    function testBlockEscapingFromString()
+    public function testBlockEscapingFromString()
     {
         $string = <<< END
 
@@ -214,7 +211,7 @@ END;
         $this->assertContains("€¥™<>", $contents);
     }
 
-    function testDynamicInclude()
+    public function testDynamicInclude()
     {
         $contents = $this->jig->renderTemplateFile('includeFile/dynamicIncludeTest');
         $this->assertContains("This is include 1.", $contents);
@@ -223,7 +220,7 @@ END;
     /**
      * @group blah
      */
-    function testInclude()
+    public function testInclude()
     {
         $templateName = 'includeFile/includeTest';
         $className = $this->jig->getTemplateCompiledClassname($templateName);
@@ -238,38 +235,38 @@ END;
     }
 
 
-    function testNoOutput()
+    public function testNoOutput()
     {
         $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $contents = $this->jig->renderTemplateFile('coverageTesting/nooutput');
         $this->assertEquals(0, strlen(trim($contents)), "Output of [$contents] found when none expected.");
     }
 
-    function testIsset()
+    public function testIsset()
     {
         $contents = $this->jig->renderTemplateFile('coverageTesting/checkIsset');
         $this->assertEquals(0, strlen(trim($contents)));
     }
 
-    function testBadIssetCall()
+    public function testBadIssetCall()
     {
         $this->setExpectedException('Jig\JigException');
         $this->jig->renderTemplateFile('coverageTesting/badIssetCall');
     }
 
-    function testFunctionNotBound()
+    public function testFunctionNotBound()
     {
         $this->setExpectedException('Jig\JigException');
         $this->jig->renderTemplateFile('coverageTesting/functionNotDefined');
     }
 
-    function testInjectBadName1()
+    public function testInjectBadName1()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
         $this->jig->renderTemplateFile('coverageTesting/injectBadName1');
     }
 
-    function testInjectBadName2()
+    public function testInjectBadName2()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
         $viewModel = new PlaceHolderPlugin();
@@ -279,7 +276,7 @@ END;
         );
     }
 
-    function testInjectBadValue1()
+    public function testInjectBadValue1()
     {
         $this->setExpectedException('Jig\JigException', "Value must not be zero length");
         $viewModel = new PlaceHolderPlugin();
@@ -289,7 +286,7 @@ END;
         );
     }
 
-    function testInjectBadValue2()
+    public function testInjectBadValue2()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get value for injection");
         $viewModel = new PlaceHolderPlugin();
@@ -300,7 +297,7 @@ END;
     }
 
 
-    function testBorkedCode()
+    public function testBorkedCode()
     {
         $this->setExpectedException('Jig\JigException', "Failed to parse code");
         $this->jig->renderTemplateFile(
@@ -308,46 +305,45 @@ END;
         );
     }
 
-    function testBorkedExtends()
+    public function testBorkedExtends()
     {
         $this->setExpectedException('Jig\JigException', "Could not extract filename");
         $this->jig->renderTemplateFile('coverageTesting/borkedExtends');
     }
 
-    function testBorkedInclude1()
+    public function testBorkedInclude1()
     {
         $this->setExpectedException('Jig\JigException', "Could not extract filename");
         $this->jig->renderTemplateFile('coverageTesting/borkedInclude1');
     }
 
-    function testBorkedInclude2()
+    public function testBorkedInclude2()
     {
         $this->setExpectedException('Jig\JigException', "Could not extract filename");
         $this->jig->renderTemplateFile('coverageTesting/borkedInclude1');
     }
 
-    function testBlockNotSet()
+    public function testBlockNotSet()
     {
         $this->setExpectedException('Jig\JigException', '', JigException::UNKNOWN_BLOCK);
         $this->jig->renderTemplateFile('coverageTesting/blockNotSet');
     }
 
-    function testStringCoverageObject()
+    public function testStringCoverageObject()
     {
-
         $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $this->setExpectedException('Jig\JigException');
         $this->jig->renderTemplateFile('coverageTesting/stringCoverageObject');
     }
 
-    function testStringCoverageArray()
+    public function testStringCoverageArray()
     {
         $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $this->setExpectedException('Jig\JigException', \Jig\JigException::IMPLICIT_ARRAY_TO_STRING);
         $this->jig->renderTemplateFile('coverageTesting/stringCoverageArray');
     }
 
-    function testDelete()
+    public function testDelete()
     {
         $templateName = 'basic/simplest';
         $this->jig->renderTemplateFile($templateName);
@@ -362,7 +358,7 @@ END;
 //        );
 //    }
 
-    function testCheckExistsCoverage()
+    public function testCheckExistsCoverage()
     {
         $jigConfig = new JigConfig(
             $this->templateDirectory,
@@ -380,7 +376,7 @@ END;
         $jig->renderTemplateFile("basic/simplest");
     }
 
-    function testCheckMtimeCoverage()
+    public function testCheckMtimeCoverage()
     {
         $jigConfig = new JigConfig(
             $this->templateDirectory,
@@ -402,7 +398,7 @@ END;
         $jig->renderTemplateFile($templateName);
     }
 
-    function testRenderBlock()
+    public function testRenderBlock()
     {
         $blockRender = $this->injector->make('JigTest\PlaceHolder\PlaceHolderPlugin');
         
@@ -419,7 +415,7 @@ END;
         $this->assertContains("This is in a warning block", $contents);
     }
 
-    function testCompileBlock()
+    public function testCompileBlock()
     {
         $blockStartCallCount = 0;
         $blockEndCallCount = 0;
@@ -464,16 +460,16 @@ END;
 
     }
 
-    function testRenderFromStringJigExceptionHandling()
+    public function testRenderFromStringJigExceptionHandling()
     {
         $this->setExpectedException('Jig\JigException', "Could not parse template segment");
         $templateString = "This is an invalid template {not valid construct}";
         $this->jig->renderTemplateFromString($templateString, "Exception1");
     }
 
-    function testRenderFromStringGenericExceptionHandling()
+    public function testRenderFromStringGenericExceptionHandling()
     {
-        $this->setExpectedException('Jig\JigException', PlaceHolderPlugin::message);
+        $this->setExpectedException('Jig\JigException', PlaceHolderPlugin::MESSAGE);
         $templateString = "
     {plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
     
@@ -484,7 +480,7 @@ END;
     /**
      * @group inlinephp
      */
-    function testCheckInlinePHP()
+    public function testCheckInlinePHP()
     {
         $contents = $this->jig->renderTemplateFile("testCheckInlinePHP/testCheckInlinePHP");
         $this->assertContains('value is 5', $contents);
@@ -493,20 +489,20 @@ END;
     /**
      * @group filtertest
      */
-    function testFilterBinding()
+    public function testFilterBinding()
     {
         $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
         $this->assertContains('HELLO', $contents);
     }
 
-    function testFilterInjection()
+    public function testFilterInjection()
     {
         $contents = $this->jig->renderTemplateFile("filter/injectedFilter");
         $this->assertContains('HELLO', $contents);
     }
 
-    function testUnknownFilter()
+    public function testUnknownFilter()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -520,7 +516,7 @@ END;
     /**
      * @group injection
      */
-   function testErrorUnknownVariable()
+   public function testErrorUnknownVariable()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -531,7 +527,7 @@ END;
        $this->jig->checkTemplateCompiled("unknownVariable/unknownVariable");
     }
     
-    function testErrorUnknownVariableForEach()
+    public function testErrorUnknownVariableForEach()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -542,7 +538,7 @@ END;
        $this->jig->checkTemplateCompiled("unknownVariableForEach/unknownVariableForEach");
     }
     
-    function testUnknownVariableWithFunction()
+    public function testUnknownVariableWithFunction()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -553,7 +549,7 @@ END;
        $this->jig->checkTemplateCompiled("unknownVariableWithFunction/unknownVariableWithFunction");
     }
     
-    function testInjectVariableAsTwoTypes()
+    public function testInjectVariableAsTwoTypes()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -564,7 +560,7 @@ END;
        $this->jig->checkTemplateCompiled("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
     }
 
-    function bindTestStart(JigConverter $jigConverter, $segmentText)
+    public function bindTestStart(JigConverter $jigConverter, $segmentText)
     {
         $jigConverter->addHTML("Segment text was ".$segmentText);
         $jigConverter->addHTML("This is the start");
@@ -574,7 +570,7 @@ END;
      * @param JigConverter $jigConverter
      * @param $segmentText
      */
-    function bindTestEnd(JigConverter $jigConverter, $segmentText)
+    public function bindTestEnd(JigConverter $jigConverter, $segmentText)
     {
         $jigConverter->addHTML("Segment text was ".$segmentText);
         $jigConverter->addHTML("This is the end");
@@ -583,7 +579,7 @@ END;
     /**
      * @group compiletime
      */
-    function testContainsPHPOpening()
+    public function testContainsPHPOpening()
     {
         $this->jig->bindCompileBlock(
             'bindTest',
@@ -599,16 +595,16 @@ END;
     /**
      * @group phptags
      */
-    function testLiteralPHPOpening()
+    public function testLiteralPHPOpening()
     {
         $result = $this->jig->renderTemplateFile('testLiteralPHPOpening');
         $this->assertContains('{php}', $result);
     }
 
     /**
-     * @group debug 
+     * @group debug
      */
-    function testStubReqeatOnlyInsertedOnce()
+    public function testStubReqeatOnlyInsertedOnce()
     {
         $templateString = <<< TPL
 {plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
@@ -625,7 +621,7 @@ TPL;
         $result = call_user_func([$className, 'getDependencyList']);
     }
    
-    function testUpdatedIncludedTemplateIsCompiled()
+    public function testUpdatedIncludedTemplateIsCompiled()
     {
         $directory = realpath(__DIR__.'/../templates/includedTemplateIsCompiled/');
         $time = ''.time();
@@ -640,7 +636,7 @@ TPL;
     }
     
     
-    function testUpdatedExtendedTemplateIsCompiled()
+    public function testUpdatedExtendedTemplateIsCompiled()
     {
         $directory = realpath(__DIR__.'/../templates/extendedTemplateIsCompiled/');
         $time = ''.time();
@@ -667,12 +663,20 @@ TPL;
     }
     
     
-        /**
+    /**
      * @group phptags
      */
-    function testCommentInsideLiteral()
+    public function testCommentInsideLiteral()
     {
         $result = $this->jig->renderTemplateFile('coverageTesting/commentInsideLiteral');
         $this->assertContains('{* This is a comment *}', $result);
+    }
+
+    /**
+     * @group security
+     */
+    public function testEscapeJS()
+    {
+        $result = $this->jig->renderTemplateFile('escapeJS/escapeJS');
     }
 }

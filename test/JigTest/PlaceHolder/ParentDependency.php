@@ -1,15 +1,13 @@
 <?php
 
-
 namespace JigTest\PlaceHolder;
 
-class ParentDependency {
-
-    const output = "This is a parent";
+class ParentDependency
+{
+    const OUTPUT = "This is a parent";
     
-    function render()
+    public function render()
     {
-        return self::output;
+        return self::OUTPUT;
     }
 }
-

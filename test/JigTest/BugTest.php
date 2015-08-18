@@ -7,14 +7,8 @@ use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\JigRender;
 
-
-class BugTest extends BaseTestCase {
-
-    /**
-     * @var \JigTest\PlaceHolder\PlaceHolderHelper
-     */
-    private $helper;
-
+class BugTest extends BaseTestCase
+{
     /**
      * @var \Jig\JigDispatcher
      */
@@ -23,10 +17,10 @@ class BugTest extends BaseTestCase {
     private $jigRender;
     
     /**
-     * 
+     *
      */
-    function setUp() {
-
+    public function setUp()
+    {
         parent::setUp();
 
         $templateDirectory = dirname(__DIR__)."/./templates/";
@@ -50,10 +44,11 @@ class BugTest extends BaseTestCase {
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      * @throws \Jig\JigException
      */
-    function testQuotes() {
+    public function testQuotes()
+    {
         $testLines = [
             "Single 'quotes'",
             "Double \"quotes\"",
@@ -84,13 +79,10 @@ class BugTest extends BaseTestCase {
     }
 
 
-    function testQuotesInTemplate() {
+    public function testQuotesInTemplate()
+    {
         //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
-        $contents = $this->jig->renderTemplateFile('bugs/quotes', $this->helper);
+        $contents = $this->jig->renderTemplateFile('bugs/quotes');
         $this->assertContains('content: " ";', $contents);
     }
 }
-
-
-
-

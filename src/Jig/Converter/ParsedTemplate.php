@@ -14,7 +14,6 @@ function convertTypeToParam($helper)
 
 class ParsedTemplate
 {
-    
     /**
      * @var string[]
      */

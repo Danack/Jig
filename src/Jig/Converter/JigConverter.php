@@ -34,11 +34,20 @@ class JigConverter
     // Don't output any return from the function
     const FILTER_NO_OUTPUT = 'nooutput';
 
-    // Suppress wrapping generated code with <?php ? > to allow modification
+    // Suppress adding ";" to generated code to allow modification
     // of the generated code.
     const FILTER_NO_PHP = 'nophp';
-
     
+    const FILTER_HTML = 'html';
+        
+    const FILTER_JS = 'js';
+    
+    const FILTER_CSS = 'css';
+    
+    const FILTER_URL = 'url';
+
+    const FILTER_HTML_ATTR = 'html_attr';
+
     const LITERAL_TEMPLATE = 'template';
     
     const LITERAL_PHP = 'php';
@@ -89,6 +98,18 @@ class JigConverter
      * @var array
      */
     private $defaultPlugins = [];
+    
+    
+    public static $builtinFilters = [
+        self::FILTER_NONE,
+        self::FILTER_NO_OUTPUT,
+        self::FILTER_NO_PHP,
+        self::FILTER_HTML,
+        self::FILTER_JS,
+        self::FILTER_CSS,
+        self::FILTER_URL,
+        self::FILTER_HTML_ATTR,
+    ];
     
     /**
      * @param JigConfig $jigConfig
@@ -225,7 +246,8 @@ class JigConverter
         $pattern = '/\{([^\s]+.*[^\s]+)\}/Uu';
         //TODO preg is the wrong way of doing this.
 
-        //http://stackoverflow.com/questions/524548/regular-expression-to-detect-semi-colon-terminated-c-for-while-loops/524624#524624
+//http://stackoverflow.com/questions/524548/regular-expression-to-de
+// tect-semi-colon-terminated-c-for-while-loops/524624#524624
 
 /*
 //        You could write a little, very simple routine that does it, without using a regular
@@ -353,11 +375,10 @@ class JigConverter
             return;
         }
 
-        //TODO this seems sub-optimal
+
         if ($segment instanceof TextTemplateSegment) {
             $this->changeOutputMode(self::MODE_TEMPLATE);
             $this->addLineInternal($segment->getString($this->parsedTemplate));
-            //$this->addLineInternal("TEXT;\n");
             $this->addLineInternal("\n");
         }
         else if ($segment instanceof PHPTemplateSegment) {

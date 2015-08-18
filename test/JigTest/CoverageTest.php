@@ -39,24 +39,27 @@ use JigTest\BaseTestCase;
 use Jig\Jig;
 use JigTest\PlaceHolder\PlaceHolderPlugin;
     
-class CoverageTest extends BaseTestCase {
-
+class CoverageTest extends BaseTestCase
+{
     private $templateDirectory;
     private $compileDirectory;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setup();
         $this->templateDirectory = dirname(__DIR__)."/./templates/";
         $this->compileDirectory = dirname(__DIR__)."/./../tmp/generatedTemplates/";
     }
-
-    function testNamespaceCoverage() {
+    
+    public function testNamespaceCoverage()
+    {
         \Jig\JigFunctions::load();
         $namespace = \Jig\getNamespace(new StdClass);
         $this->assertEmpty($namespace);
     }
     
-    function testMkdirFailureThrowsException() {
+    public function testMkdirFailureThrowsException()
+    {
         $GLOBALS['mkdirCallable'] = function () {
             return false;
         };
@@ -82,25 +85,6 @@ class CoverageTest extends BaseTestCase {
 
         $jig->renderTemplateFile("basic/basic", $viewModel);
     }
-    
-    
-//    function testPHPUnitCoverage()
-//    {
-//        $jigConfig = new JigConfig(
-//            $this->templateDirectory,
-//            $this->compileDirectory,
-//            "php.tpl",
-//            Jig::COMPILE_ALWAYS
-//        );
-//        
-//        $injector = new \Auryn\Injector();
-//        $injector->share($jigConfig);
-//        $jig = $injector->make('Jig\JigDispatcher');
-//        
-//        $jig->renderTemplateFile("basic/basic", $viewModel);
-//    }
-    
 }
-    
-    
+
 }

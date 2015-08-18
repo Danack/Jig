@@ -1,13 +1,11 @@
 <?php
 
-
 namespace JigTest\PlaceHolder;
 
 use Jig\Plugin\BasicPlugin;
 
-
-class PlaceHolderPlugin extends BasicPlugin {
-
+class PlaceHolderPlugin extends BasicPlugin
+{
     private $calledFunctions = array();
 
     public $passedSegementText;
@@ -17,7 +15,7 @@ class PlaceHolderPlugin extends BasicPlugin {
     public $blockEndCallCount = 0;
 
     const FUNCTION_MESSAGE = "This is a function";
-    const greetings_message = "Hello world!";
+    const GREETINGS_MESSAGE = "Hello world!";
 
     public static function getFunctionList()
     {
@@ -40,12 +38,11 @@ class PlaceHolderPlugin extends BasicPlugin {
         ];
     }
 
-    function helperSayHello()
+    public function helperSayHello()
     {
-        return self::greetings_message;
+        return self::GREETINGS_MESSAGE;
     }
-    
-    
+
     public static function getBlockRenderList()
     {
         return [
@@ -54,28 +51,30 @@ class PlaceHolderPlugin extends BasicPlugin {
             'htmlEntityDecode',
         ];
     }
-    
 
-    
-    function viewFunction($foo){
+    public function viewFunction($foo)
+    {
         echo "Function was called. Param is '$foo'";
     }
 
-    function var_dump($foo) {
+    public function var_dump($foo)
+    {
         echo "Value is:";
         var_dump($foo);
     }
 
-    
-    function someFunction($blah) {
+    public function someFunction($blah)
+    {
         $this->setHasBeenCalled('someFunction', $blah);
     }
 
-    function setHasBeenCalled($functionName, $paramString) {
+    public function setHasBeenCalled($functionName, $paramString)
+    {
         $this->calledFunctions[$functionName] = $paramString;
     }
 
-    function hasBeenCalled($functionName, $paramString) {
+    public function hasBeenCalled($functionName, $paramString)
+    {
         if (array_key_exists($functionName, $this->calledFunctions) == true) {
             if ($this->calledFunctions[$functionName] == $paramString) {
                 return true;
@@ -84,7 +83,7 @@ class PlaceHolderPlugin extends BasicPlugin {
         return false;
     }
 
-    function checkRole($role)
+    public function checkRole($role)
     {
         if ($role == 'admin') {
             return true;
@@ -93,37 +92,37 @@ class PlaceHolderPlugin extends BasicPlugin {
         return false;
     }
 
-    function getArray() 
+    public function getArray()
     {
         return [];
     }
 
-    function getObject()
+    public function getObject()
     {
         return new \StdClass();
     }
 
-    function getBar()
+    public function getBar()
     {
         return 'bar';
     }
 
-    function testNoOutput()
+    public function testNoOutput()
     {
         return 'This is some output';
     }
 
-    function testCallableFunction()
+    public function testCallableFunction()
     {
         echo "I am a callable function";
     }
 
-    function getColors()
+    public function getColors()
     {
         return ['red', 'green', 'blue'];
     }
 
-    function isAllowed()
+    public function isAllowed()
     {
         return true;
     }
@@ -132,15 +131,15 @@ class PlaceHolderPlugin extends BasicPlugin {
     {
         return self::FUNCTION_MESSAGE;
     }
-    
-      const message = "This is an exception";
-    
+
+    const MESSAGE = "This is an exception";
+
     public function throwup()
     {
-        throw new \Exception(self::message);
+        throw new \Exception(self::MESSAGE);
     }
     
-     public function trimStart($segmentText)
+    public function trimStart($segmentText)
     {
         return "";
     }
@@ -159,27 +158,23 @@ class PlaceHolderPlugin extends BasicPlugin {
         return "";
     }
 
-    function htmlEntityDecodeBlockRenderEnd($content) {
+    public function htmlEntityDecodeBlockRenderEnd($content)
+    {
         echo html_entity_decode($content);
     }
 
 
-    function warningBlockRenderStart($segmentText)  {
+    public function warningBlockRenderStart($segmentText)
+    {
         $this->passedSegementText = $segmentText;
         $this->blockStartCallCount++;
         return "<span class='warning'>";
     }
 
-    function warningBlockRenderEnd($contents) {
+    public function warningBlockRenderEnd($contents)
+    {
         $this->blockEndCallCount++;
 
         return $contents."\n</span>";
     }
-
-    
-
-    
 }
-
-
-  

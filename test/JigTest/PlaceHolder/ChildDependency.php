@@ -1,16 +1,13 @@
 <?php
 
-
 namespace JigTest\PlaceHolder;
 
-
-class ChildDependency {
-
-    const output = "This is a child dependency.";
+class ChildDependency
+{
+    const OUTPUT = "This is a child dependency.";
     
-    function render()
+    public function render()
     {
-        return ChildDependency::output;
+        return ChildDependency::OUTPUT;
     }
 }
-

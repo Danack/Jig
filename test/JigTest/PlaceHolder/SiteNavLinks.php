@@ -1,15 +1,13 @@
 <?php
 
-
 namespace JigTest\PlaceHolder;
 
-
-class SiteNavLinks implements \IteratorAggregate {
-
+class SiteNavLinks implements \IteratorAggregate
+{
     public $links = array();
 
-    public function __construct() {
-
+    public function __construct()
+    {
         $this->links = array(
             array( 'url' => 'http://flickr.com/danack/', 'description' => 'Flickr'),
             array( 'url' => 'http://youtube.com/BaseReality/', 'description' => 'Youtube'),
@@ -21,11 +19,8 @@ class SiteNavLinks implements \IteratorAggregate {
         );
     }
 
-    public function getIterator() {
+    public function getIterator()
+    {
         return new \ArrayIterator($this->links);
     }
 }
-
-
-
-

@@ -9,4 +9,3 @@ $autoloader->add(
     "Jig\\PHPCompiledTemplate",
     [realpath(realpath('./').'/tmp/generatedTemplates/')]
 );
-

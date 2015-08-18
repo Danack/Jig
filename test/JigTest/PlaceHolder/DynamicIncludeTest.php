@@ -1,14 +1,11 @@
 <?php
 
-
 namespace JigTest\PlaceHolder;
 
-
-class DynamicIncludeTest {
-
-    function includeFile1()
+class DynamicIncludeTest
+{
+    public function includeFile1()
     {
         return true;
     }
 }
-

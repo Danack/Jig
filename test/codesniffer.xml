@@ -4,13 +4,25 @@
     <arg name="tab-width" value="4"/>
     
     <!-- <exclude-pattern>*Intahwebz*</exclude-pattern> -->
+    <exclude-pattern>*JigTest/CoverageTest.php</exclude-pattern>
     
-    <!-- Exclude data files -->
+    
 
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+           <property name="ignoreIndentationTokens" type="array" value="T_GOTO_LABEL"/>
+        </properties>
+    </rule>
+    
+    
+<!-- Unless you happen to be using the PEAR coding standard, in which case you'll need to change Generic.WhiteSpace.ScopeIndent to PEAR.WhiteSpace.ScopeIndent -->
+    
     <rule ref="PSR2">
         <!-- Need to find a way to turn this off for text, before re-enabling -->
-        <exclude name="Generic.Files.LineLength.TooLong"/>
-        
+        <!-- <exclude name="Generic.Files.LineLength.TooLong"/> -->
+
+        <exclude name="Generic.WhiteSpace.ScopeIndent"/>
+
         <!-- Bug is CSS - see https://github.com/squizlabs/PHP_CodeSniffer/issues/604 -->
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceIndent"/>
 
@@ -39,13 +51,24 @@
 
     
     <!-- This file uses labels for gotos-->
-    <rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
+    <!-- <rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
         <exclude-pattern>*JigRender.php</exclude-pattern>
-    </rule>
+    </rule>-->
     
+
+
     <!-- Sometimes this is fine. -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
         <exclude-pattern>*JigRender.php</exclude-pattern>
+        <exclude-pattern>*Escaper.php</exclude-pattern>
+    </rule>
+
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>*PlaceHolder/PlaceHolderPlugin.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.OneParamPerLine">
+        <exclude-pattern>*JigTest/JigConverterTest.php</exclude-pattern>
     </rule>
 
 </ruleset>

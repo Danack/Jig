@@ -1,16 +1,13 @@
 <?php
 
-
 namespace JigTest\PlaceHolder;
 
-
-class FooDependency {
-
-    const output = "This is a foo"; 
+class FooDependency
+{
+    const OUTPUT = "This is a foo";
     
-    function render()
+    public function render()
     {
-        return FooDependency::output;
+        return FooDependency::OUTPUT;
     }
 }
-

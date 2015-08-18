@@ -93,9 +93,13 @@ class PHPTemplateSegment extends TemplateSegment
         //TODO this function is too big and needs to cache some
         //information to avoid repeating the same operations.
         $filters = $this->removeFilters();
-
         $filters = array_merge($filters, $extraFilters);
 
+        if (count($filters) == 0) {
+            //TODO - allow default filter to be set
+            $filters[] = JigConverter::FILTER_HTML;
+        }
+        
         $codePre = "<?php ";
 
         $code = $codePre;
@@ -127,15 +131,37 @@ class PHPTemplateSegment extends TemplateSegment
         
         $filters = array_merge($filters, $printer->getFilters());
 
-        //$knownFilters = $parsedTemplate->getKnownFilters();
-
         foreach ($filters as $filterName) {
-            if ($filterName == 'nofilter' ||
-                $filterName == 'nooutput' ||
-                $filterName == 'nophp') {
-                continue;
+            switch ($filterName) {
+                case (JigConverter::FILTER_NONE): {
+                    break 2;
+                }
+                case (JigConverter::FILTER_HTML): {
+                    $segmentText = '\Jig\Escaper::escapeHTML('.$segmentText.')';
+                    break 2;
+                }
+                
+                case (JigConverter::FILTER_HTML_ATTR): {
+                    $segmentText = '\Jig\Escaper::escapeHTMLAttribute('.$segmentText.')';
+                    break 2;
+                }
+                
+                case (JigConverter::FILTER_JS): {
+                    $segmentText = '\Jig\Escaper::escapeJavascript('.$segmentText.')';
+                    break 2;
+                }
+                
+                case (JigConverter::FILTER_CSS): {
+                    $segmentText = '\Jig\Escaper::escapeCSS('.$segmentText.')';
+                    break 2;
+                }
+                
+                case (JigConverter::FILTER_URL): {
+                    $segmentText = '\Jig\Escaper::escapeURL('.$segmentText.')';
+                    break 2;
+                }
             }
-                        
+
             foreach ($parsedTemplate->getPlugins() as $pluginClasname) {
                 $filterList = $pluginClasname::getFilterList();
 
@@ -157,17 +183,12 @@ class PHPTemplateSegment extends TemplateSegment
                 JigException::UNKNOWN_FILTER
             );
         }
-        
-        if (in_array('nofilter', $filters) == false) {
-            $segmentText = '\Jig\safeTextObject('.$segmentText.", ENT_QUOTES)";
-        }
 
         if (in_array('nooutput', $filters) == false) {
             $segmentText = "echo ".$segmentText."";
         }
 
         if (in_array('nophp', $filters) == false) {
-            //$segmentText = "<?php ".$segmentText."; ? >";
             $segmentText = $segmentText."; ";
         }
 
