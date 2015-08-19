@@ -8,20 +8,21 @@
     
     
 
-  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>
            <property name="ignoreIndentationTokens" type="array" value="T_GOTO_LABEL"/>
         </properties>
     </rule>
-    
-    
-<!-- Unless you happen to be using the PEAR coding standard, in which case you'll need to change Generic.WhiteSpace.ScopeIndent to PEAR.WhiteSpace.ScopeIndent -->
-    
+
+
     <rule ref="PSR2">
         <!-- Need to find a way to turn this off for text, before re-enabling -->
         <!-- <exclude name="Generic.Files.LineLength.TooLong"/> -->
 
-        <exclude name="Generic.WhiteSpace.ScopeIndent"/>
+        <property 
+                name="ignoreIndentationTokens" type="array" 
+                value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG,T_GOTO_LABEL"
+        />
 
         <!-- Bug is CSS - see https://github.com/squizlabs/PHP_CodeSniffer/issues/604 -->
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceIndent"/>
@@ -42,20 +43,12 @@
         <exclude name="PSR2.ControlStructures.SwitchDeclaration.WrongOpenercase"/>
         <exclude name="PSR2.ControlStructures.SwitchDeclaration.WrongOpenerdefault"/>
     </rule>
-
-    <!-- We are doing tricksy stuff with namespaces -->
-    <!-- <rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
-        <exclude-pattern>*bootstrap.php</exclude-pattern>
-        <exclude-pattern>*Tutorial/functions.php</exclude-pattern>
-    </rule> -->
-
     
-    <!-- This file uses labels for gotos-->
-    <!-- <rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
-        <exclude-pattern>*JigRender.php</exclude-pattern>
-    </rule>-->
-    
-
+        <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG,T_GOTO_LABEL"/>
+         </properties>
+    </rule>
 
     <!-- Sometimes this is fine. -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">

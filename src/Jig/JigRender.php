@@ -124,7 +124,7 @@ class JigRender
         }
 
         //Either class file did not exist or it was out of date.
-    $this->compileTemplate($className, $templateFilename);
+        $this->compileTemplate($className, $templateFilename);
 
 check_dependencies:
 
