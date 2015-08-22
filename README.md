@@ -100,9 +100,7 @@ function getTemplateSetupCallable($templateName) {
 ```
 
 
-
-
-
 ## Running example
 
 A set of examples can be found in the 'example' directory. They can be run by using the PHP built-in webserver with the command `php -S 0.0.0.0:8000 index.php` in the example directory, and then visiting http://127.0.0.1:8000/
+
