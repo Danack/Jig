@@ -109,7 +109,11 @@ abstract class JigBase
                 $e
             );
         }
-
+        //TODO - think about this.
+//        finally {
+//            ob_end_clean();
+//        }
+    
         ob_end_clean();
 
         return $contents;
