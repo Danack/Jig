@@ -23,7 +23,8 @@ abstract class JigBase
     abstract public function renderInternal();
 
     /**
-     *  Used during compilation
+     * Returns the list of dependencies needed by a template, which for the
+     * base template is an empty list. Used during compilation.
      * @return array
      */
     public static function getDependencyList()
@@ -31,12 +32,17 @@ abstract class JigBase
         return [];
     }
 
+    /**
+     * Register the plugin being used by a template in the array of plugins.
+     * @param Plugin $plugin
+     */
     protected function addPlugin(Plugin $plugin)
     {
         $this->plugins[] = $plugin;
     }
  
     /**
+     * Used to call a function in a template
      * @param $functionName
      * @return mixed
      * @throws JigException
@@ -47,38 +53,53 @@ abstract class JigBase
         $params = array_splice($functionArgs, 1);
         
         foreach ($this->plugins as $plugin) {
-            if ($plugin->hasFunction($functionName)) {
+            $functionList = $plugin->getFunctionList();
+            if (in_array($functionName, $functionList)) {
                 return $plugin->callFunction($functionName, $params);
             }
         }
 
-        throw new JigException("Function $functionName not known.");
+        throw new JigException("Function $functionName not known in plugins.");
     }
 
+    /**
+     * Called when a block is started in a template.
+     *
+     * @param $blockName
+     * @param $segmentText
+     * @throws JigException
+     */
     protected function startRenderBlock($blockName, $segmentText)
     {
-        foreach ($this->plugins as $renderBlock) {
-            if ($renderBlock->hasBlock($blockName)) {
-                echo $renderBlock->callBlockRenderStart($blockName, $segmentText);
+        foreach ($this->plugins as $plugin) {
+            $blockRenderList = $plugin->getBlockRenderList();
+            if (in_array($blockName, $blockRenderList)) {
+                echo $plugin->callBlockRenderStart($blockName, $segmentText);
                 ob_start();
                 return;
             }
         }
-        throw new JigException("Block $blockName not known for starting block.");
+        throw new JigException("Block $blockName not known for starting block in plugins.");
     }
-    
+
+    /**
+     * Called when a block is ended in a template.
+     * @param $blockName
+     * @throws JigException
+     */
     protected function endRenderBlock($blockName)
     {
         $contents = ob_get_contents();
         ob_end_clean();
-        foreach ($this->plugins as $renderBlock) {
-            if ($renderBlock->hasBlock($blockName)) {
-                echo $renderBlock->callBlockRenderEnd($blockName, $contents);
+        foreach ($this->plugins as $plugin) {
+            $blockRenderList = $plugin->getBlockRenderList();
+            if (in_array($blockName, $blockRenderList)) {
+                echo $plugin->callBlockRenderEnd($blockName, $contents);
                 return;
             }
         }
         echo $contents;
-        throw new JigException("Block $blockName not known for ending block.");
+        throw new JigException("Block $blockName not known for ending block in plugins.");
     }
 
     /**

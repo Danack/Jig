@@ -681,12 +681,18 @@ class JigConverter
         $this->addCode(" } ");
     }
 
+    /**
+     * @param $segmentText
+     */
     public function processPHPStart($segmentText)
     {
         $this->addCode(" \n");
         $this->setLiteralMode(self::LITERAL_PHP);
     }
-    
+
+    /**
+     *
+     */
     public function processPHPEnd()
     {
         $this->addCode("\n");

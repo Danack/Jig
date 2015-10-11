@@ -3,35 +3,60 @@
 namespace Jig\Plugin;
 
 use Jig\Plugin;
-
 use Jig\JigException;
 
+/**
+ * Class BasicPlugin
+ * An example plugin that shows how functions, filters and blocks rendering can
+ * be exposed by a plugin. Plugins are used each time the template is rendered.
+ *
+ * @package Jig\Plugin
+ */
 class BasicPlugin implements Plugin
 {
-    static private $functionList = [
-        'var_dump'
-    ];
 
+    /**
+     * The list of global functions that this plugin allows
+     * people to call in a template.
+     * @var array
+     */
+    private static $globalFunctions = array(
+        'var_dump',
+    );
+
+    /**
+     * Return the list of blocks provided by this plugin.
+     * @return string[]
+     */
+    public static function getBlockRenderList()
+    {
+        return [
+            'trim',
+        ];
+    }
+
+    /**
+     * Return the list of functions provided by this plugin.
+     * @return string[]
+     */
     public static function getFunctionList()
     {
-        return self::$functionList;
+        $methodFunctions = [
+            'methodFunction'
+        ];
+        
+        return array_merge($methodFunctions, self::$globalFunctions);
     }
 
-    
-    public static function hasBlock($blockName)
+    /**
+     * Return the list of filters provided by this plugin.
+     * @return string[]
+     */
+    public static function getFilterList()
     {
-        $blockList = static::getBlockRenderList();
-
-        return in_array($blockName, $blockList, true);
+        return ['upper', 'lower'];
     }
-    
-    public static function hasFunction($functionName)
-    {
-        $functionList = static::getFunctionList();
 
-        return in_array($functionName, $functionList, true);
-    }
-    
     /**
      * @param string $functionName
      * @param array $params
@@ -40,7 +65,7 @@ class BasicPlugin implements Plugin
      */
     public function callFunction($functionName, array $params)
     {
-        if (in_array($functionName, self::$functionList)) {
+        if (in_array($functionName, self::$globalFunctions)) {
             call_user_func_array($functionName, $params);
         }
         
@@ -48,16 +73,9 @@ class BasicPlugin implements Plugin
             return call_user_func_array([$this, $functionName], $params);
         }
 
-        throw new JigException("No function called [$functionName] in BasicPlugin");
-    }
+        $message = "callFunction for unsupported function $functionName in ".get_class($this);
 
-    
-    
-    public static function getBlockRenderList()
-    {
-        return [
-            'trim',
-        ];
+        throw new JigException($message);
     }
 
     /**
@@ -73,7 +91,9 @@ class BasicPlugin implements Plugin
             return call_user_func([$this, $blockNameStart], $extraParam);
         }
 
-        throw new JigException("No function called [$blockNameStart] in BasicPlugin");
+        $message = "callBlockRenderStart for unsupported block $blockName in ".get_class($this);
+        
+        throw new JigException($message);
     }
 
     /**
@@ -89,7 +109,9 @@ class BasicPlugin implements Plugin
             return call_user_func([$this, $blockNameEnd], $contents);
         }
         
-        throw new JigException("No function called [$blockNameEnd] in BasicPlugin");
+        $message = "callBlockRenderEnd for unsupported block $blockName in ".get_class($this);
+        
+        throw new JigException($message);
     }
 
     public function trimBlockRenderStart($segmentText)
@@ -106,11 +128,7 @@ class BasicPlugin implements Plugin
         return trim($content);
     }
 
-    public static function getFilterList()
-    {
-        return ['upper', 'lower'];
-    }
-    
+
     /**
      * @param string $filterName The name of the filter.
      * @param string $string
@@ -121,17 +139,37 @@ class BasicPlugin implements Plugin
         if (method_exists($this, $filterName) == true) {
             return call_user_func([$this, $filterName], $string);
         }
+        
+        $message = "callFilter for unsupported filter $filterName in ".get_class($this);
 
-        throw new JigException(
-            "No filter called [$filterName] in BasicPlugin"
-        );
+        throw new JigException($message);
     }
 
+    /**
+     * An example of how a function in a template can be connected to a method in
+     * the plugin.
+     * @return string
+     */
+    public function methodFunction()
+    {
+        return "This is a method function";
+    }
+
+    /**
+     * Example filter method. Converts string to upper case.
+     * @param $string
+     * @return string
+     */
     public function upper($string)
     {
         return strtoupper($string);
     }
-    
+
+    /**
+     * Example filter method. Converts string to lower case.
+     * @param $string
+     * @return string
+     */
     public function lower($string)
     {
         return strtolower($string);

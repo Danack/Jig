@@ -3,7 +3,9 @@
 namespace Jig;
 
 /**
- * Class JigConfig Holds all of the config value for rendering templates.
+ * Class JigConfig
+ *
+ * Holds all of the config value for rendering templates.
  */
 class JigConfig
 {
@@ -12,7 +14,17 @@ class JigConfig
     public $extension;
     public $compileCheck;
     public $compiledNamespace;
-    
+
+    /**
+     * @param $templateSourceDirectory string - The directory that contains the templates.
+     * @param $templateCompileDirectory string - The directory that compiled templates should be
+     *   written to.
+     * @param $extension string - The extension that will be appended to template names
+     * to find the full filenme
+     * @param $compileCheck string  - How to determine whether to compile a template. One
+     *   of the \Jig\Jig::COMPILE_* constants
+     * @param $compiledNamespace string - The namespace to use for compiled templates
+     */
     public function __construct(
         $templateSourceDirectory,
         $templateCompileDirectory,

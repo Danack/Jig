@@ -516,7 +516,7 @@ END;
     /**
      * @group injection
      */
-   public function testErrorUnknownVariable()
+    public function testErrorUnknownVariable()
     {
         $this->setExpectedException(
             'Jig\JigException',
@@ -524,7 +524,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-       $this->jig->checkTemplateCompiled("unknownVariable/unknownVariable");
+        $this->jig->checkTemplateCompiled("unknownVariable/unknownVariable");
     }
     
     public function testErrorUnknownVariableForEach()
@@ -535,7 +535,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-       $this->jig->checkTemplateCompiled("unknownVariableForEach/unknownVariableForEach");
+        $this->jig->checkTemplateCompiled("unknownVariableForEach/unknownVariableForEach");
     }
     
     public function testUnknownVariableWithFunction()
@@ -546,7 +546,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-       $this->jig->checkTemplateCompiled("unknownVariableWithFunction/unknownVariableWithFunction");
+        $this->jig->checkTemplateCompiled("unknownVariableWithFunction/unknownVariableWithFunction");
     }
     
     public function testInjectVariableAsTwoTypes()
@@ -557,7 +557,7 @@ END;
             JigException::INJECTION_ERROR
         );
 
-       $this->jig->checkTemplateCompiled("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
+        $this->jig->checkTemplateCompiled("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
     }
 
     public function bindTestStart(JigConverter $jigConverter, $segmentText)
@@ -630,7 +630,7 @@ TPL;
             " //This file is intentionally not in git.
             Time is $time"
         );
-        
+
         $renderedOutput = $this->jig->renderTemplateFile('includedTemplateIsCompiled/includedTemplateIsCompiled');
         $this->assertContains($time, $renderedOutput);
     }
@@ -658,7 +658,7 @@ TPL;
             $baseTemplate
         );
 
-        $renderedOutput = $this->jig->renderTemplateFile('includedTemplateIsCompiled/includedTemplateIsCompiled');
+        $renderedOutput = $this->jig->renderTemplateFile('extendedTemplateIsCompiled/extendedTemplateIsCompiled');
         $this->assertContains($time, $renderedOutput);
     }
     

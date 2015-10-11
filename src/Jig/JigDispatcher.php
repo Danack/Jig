@@ -38,7 +38,7 @@ class JigDispatcher extends Jig
         $this->injector->share($jigConverter);
     }
 
-       /**
+    /**
      * @param $templateFilename
      * @throws JigException
      * @return string
@@ -67,10 +67,14 @@ class JigDispatcher extends Jig
 
         return $contents;
     }
-    
-    public function addPlugin($helper)
+
+    /**
+     * @param $plugin
+     * @throws \Auryn\InjectorException
+     */
+    public function addPlugin($plugin)
     {
-        $this->injector->share($helper);
-        $this->addDefaultPlugin(get_class($helper));
+        $this->injector->share($plugin);
+        $this->addDefaultPlugin(get_class($plugin));
     }
 }

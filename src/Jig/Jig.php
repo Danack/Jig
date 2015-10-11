@@ -10,10 +10,17 @@ use Jig\Converter\JigConverter;
  */
 class Jig
 {
-    const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
-    const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
-    const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
+    /** Templates are never compiled. Useful for debugging only */
     const COMPILE_NEVER         = 'COMPILE_NEVER';
+    
+    /** Templates are only compiled if the compiled version does not exist */
+    const COMPILE_CHECK_EXISTS  = 'COMPILE_CHECK_EXISTS';
+    
+    /** Checks the last modified time of template and generated class.  */
+    const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
+  
+    /** Templates are always compiled */
+    const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
 
     /**
      * @var Converter\JigConverter
@@ -29,7 +36,12 @@ class Jig
      * @var \Jig\JigRender
      */
     protected $jigRender;
-    
+
+    /**
+     * @param JigConfig $jigConfig
+     * @param JigRender $jigRender
+     * @param JigConverter $jigConverter
+     */
     public function __construct(
         JigConfig $jigConfig,
         JigRender $jigRender = null,
@@ -48,11 +60,17 @@ class Jig
         $this->jigRender = $jigRender;
     }
 
+    /**
+     * @return JigRender
+     */
     public function getJigRender()
     {
         return $this->jigRender;
     }
-    
+
+    /**
+     * @return JigConverter
+     */
     public function getJigConverter()
     {
         return $this->jigConverter;
@@ -108,6 +126,9 @@ class Jig
         return $this->jigConfig->getFullClassname($templateName);
     }
 
+    /**
+     * @param $classname
+     */
     public function addDefaultPlugin($classname)
     {
         $classname = (string)$classname;
@@ -115,6 +136,11 @@ class Jig
         $this->jigConverter->addDefaultPlugin($classname);
     }
 
+    /**
+     * @param $templateString
+     * @param $cacheName
+     * @return mixed
+     */
     public function getParsedTemplateFromString($templateString, $cacheName)
     {
         return $this->jigRender->getParsedTemplateFromString($templateString, $cacheName);

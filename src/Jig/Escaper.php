@@ -230,9 +230,13 @@ class Escaper
         $string = htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
         return twig_convert_encoding($string, $charset, 'UTF-8');
-
     }
 
+    /**
+     * @param $string
+     * @return mixed|string
+     * @throws JigException
+     */
     public static function escapeJavascript($string)
     {
         if (is_object($string) == true) {
@@ -275,6 +279,11 @@ class Escaper
         return $string;
     }
 
+    /**
+     * @param $string
+     * @return mixed|string
+     * @throws JigException
+     */
     public static function escapeCSS($string)
     {
         if (is_object($string) == true) {
@@ -315,6 +324,11 @@ class Escaper
         return $string;
     }
 
+    /**
+     * @param $string
+     * @return mixed|string
+     * @throws JigException
+     */
     public static function escapeHTMLAttribute($string)
     {
         if (is_object($string) == true) {
