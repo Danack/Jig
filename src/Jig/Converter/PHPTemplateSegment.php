@@ -168,7 +168,7 @@ class PHPTemplateSegment extends TemplateSegment
                 if (in_array($filterName, $filterList, true)) {
                     $filterParam = convertClassnameToParam($pluginClasname);
                     $segmentText = sprintf(
-                        "\$this->%s->%s(%s)",
+                        "\$this->%s->callFilter('%s', %s)",
                         $filterParam,
                         $filterName,
                         $segmentText
