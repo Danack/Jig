@@ -66,7 +66,7 @@ class BasicPlugin implements Plugin
     public function callFunction($functionName, array $params)
     {
         if (in_array($functionName, self::$globalFunctions)) {
-            call_user_func_array($functionName, $params);
+            return call_user_func_array($functionName, $params);
         }
         
         if (method_exists($this, $functionName) == true) {
