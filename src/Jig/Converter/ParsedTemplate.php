@@ -487,9 +487,7 @@ END;
                 fwrite($outputFileHandle, $line);
             }
 
-            fwrite($outputFileHandle, "\n");
-            fwrite($outputFileHandle, "TEXT;\n");
-
+            fwrite($outputFileHandle, "\nTEXT;\n");
             fwrite($outputFileHandle, "    }\n");
             fwrite($outputFileHandle, "\n");
         }

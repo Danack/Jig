@@ -22,11 +22,22 @@ class JigRender
     private $jigConfig;
 
     public function __construct(
-        Jigconfig $jigConfig,
-        JigConverter $jigConverter
+        JigConfig $jigConfig,
+        JigConverter $jigConverter = null
     ) {
         $this->jigConfig = $jigConfig;
+
+        if ($jigConverter == null) {
+            $jigConverter = new JigConverter($jigConfig);
+            $jigConverter->addDefaultPlugin('Jig\Plugin\BasicPlugin');
+        }
+
         $this->jigConverter = $jigConverter;
+    }
+    
+    public function getJigConverter()
+    {
+        return $this->jigConverter;
     }
 
     public function getClassName($templateFilename)

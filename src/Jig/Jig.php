@@ -19,7 +19,7 @@ class Jig
     /** Checks the last modified time of template and generated class.  */
     const COMPILE_CHECK_MTIME   = 'COMPILE_CHECK_MTIME';
   
-    /** Templates are always compiled */
+    /** Templates are always compiled, useful for unit tests */
     const COMPILE_ALWAYS        = 'COMPILE_ALWAYS';
 
     /**
@@ -40,23 +40,17 @@ class Jig
     /**
      * @param JigConfig $jigConfig
      * @param JigRender $jigRender
-     * @param JigConverter $jigConverter
      */
     public function __construct(
         JigConfig $jigConfig,
-        JigRender $jigRender = null,
-        JigConverter $jigConverter = null
+        JigRender $jigRender = null
     ) {
-        if ($jigConverter == null) {
-            $jigConverter = new JigConverter($jigConfig);
-        }
-        
         if ($jigRender == null) {
-            $jigRender = new JigRender($jigConfig, $jigConverter);
+            $jigRender = new JigRender($jigConfig);
         }
         
         $this->jigConfig = clone $jigConfig;
-        $this->jigConverter = $jigConverter;
+        $this->jigConverter = $jigRender->getJigConverter();
         $this->jigRender = $jigRender;
     }
 

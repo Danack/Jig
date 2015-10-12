@@ -21,21 +21,15 @@ class JigDispatcher extends Jig
     public function __construct(
         JigConfig $jigConfig,
         Injector $injector,
-        JigRender $jigRender = null,
-        JigConverter $jigConverter = null
+        JigRender $jigRender = null
     ) {
-        if ($jigConverter == null) {
-            $jigConverter = new JigConverter($jigConfig);
-        }
-
         if ($jigRender == null) {
-            $jigRender = new JigRender($jigConfig, $jigConverter);
+            $jigRender = new JigRender($jigConfig);
         }
 
-        parent::__construct($jigConfig, $jigRender, $jigConverter);
+        parent::__construct($jigConfig, $jigRender);
         $this->injector = $injector;
         $this->injector->share($jigRender);
-        $this->injector->share($jigConverter);
     }
 
     /**

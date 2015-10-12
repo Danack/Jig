@@ -150,7 +150,7 @@ class JigConverter
         }
         
         if ($newOutputMode == self::MODE_CODE) {
-            $this->addLineInternal("TEXT;\n");
+            $this->addLineInternal("\nTEXT;\n");
         }
         else if ($newOutputMode == self::MODE_TEMPLATE) {
             $this->addLineInternal("\n    echo <<< 'TEXT'\n");
@@ -298,7 +298,9 @@ class JigConverter
 
             $remainingString = mb_substr($fileLine, $position);
 
-            if ($remainingString !== false) {
+            //if (strlen($remainingString) > 0) {
+            //TODO - the code is wrong, but is being balanced by another bug elsewhere.
+            if ($remainingString !== false) {    
                 $segments[] = new TextTemplateSegment($remainingString);
             }
         }
@@ -377,7 +379,7 @@ class JigConverter
         if ($segment instanceof TextTemplateSegment) {
             $this->changeOutputMode(self::MODE_TEMPLATE);
             $this->addLineInternal($segment->getString($this->parsedTemplate));
-            $this->addLineInternal("\n");
+            //$this->addLineInternal("\n");
         }
         else if ($segment instanceof PHPTemplateSegment) {
             $this->parseJigSegment($segment);
@@ -482,9 +484,12 @@ class JigConverter
                 $this->addLineInternal($segment->getString($this->parsedTemplate));
             }
         }
+//        catch (JigException $je) {
+//            throw $je;
+//        }
         catch (\Exception $e) {
             $message = "Could not parse template segment [{".$segmentText."}]: ".$e->getMessage();
-            throw new \Jig\JigException($message, $e->getCode(), $e);
+            throw new JigException($message, $e->getCode(), $e);
         }
     }
 

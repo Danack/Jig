@@ -510,7 +510,7 @@ END;
             \Jig\JigException::UNKNOWN_FILTER
         );
 
-        $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
+        $contents = $this->jig->renderTemplateFile("filter/unknownFilter");
     }
 
     /**
