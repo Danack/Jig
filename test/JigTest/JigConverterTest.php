@@ -50,6 +50,21 @@ class JigConverterTest extends BaseTestCase
         parent::teardown();
     }
 
+    /**
+     * @group DEBUGGING
+     */
+    
+    public function testBasicDebugging()
+    {
+        @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/debugging.php");
+        $contents = $this->jig->renderTemplateFile('basic/debugging');
+        $this->assertContains("debugging test passed.", $contents);
+    }
+    
+    /**
+     * @group DEBsdsdUGGING
+     */
+    
     public function testBasicConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
@@ -427,14 +442,14 @@ END;
             &$passedSegementText
         ) {
             $blockStartCallCount++;
-            $jigConverter->addHTML("compileBlockStart");
-            $jigConverter->addHTML($segmentText);
+            $jigConverter->addText("compileBlockStart");
+            $jigConverter->addText($segmentText);
             $passedSegementText = $segmentText;
         };
 
         $compileBlockEnd = function (JigConverter $jigConverter) use (&$blockEndCallCount) {
             $blockEndCallCount++;
-            $jigConverter->addHTML("compileBlockEnd");
+            $jigConverter->addText("compileBlockEnd");
         };
 
 
@@ -562,8 +577,8 @@ END;
 
     public function bindTestStart(JigConverter $jigConverter, $segmentText)
     {
-        $jigConverter->addHTML("Segment text was ".$segmentText);
-        $jigConverter->addHTML("This is the start");
+        $jigConverter->addText("Segment text was ".$segmentText);
+        $jigConverter->addText("This is the start");
     }
     
     /**
@@ -572,8 +587,8 @@ END;
      */
     public function bindTestEnd(JigConverter $jigConverter, $segmentText)
     {
-        $jigConverter->addHTML("Segment text was ".$segmentText);
-        $jigConverter->addHTML("This is the end");
+        $jigConverter->addText("Segment text was ".$segmentText);
+        $jigConverter->addText("This is the end");
     }
 
     /**

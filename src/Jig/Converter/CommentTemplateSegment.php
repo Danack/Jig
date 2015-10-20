@@ -14,7 +14,7 @@ class CommentTemplateSegment extends TemplateSegment
         return '{'.$this->text.'}';
     }
     
-    public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array())
+    public function getCommentString(ParsedTemplate $parsedTemplate, $extraFilters = array())
     {
         return '//'. $this->text.'';
     }

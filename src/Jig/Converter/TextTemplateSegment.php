@@ -23,7 +23,7 @@ class TextTemplateSegment extends TemplateSegment
      * @param array $extraFilters
      * @return mixed
      */
-    public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array())
+    public function getTextString(ParsedTemplate $parsedTemplate, $extraFilters = array())
     {
         return $this->text;
     }

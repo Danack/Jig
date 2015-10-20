@@ -8,13 +8,18 @@ namespace Jig\Converter;
  */
 abstract class TemplateSegment
 {
-    public $text;
+    protected $text;
 
     public function __construct($text)
     {
         $this->text = $text;
     }
+    
+    public function getOriginalText()
+    {
+        return $this->text;
+    }
 
-    abstract public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array());
+    //abstract public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array());
     abstract public function getRawString();
 }

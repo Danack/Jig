@@ -205,16 +205,49 @@ class JigConverter
             $this->defaultPlugins
         );
 
-        
+
         $this->startInTemplateMode();
-        
+
+        //Add the segments to the template code. This loop is complicated
+        //to allow us to detect when there are lines that only contain bits
+        //of code, and to skip generating new lines in the generated template
+        //for those cases.
         foreach ($fileLines as $fileLine) {
             $nextSegments = $this->getLineSegments($fileLine);
+            $anyTextFound = false;
+            end($nextSegments);
+            //fetch key of the last element of the array.
+            $lastElementKey = key($nextSegments);
 
-            foreach ($nextSegments as $segment) {
+            foreach ($nextSegments as $key => $segment) {
+                if ($key == $lastElementKey) {
+                    if (($segment instanceof TextTemplateSegment) && 
+                        $anyTextFound == false) {
+                        if (strlen(trim($segment->getRawString())) == 0) {
+                            continue;
+                        }
+                    }
+                }
+
                 $this->addSegment($segment);
+
+                if ($segment instanceof TextTemplateSegment) {
+                    if (strlen($segment->getRawString())) {
+                        $anyTextFound = true;
+                    }
+                }
+                else if ($segment instanceof CodeTemplateSegment) {
+                    if ($segment->hasAssignment() == false) {
+                        $anyTextFound = true;
+                    }
+                }
             }
         }
+        
+        
+        
+        
+        
         
         $this->finishParsing();
 
@@ -298,7 +331,7 @@ class JigConverter
                     continue;
                 }
 
-                $segments[] = new PHPTemplateSegment($code);
+                $segments[] = new CodeTemplateSegment($code);
             }
 
             $remainingString = mb_substr($fileLine, $position);
@@ -308,21 +341,21 @@ class JigConverter
             }
         }
         
-        $nonTextSegments = false;
-        $anyTextFound = false;
-        $remainingSegments = [];
-        
-        foreach ($segments as $segment) {
-            if ($segment instanceof TextTemplateSegment) {
-                if (strlen(trim($segment->getRawString()))) {
-                    $anyTextFound = true;
-                }
-            }
-            else {
-                $nonTextSegments = true;
-                $remainingSegments[] = $segment;
-            }
-        }
+//        $nonTextSegments = false;
+//        $anyTextFound = false;
+//        $remainingSegments = [];
+//        
+//        foreach ($segments as $segment) {
+//            if ($segment instanceof TextTemplateSegment) {
+//                if (strlen(trim($segment->getRawString()))) {
+//                    $anyTextFound = true;
+//                }
+//            }
+//            else {
+//                $nonTextSegments = true;
+//                $remainingSegments[] = $segment;
+//            }
+//        }
         
 //        if ($nonTextSegments == true) {
 //            if ($anyTextFound == false) {
@@ -369,7 +402,7 @@ class JigConverter
      */
     public function addSegment(TemplateSegment $segment)
     {
-        $segmentText = $segment->text;
+        $segmentText = $segment->getOriginalText();
 
         if ($this->literalMode == self::LITERAL_TEMPLATE &&
             strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0) {
@@ -408,14 +441,13 @@ class JigConverter
 
         if ($segment instanceof TextTemplateSegment) {
             $this->changeOutputMode(self::MODE_TEMPLATE);
-            $this->addLineInternal($segment->getString($this->parsedTemplate));
-            //$this->addLineInternal("\n");
+            $this->addLineInternal($segment->getTextString($this->parsedTemplate));
         }
-        else if ($segment instanceof PHPTemplateSegment) {
+        else if ($segment instanceof CodeTemplateSegment) {
             $this->parseJigSegment($segment);
         }
         else if ($segment instanceof CommentTemplateSegment) {
-            $this->addCode($segment->getString($this->parsedTemplate));
+            $this->addCode($segment->getCommentString($this->parsedTemplate));
         }
         else {
             throw new \Jig\JigException("Unknown Segment type ".get_class($segment));
@@ -427,9 +459,9 @@ class JigConverter
      * @param JigRender $jigRender
      * @throws JigException
      */
-    public function parseJigSegment(TemplateSegment $segment)
+    public function parseJigSegment(CodeTemplateSegment $segment)
     {
-        $segmentText = $segment->text;
+        $segmentText = $segment->getOriginalText();
 
         try {
             if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0) {
@@ -468,19 +500,22 @@ class JigConverter
                 $this->processLiteralStart();
             }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0) {
-                $segment->text = substr($segmentText, 3);
-                $text = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+                $text = $segment->getCodeString(
+                    $this->parsedTemplate,
+                    CodeTemplateSegment::REMOVE_IF |
+                    CodeTemplateSegment::NO_FILTER |
+                    CodeTemplateSegment::NO_PHP    |
+                    CodeTemplateSegment::NO_OUTPUT
+                );
                 $this->changeOutputMode(self::MODE_CODE);
-                $this->addLineInternal('if ('.$text.') {');
-                //$this->changeOutputMode(self::MODE_TEMPLATE);
+                $this->addLineInternal("if (".$text.") {\n");
             }
             else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0) {
                 $this->changeOutputMode(self::MODE_CODE);
-                $this->addLineInternal(' }');
-                //$this->changeOutputMode(self::MODE_TEMPLATE);
+                $this->addLineInternal("}\n");
             }
             else if (strncmp($segmentText, 'else', mb_strlen('else')) == 0) {
-                $this->addCode(" } else { ");
+                $this->addCode(" } else { \n");
             }
             else {
                 $blockFunctionName = $segmentText;
@@ -513,7 +548,7 @@ class JigConverter
                 //$this->changeOutputMode(self::MODE_TEMPLATE);
                 //It's a line of code that needs to be included.
                 $this->changeOutputMode(self::MODE_CODE);
-                $this->addLineInternal($segment->getString($this->parsedTemplate));
+                $this->addLineInternal($segment->getCodeString($this->parsedTemplate)."\n");
             }
         }
 //        catch (JigException $je) {
@@ -697,8 +732,13 @@ class JigConverter
             $this->addLineInternal($segmentText.'){');
         }
         else {
-            $segment = new PHPTemplateSegment($foreachItem);
-            $replace = $segment->getString($this->parsedTemplate, ['nofilter', 'nophp', 'nooutput']);
+            $segment = new CodeTemplateSegment($foreachItem);
+            $replace = $segment->getCodeString(
+                $this->parsedTemplate,
+                CodeTemplateSegment::NO_FILTER |
+                CodeTemplateSegment::NO_PHP    |
+                CodeTemplateSegment::NO_OUTPUT
+            );
             $segmentText = str_replace($foreachItem, $replace, $segmentText);
             $this->addCode($segmentText.'){ ');
         }

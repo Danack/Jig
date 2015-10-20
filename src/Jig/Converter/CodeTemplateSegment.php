@@ -3,6 +3,7 @@
 namespace Jig\Converter;
 
 use Jig\JigException;
+use Mockery\CountValidator\Exception;
 use PHPParser_Lexer;
 use PHPParser_Parser;
 use PHPParser_Error;
@@ -10,13 +11,29 @@ use PHPParser_Error;
 /**
  * Class PHPTemplateSegment
  */
-class PHPTemplateSegment extends TemplateSegment
+class CodeTemplateSegment extends TemplateSegment
 {
+    private $statements;
+    
+    private $filters;
+    
+    const REMOVE_IF = 0x0001;
+    const NO_FILTER = 0x0002;
+    const NO_PHP    = 0x0004;
+    const NO_OUTPUT = 0x0008;
+
+    private $hasAssignment = false;
+    
     public function __construct($text)
     {
-        parent::__construct($text);
+        $this->text = $text;
+        $this->filters = $this->removeFilters();
     }
     
+    public function hasAssignment()
+    {
+        return $this->hasAssignment;
+    }
     
     /**
      * The pattern matcher strips off the enclosing tags - we re-add them here
@@ -62,7 +79,7 @@ class PHPTemplateSegment extends TemplateSegment
     // {if ($count % 2) == 0}
     //{$count++}
 
-    public function removeFilters()
+    private function removeFilters()
     {
         $pattern = '/\|\s*([\w\s]+)/u';
 
@@ -81,35 +98,42 @@ class PHPTemplateSegment extends TemplateSegment
 
         return $filters;
     }
-
+    
     /**
      * @param ParsedTemplate $parsedTemplate
      * @param array $extraFilters
      * @return string
      * @throws JigException
      */
-    public function getString(ParsedTemplate $parsedTemplate, $extraFilters = array())
-    {
-        //TODO this function is too big and needs to cache some
-        //information to avoid repeating the same operations.
-        $filters = $this->removeFilters();
-        $filters = array_merge($filters, $extraFilters);
+    public function getCodeString(
+        ParsedTemplate $parsedTemplate,
+        $flags = 0
+    ) {
+        $filters = $this->filters;
+
+        if ($flags & self::NO_FILTER) {
+            $filters[] = JigConverter::FILTER_NONE;
+        }
 
         if (count($filters) == 0) {
             //TODO - allow default filter to be set
             $filters[] = JigConverter::FILTER_HTML;
         }
-        
-        $codePre = "<?php ";
 
-        $code = $codePre;
-        $code .= $this->text;
+        $code = "<?php ";
+        
+        if ($flags & self::REMOVE_IF) {
+            $code .= substr($this->text, 3);
+        }
+        else {
+            $code .= $this->text;
+        }
         $code .= " ?>";
 
         $parser = new PHPParser_Parser(new PHPParser_Lexer);
 
         try {
-            $statements = $parser->parse($code);
+            $this->statements = $parser->parse($code);
         }
         catch (PHPParser_Error $parserError) {
             $message = sprintf(
@@ -126,11 +150,18 @@ class PHPTemplateSegment extends TemplateSegment
         }
 
         $printer = new TemplatePrinter($parsedTemplate);
-        $segmentText = $printer->prettyPrint($statements);
+        $segmentText = $printer->prettyPrint($this->statements);
         $segmentText = substr($segmentText, 0, strrpos($segmentText, ';'));
         
         $filters = array_merge($filters, $printer->getFilters());
-
+        
+        if ($printer->hasAssignment() == true) {
+            $this->hasAssignment = true;
+            return $segmentText."; ";
+        }
+        
+        $this->hasAssignment = false;
+        
         foreach ($filters as $filterName) {
             switch ($filterName) {
                 case (JigConverter::FILTER_NONE): {
@@ -184,11 +215,13 @@ class PHPTemplateSegment extends TemplateSegment
             );
         }
 
-        if (in_array('nooutput', $filters) == false) {
+        //if (in_array('nooutput', $filters) == false) {
+        if (($flags & self::NO_OUTPUT) == 0) {
             $segmentText = "echo ".$segmentText."";
         }
 
-        if (in_array('nophp', $filters) == false) {
+        //if (in_array('nophp', $filters) == false) {
+        if (($flags & self::NO_PHP) == 0) {
             $segmentText = $segmentText."; ";
         }
 
