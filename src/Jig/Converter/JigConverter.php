@@ -221,7 +221,7 @@ class JigConverter
 
             foreach ($nextSegments as $key => $segment) {
                 if ($key == $lastElementKey) {
-                    if (($segment instanceof TextTemplateSegment) && 
+                    if (($segment instanceof TextTemplateSegment) &&
                         $anyTextFound == false) {
                         if (strlen(trim($segment->getRawString())) == 0) {
                             continue;
@@ -243,12 +243,7 @@ class JigConverter
                 }
             }
         }
-        
-        
-        
-        
-        
-        
+
         $this->finishParsing();
 
         $parsedTemplate = $this->parsedTemplate;
