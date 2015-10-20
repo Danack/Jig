@@ -205,6 +205,9 @@ class JigConverter
             $this->defaultPlugins
         );
 
+        
+        $this->startInTemplateMode();
+        
         foreach ($fileLines as $fileLine) {
             $nextSegments = $this->getLineSegments($fileLine);
 
@@ -212,6 +215,8 @@ class JigConverter
                 $this->addSegment($segment);
             }
         }
+        
+        $this->finishParsing();
 
         $parsedTemplate = $this->parsedTemplate;
         $this->parsedTemplate = null;
@@ -298,16 +303,42 @@ class JigConverter
 
             $remainingString = mb_substr($fileLine, $position);
 
-            //if (strlen($remainingString) > 0) {
-            //TODO - the code is wrong, but is being balanced by another bug elsewhere.
-            if ($remainingString !== false) {    
+            if (strlen($remainingString) > 0) {
                 $segments[] = new TextTemplateSegment($remainingString);
             }
         }
+        
+        $nonTextSegments = false;
+        $anyTextFound = false;
+        $remainingSegments = [];
+        
+        foreach ($segments as $segment) {
+            if ($segment instanceof TextTemplateSegment) {
+                if (strlen(trim($segment->getRawString()))) {
+                    $anyTextFound = true;
+                }
+            }
+            else {
+                $nonTextSegments = true;
+                $remainingSegments[] = $segment;
+            }
+        }
+        
+//        if ($nonTextSegments == true) {
+//            if ($anyTextFound == false) {
+//                return $remainingSegments;
+//            }
+//        //}
 
         return $segments;
     }
 
+    private function finishParsing()
+    {
+        //Finish any text block that is active.
+        $this->changeOutputMode(self::MODE_CODE);
+    }
+    
     /**
      * @param $literalMode
      */
@@ -375,7 +406,6 @@ class JigConverter
             return;
         }
 
-
         if ($segment instanceof TextTemplateSegment) {
             $this->changeOutputMode(self::MODE_TEMPLATE);
             $this->addLineInternal($segment->getString($this->parsedTemplate));
@@ -418,7 +448,9 @@ class JigConverter
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->processBlockStart($segmentText);
                 //Blocks start in template mode.
-                $this->outputMode = self::MODE_TEMPLATE;
+                //TODO - this smells. It feels like the block information should
+                //be in its own object.
+                $this->startInTemplateMode();
             }
             else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0) {
                 $this->processBlockEnd();
@@ -496,13 +528,19 @@ class JigConverter
     /**
      * @param $text
      */
-    public function addHTML($text)
+    public function addText($text)
     {
         /** @noinspection PhpUnusedLocalVariableInspection */
         $text = str_replace("<?", "&lt;?", $text);
         $this->addLineInternal($text);
     }
 
+    private function startInTemplateMode()
+    {
+        $this->outputMode = self::MODE_TEMPLATE;
+        $this->addLineInternal("\n    echo <<< 'TEXT'\n");
+    }
+    
     /**
      * @param $text
      */
@@ -559,6 +597,7 @@ class JigConverter
 
     protected function processPlugin($segmentText)
     {
+        //TODO - convert the second quote into a back reference?
         $valuePattern = '#type=[\'"](.*)[\'"]#u';
         $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
 
@@ -622,7 +661,7 @@ class JigConverter
      */
     protected function processBlockEnd()
     {
-        $this->outputMode = self::MODE_CODE;
+        $this->changeOutputMode(self::MODE_CODE);
 
         if ($this->parsedTemplate->getExtends() == null) {
             $this->parsedTemplate->addTextLine(" \$this->".$this->activeBlockName."(); \n");
@@ -631,6 +670,7 @@ class JigConverter
         $this->parsedTemplate->addFunctionBlock($this->activeBlockName, $this->activeBlock);
         $this->activeBlock = null;
         $this->activeBlockName = null;
+        $this->startInTemplateMode();
     }
 
     /**

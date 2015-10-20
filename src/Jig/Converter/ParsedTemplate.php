@@ -481,13 +481,15 @@ END;
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "    function ".$functionName."() {\n");
-            fwrite($outputFileHandle, "echo <<< 'TEXT'\n");
+            //fwrite($outputFileHandle, "echo <<< 'TEXT'\n");
+            //fwrite($outputFileHandle, "\n"); //is this necessary?
 
             foreach ($lines as $line) {
                 fwrite($outputFileHandle, $line);
             }
 
-            fwrite($outputFileHandle, "\nTEXT;\n");
+            //fwrite($outputFileHandle, "\nTEXT;\n");
+            fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "    }\n");
             fwrite($outputFileHandle, "\n");
         }
