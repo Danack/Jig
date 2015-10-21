@@ -550,14 +550,14 @@ END;
 
         $fullDependencies = array_merge($this->injections, $parentDependencies);
 
-        foreach ($fullDependencies as $name => $type) {
-            $depdendencies .= $separator."       \\$type \$$name";
-            $separator = ",\n";
+        
+        foreach (array_unique($this->plugins) as $pluginType) {
+            $pluginParam = convertTypeToParam($pluginType);
+            $fullDependencies[$pluginParam] = $pluginType;
         }
 
-        foreach (array_unique($this->plugins) as $plugin) {
-            $pluginParam = convertTypeToParam($plugin);
-            $depdendencies .= $separator."       \\$plugin \$$pluginParam";
+        foreach ($fullDependencies as $name => $type) {
+            $depdendencies .= $separator."       \\$type \$$name";
             $separator = ",\n";
         }
 
@@ -572,8 +572,8 @@ $depdendencies
             $output .=  "        \$this->$name = \$$name;\n";
         }
 
-        foreach (array_unique($this->plugins) as $plugin) {
-            $pluginParam = convertTypeToParam($plugin);
+        foreach (array_unique($this->plugins) as $pluginType) {
+            $pluginParam = convertTypeToParam($pluginType);
             $output .=  "        \$this->$pluginParam = \$$pluginParam;\n";
             $output .=  "        \$this->addPlugin(\$$pluginParam);\n";
         }
