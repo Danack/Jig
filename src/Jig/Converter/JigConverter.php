@@ -215,6 +215,7 @@ class JigConverter
         foreach ($fileLines as $fileLine) {
             $nextSegments = $this->getLineSegments($fileLine);
             $anyTextFound = false;
+            $codeFound = false;
             end($nextSegments);
             //fetch key of the last element of the array.
             $lastElementKey = key($nextSegments);
@@ -222,7 +223,8 @@ class JigConverter
             foreach ($nextSegments as $key => $segment) {
                 if ($key == $lastElementKey) {
                     if (($segment instanceof TextTemplateSegment) &&
-                        $anyTextFound == false) {
+                        $anyTextFound == false &&
+                        $codeFound == true) {
                         if (strlen(trim($segment->getRawString())) == 0) {
                             continue;
                         }
@@ -237,13 +239,15 @@ class JigConverter
                     }
                 }
                 else if ($segment instanceof CodeTemplateSegment) {
+                    $codeFound = true;
                     if ($segment->hasAssignment() == false) {
                         $anyTextFound = true;
                     }
                 }
+
             }
         }
-
+        
         $this->finishParsing();
 
         $parsedTemplate = $this->parsedTemplate;
