@@ -40,7 +40,7 @@ $jig = new Jig($jigConfig);
 $jig->checkTemplateCompiled($templateName);
 
 // Get the classname that the template will be called
-$className = $jig->getTemplateCompiledClassname($templateName);
+$className = $jig->getFQCNFromTemplateName($templateName);
 
 // Call the template
 $contents = $injector->execute([$className, 'render']);

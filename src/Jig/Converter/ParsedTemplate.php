@@ -95,7 +95,7 @@ class ParsedTemplate
 
     private $functionBlocks = array();
 
-    private $className = null;
+    private $templateName = null;
 
     private $extends = null;
 
@@ -249,20 +249,17 @@ class ParsedTemplate
     /**
      * @param $className
      */
-    public function setClassName($className)
+    public function setTemplateName($templateName)
     {
-        $className = str_replace("/", "\\", $className);
-        $className = str_replace("-", "", $className);
-
-        $this->className = $className;
+        $this->templateName = $templateName;
     }
 
     /**
      * @return string
      */
-    public function getClassName()
+    public function getTemplateName()
     {
-        return $this->className;
+        return $this->templateName;
     }
 
     /**
@@ -352,6 +349,8 @@ class ParsedTemplate
         }
         $extendsClassName = str_replace('/', '\\', $this->extends);
         
+        $extendsClassName .= "Jig";
+        
         return getFQCN($this->baseNamespace, $extendsClassName);
     }
 
@@ -381,10 +380,11 @@ class ParsedTemplate
      * @return string
      * @throws \Jig\JigException
      */
-    public function saveCompiledTemplate($compilePath)
+    public function saveCompiledTemplate($compilePath, $fqcn)
     {
-        $fullClassName = getFQCN($this->baseNamespace, $this->getClassName());
-        $fullClassName = str_replace("/", "\\", $fullClassName);
+//        $fullClassName = getFQCN($this->baseNamespace, $this->getTemplateName());
+//        $fullClassName = str_replace("/", "\\", $fullClassName);
+        $fullClassName = $fqcn;
 
         $namespace = getNamespace($fullClassName);
         $className = getClassName($fullClassName);
@@ -550,7 +550,6 @@ END;
 
         $fullDependencies = array_merge($this->injections, $parentDependencies);
 
-        
         foreach (array_unique($this->plugins) as $pluginType) {
             $pluginParam = convertTypeToParam($pluginType);
             $fullDependencies[$pluginParam] = $pluginType;

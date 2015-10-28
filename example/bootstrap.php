@@ -46,7 +46,7 @@ function createTemplateResponse(JigBase $template)
 function getTemplateCallable($templateName, array $sharedObjects = [])
 {
     $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
-        $className = $jigRender->getTemplateCompiledClassname($templateName);
+        $className = $jigRender->getFQCNFromTemplateName($templateName);
         $jigRender->checkTemplateCompiled($templateName);
 
         $alias = [];

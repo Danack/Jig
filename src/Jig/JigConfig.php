@@ -51,27 +51,27 @@ class JigConfig
 
     /**
      * Returns the fully pathed filename for a compiled class.
-     * @param $className
+     * @param $fqcn
      * @return string
      */
-    public function getCompiledFilename($className)
+    public function getCompiledFilenameFromClassname($fqcn)
     {
-        $namespace = $this->compiledNamespace;
-        $classPath = $this->templateCompileDirectory.'/'.$namespace.'/'.$className.'.php';
-        $classPath = str_replace('\\', '/', $classPath);
+        $filename = $this->templateCompileDirectory.'/'.$fqcn.'.php';
+        $filename = str_replace('\\', '/', $filename);
 
-        return $classPath;
+        return $filename;
     }
 
     /**
      * Returns the classname with full namespace.
-     * @param $className
+     * @param $templateName
      * @return string
      */
-    public function getFullClassname($className)
+    public function getFQCNFromTemplateName($templateName)
     {
-        $classname = $this->compiledNamespace."\\".$className;
+        $classname = $this->compiledNamespace."\\".$templateName;
         $classname = str_replace('/', '\\', $classname);
+        $classname .= "Jig";    
 
         return $classname;
     }

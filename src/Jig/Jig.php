@@ -88,7 +88,7 @@ class Jig
     public function deleteCompiledFile($templateName)
     {
         $className = $this->jigConverter->getClassNameFromFilename($templateName);
-        $compileFilename = $this->jigConfig->getCompiledFilename($className);
+        $compileFilename = $this->jigConfig->getCompiledFilenameFromClassname($className);
         $deleted = @unlink($compileFilename);
 
         return $deleted;
@@ -98,9 +98,13 @@ class Jig
      * @param $templateFilename
      * @return string
      */
-    public function getCompileFilename($templateFilename)
+    public function getCompiledFilenameFromTemplateName($templateFilename)
     {
-        return self::getCompileFilenameInternal($templateFilename, $this->jigConverter, $this->jigConfig);
+        return self::getCompiledFilenameInternal(
+            $templateFilename,
+            $this->jigConverter,
+            $this->jigConfig
+        );
     }
 
     /**
@@ -115,9 +119,9 @@ class Jig
      * @param $templateName
      * @return string
      */
-    public function getTemplateCompiledClassname($templateName)
+    public function getFQCNFromTemplateName($templateName)
     {
-        return $this->jigConfig->getFullClassname($templateName);
+        return $this->jigConfig->getFQCNFromTemplateName($templateName);
     }
 
     /**
@@ -144,11 +148,11 @@ class Jig
      * @param $templateName
      * @return string
      */
-    public static function getCompileFilenameInternal($templateName, JigConverter $jigConverter, JigConfig $jigConfig)
+    public static function getCompiledFilenameInternal($templateName, JigConverter $jigConverter, JigConfig $jigConfig)
     {
         $className = $jigConverter->getClassNameFromFilename($templateName);
-        $compileFilename = $jigConfig->getCompiledFilename($className);
+        $compiledFilename = $jigConfig->getCompiledFilenameFromClassname($className);
     
-        return $compileFilename;
+        return $compiledFilename;
     }
 }

@@ -40,11 +40,6 @@ class JigRender
         return $this->jigConverter;
     }
 
-    public function getClassName($templateFilename)
-    {
-        return $this->jigConfig->getFullClassname($templateFilename);
-    }
-
     /**
      * @param $templateName
      * @return string
@@ -52,7 +47,7 @@ class JigRender
     public function getCompileFilename($templateName)
     {
         $className = $this->jigConverter->getClassNameFromFilename($templateName);
-        $compileFilename = $this->jigConfig->getCompiledFilename($className);
+        $compileFilename = $this->jigConfig->getCompiledFilenameFromClassname($className);
         
         return $compileFilename;
     }
@@ -64,7 +59,7 @@ class JigRender
     public function isGeneratedFileOutOfDate($templateFilename)
     {
         $templateFullFilename = $this->jigConfig->getTemplatePath($templateFilename);
-        $classPath = Jig::getCompileFilenameInternal($templateFilename, $this->jigConverter, $this->jigConfig);
+        $classPath = Jig::getCompiledFilenameInternal($templateFilename, $this->jigConverter, $this->jigConfig);
         $classPath = str_replace('\\', '/', $classPath);
         $templateTime = @filemtime($templateFullFilename);
         $classTime = @filemtime($classPath);
@@ -97,8 +92,7 @@ class JigRender
 
         try {
             $parsedTemplate = $this->jigConverter->createFromLines($fileLines, $this);
-            $className = $this->jigConverter->getClassNameFromFilename($templateFilename);
-            $parsedTemplate->setClassName($className);
+            $parsedTemplate->setTemplateName($templateFilename);
 
             return $parsedTemplate;
         }
@@ -118,7 +112,7 @@ class JigRender
             //generated code, without having it over-written.
             return;
         }
-        
+
         $className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename);
         if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
@@ -187,12 +181,15 @@ check_dependencies:
         foreach ($templateDependencies as $templateDependency) {
             $this->checkTemplateCompiled($templateDependency);
         }
+        
+        $fqcn = $this->jigConfig->getFQCNFromTemplateName($templateFilename);
 
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
-            $this->jigConfig->templateCompileDirectory
+            $this->jigConfig->templateCompileDirectory,
+            $fqcn
         );
 
-        if (class_exists($className, false) == false) {
+        if (class_exists($fqcn, false) == false) {
             if (function_exists('opcache_invalidate') == true) {
                 opcache_invalidate($outputFilename);
             }
@@ -221,7 +218,7 @@ check_dependencies:
         $templateString = str_replace("?>", "?&gt;", $templateString);
 
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
-        $parsedTemplate->setClassName($cacheName);
+        $parsedTemplate->setTemplateName($cacheName);
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
 
         foreach ($templateDependencies as $templateDependency) {
@@ -231,7 +228,8 @@ check_dependencies:
         //This has to be after checking the dependencies are compiled
         //to ensure the getDepedency function is available.
         $outputFilename = $parsedTemplate->saveCompiledTemplate(
-            $this->jigConfig->templateCompileDirectory
+            $this->jigConfig->templateCompileDirectory,
+            $this->jigConfig->getFQCNFromTemplateName($cacheName)
         );
         
         //This is very stupid. We should be able to auto-load the class
@@ -241,6 +239,6 @@ check_dependencies:
         /** @noinspection PhpIncludeInspection */
         require($outputFilename);
 
-        return $this->jigConfig->getFullClassname($parsedTemplate->getClassName());
+        return $this->jigConfig->getFQCNFromTemplateName($parsedTemplate->getTemplateName());
     }
 }

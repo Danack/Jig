@@ -9,7 +9,9 @@ use Jig\JigRender;
 
 function convertClassnameToParam($classname)
 {
-    return str_replace('\\', '_', $classname);
+    $paramName = str_replace('\\', '_', $classname);
+    
+    return $paramName;
 }
 
 /**
@@ -385,7 +387,7 @@ class JigConverter
      */
     public function setInclude($filename)
     {
-        $className = $this->jigConfig->getFullClassname($filename);
+        $className = $this->jigConfig->getFQCNFromTemplateName($filename);
         $paramName = convertClassnameToParam($className);
 
         $this->parsedTemplate->addIncludeFile($filename, $paramName, $className);
@@ -841,9 +843,7 @@ class JigConverter
      */
     public function getClassNameFromFileName($templateFilename)
     {
-        $templatePath = str_replace('/', '\\', $templateFilename);
-        $templatePath = str_replace('-', '', $templatePath);
-        return $templatePath;
+        return $this->jigConfig->getFQCNFromTemplateName($templateFilename);
     }
 
     /**
@@ -853,8 +853,6 @@ class JigConverter
      */
     public function getNamespacedClassNameFromFileName($templateFilename)
     {
-        $className = self::getClassNameFromFileName($templateFilename);
-
-        return $this->jigConfig->getFullClassname($className);
+        return $this->jigConfig->getFQCNFromTemplateName($templateFilename);
     }
 }

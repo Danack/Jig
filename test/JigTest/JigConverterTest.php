@@ -103,7 +103,7 @@ class JigConverterTest extends BaseTestCase
 
         $templateName = 'basic/DependencyInsertion';
         //$className = $this->jigRender->getClassName('basic/DependencyInsertion');
-        $className = $this->jig->getTemplateCompiledClassname('basic/DependencyInsertion');
+        $className = $this->jig->getFQCNFromTemplateName('basic/DependencyInsertion');
         $this->jig->checkTemplateCompiled($templateName);
 
         $contents = $this->injector->execute([$className, 'render']);
@@ -173,7 +173,7 @@ END;
      */
     public function testStandardExtends()
     {
-        $className = $this->jig->getTemplateCompiledClassname('extendTest/child');
+        $className = $this->jig->getFQCNFromTemplateName('extendTest/child');
         $this->jig->checkTemplateCompiled('extendTest/child');
 
         $contents = $this->injector->execute([$className, 'render']);
@@ -238,7 +238,7 @@ END;
     public function testInclude()
     {
         $templateName = 'includeFile/includeTest';
-        $className = $this->jig->getTemplateCompiledClassname($templateName);
+        $className = $this->jig->getFQCNFromTemplateName($templateName);
         $this->jig->checkTemplateCompiled($templateName);
 
         $contents = $this->injector->execute([$className, 'render']);
@@ -391,6 +391,9 @@ END;
         $jig->renderTemplateFile("basic/simplest");
     }
 
+    /**
+     * @group debugging
+     */
     public function testCheckMtimeCoverage()
     {
         $jigConfig = new JigConfig(
@@ -408,11 +411,14 @@ END;
         $templateName = "coverageTesting/mtimeonce";
         $this->jig->deleteCompiledFile($templateName);
         $jig->renderTemplateFile($templateName);
-        $filename = $jig->getCompileFilename($templateName);
+        $filename = $jig->getCompiledFilenameFromTemplateName($templateName);
         touch($filename, time() - 3600); // will break if the test takes an hour ;)
         $jig->renderTemplateFile($templateName);
     }
 
+    /**
+     * 
+     */
     public function testRenderBlock()
     {
         $blockRender = $this->injector->make('JigTest\PlaceHolder\PlaceHolderPlugin');
@@ -430,6 +436,9 @@ END;
         $this->assertContains("This is in a warning block", $contents);
     }
 
+    /**
+     * 
+     */
     public function testCompileBlock()
     {
         $blockStartCallCount = 0;
