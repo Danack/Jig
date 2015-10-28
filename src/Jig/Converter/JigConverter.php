@@ -5,7 +5,6 @@ namespace Jig\Converter;
 
 use Jig\JigException;
 use Jig\JigConfig;
-use Jig\JigRender;
 
 function convertClassnameToParam($classname)
 {
@@ -398,7 +397,6 @@ class JigConverter
 
     /**
      * @param TemplateSegment $segment
-     * @param JigRender $jigRender
      * @throws JigException
      */
     public function addSegment(TemplateSegment $segment)
@@ -457,7 +455,6 @@ class JigConverter
 
     /**
      * @param TemplateSegment $segment
-     * @param JigRender $jigRender
      * @throws JigException
      */
     public function parseJigSegment(CodeTemplateSegment $segment)

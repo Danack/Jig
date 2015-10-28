@@ -637,7 +637,7 @@ TPL;
 
         $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
 
-        $className = $this->jig->getJigRender()->getParsedTemplateFromString(
+        $className = $this->jig->getParsedTemplateFromString(
             $templateString,
             "testStubReqeatOnlyInsertedOnce1"
         );

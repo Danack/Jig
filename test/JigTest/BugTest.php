@@ -5,7 +5,6 @@ namespace JigTest;
 use Jig\Jig;
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
-use Jig\JigRender;
 
 class BugTest extends BaseTestCase
 {
@@ -39,7 +38,7 @@ class BugTest extends BaseTestCase
         
         $jigConverter = new JigConverter($jigConfig);
         
-        $this->jigRender = new JigRender($jigConfig, $jigConverter);
+        //$this->jigRender = new JigRender($jigConfig, $jigConverter);
         $this->jig = new \Jig\JigDispatcher($jigConfig, $provider, $this->jigRender, $jigConverter);
     }
 

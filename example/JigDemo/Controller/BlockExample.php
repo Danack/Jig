@@ -2,7 +2,7 @@
 
 namespace JigDemo\Controller;
 
-use Jig\JigRender;
+use Jig\Jig;
 use JigDemo\Response\TextResponse;
 
 
@@ -24,11 +24,12 @@ class BlockExample {
 
     private $jigRender;
     
-    function __construct(JigRender $jigRender) {
+    function __construct(Jig $jigRender) {
         $this->jigRender = $jigRender;
     }
 
     function display() {
+        //This 
         $this->jigRender->bindRenderBlock(
             'warning',          //Block name
             '\JigDemo\Controller\warningBlockEnd',  //Block end callable

@@ -42,6 +42,7 @@ use Jig\JigConfig;
 use JigTest\BaseTestCase;
 use Jig\Jig;
 use JigTest\PlaceHolder\PlaceHolderPlugin;
+use Jig\Converter\ParsedTemplate;
     
 class CoverageTest extends BaseTestCase
 {
@@ -57,7 +58,7 @@ class CoverageTest extends BaseTestCase
     
     public function testNamespaceCoverage()
     {
-        $namespace = \Jig\Converter\getNamespace(new StdClass);
+        $namespace = ParsedTemplate::getNamespace(new StdClass);
         $this->assertEmpty($namespace);
     }
     

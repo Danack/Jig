@@ -5,84 +5,22 @@ namespace Jig\Converter;
 
 use Jig\JigException;
 
-function convertTypeToParam($helper)
-{
-    $helper = str_replace('\\', '_', $helper);
-
-    return $helper;
-}
-
-/**
- * Get the name space part of a fully namespaced class. Returns empty string
- * if the class had no namespace part.
- * @param $namespaceClass
- * @return string
- */
-function getNamespace($namespaceClass)
-{
-    if (is_object($namespaceClass)) {
-        $namespaceClass = get_class($namespaceClass);
-    }
-
-    $lastSlashPosition = mb_strrpos($namespaceClass, '\\');
-
-    if ($lastSlashPosition !== false) {
-        return mb_substr($namespaceClass, 0, $lastSlashPosition);
-    }
-
-    return "";
-}
-
-function getFQCN($namespace, $classname)
-{
-    if (strlen($namespace)) {
-        return $namespace."\\".$classname;
-    }
-
-    return $classname;
-}
-
-/**
- * @param $namespaceClass
- * @return mixed
- */
-function convertNamespaceClassToFilepath($namespaceClass)
-{
-    return str_replace('\\', "/", $namespaceClass);
-}
-
-/**
- * ensureDirectoryExists by creating it with 0755 permissions and throwing
- * an exception if it does not exst after that mkdir call.
- * @param $outputFilename
- * @throws JigException
- */
-function ensureDirectoryExists($outputFilename)
-{
-    $directoryName = dirname($outputFilename);
-    @mkdir($directoryName, 0755, true);
-
-    if (file_exists($directoryName) == false) {
-        throw new JigException("Directory $directoryName does not exist and could not be created");
-    }
-}
 
 
-/**
- * Get the class part of a fully namespaced class name
- * @param $namespaceClass
- * @return string
- */
-function getClassName($namespaceClass)
-{
-    $lastSlashPosition = mb_strrpos($namespaceClass, '\\');
 
-    if ($lastSlashPosition !== false) {
-        return mb_substr($namespaceClass, $lastSlashPosition + 1);
-    }
+///**
+// * @param $namespaceClass
+// * @return mixed
+// */
+//function convertNamespaceClassToFilepath($namespaceClass)
+//{
+//    return str_replace('\\', "/", $namespaceClass);
+//}
 
-    return $namespaceClass;
-}
+
+
+
+
 
 class ParsedTemplate
 {
@@ -351,7 +289,7 @@ class ParsedTemplate
         
         $extendsClassName .= "Jig";
         
-        return getFQCN($this->baseNamespace, $extendsClassName);
+        return self::getFQCN($this->baseNamespace, $extendsClassName);
     }
 
     /**
@@ -382,19 +320,18 @@ class ParsedTemplate
      */
     public function saveCompiledTemplate($compilePath, $fqcn)
     {
-//        $fullClassName = getFQCN($this->baseNamespace, $this->getTemplateName());
-//        $fullClassName = str_replace("/", "\\", $fullClassName);
         $fullClassName = $fqcn;
 
-        $namespace = getNamespace($fullClassName);
-        $className = getClassName($fullClassName);
+        $namespace = self::getNamespace($fullClassName);
+        $className = self::getClassName($fullClassName);
         $parentFullClassName = $this->getParentClass();
         $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
 
-        $outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
+        $outputFilename = str_replace('\\', "/", $fqcn);
+        //$outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
         $outputFilename = $compilePath.$outputFilename.".php";
 
-        ensureDirectoryExists($outputFilename);
+        self::ensureDirectoryExists($outputFilename);
 
         $directoryName = dirname($outputFilename);
         $tempFilename = tempnam($directoryName, 'jig');
@@ -405,7 +342,7 @@ class ParsedTemplate
             throw new JigException("Could not open file [$outputFilename] for writing template.");
         }
 
-        $parentClassName = getClassName($parentFullClassName);
+        $parentClassName = self::getClassName($parentFullClassName);
 
         $namespaceString = '';
         if (strlen(trim($namespace))) {
@@ -532,7 +469,7 @@ END;
         }
 
         foreach (array_unique($this->plugins) as $plugin) {
-            $name = convertTypeToParam($plugin);
+            $name = self::convertTypeToParam($plugin);
             $output .=  "\n    private \$$name;";
         }
 
@@ -551,7 +488,7 @@ END;
         $fullDependencies = array_merge($this->injections, $parentDependencies);
 
         foreach (array_unique($this->plugins) as $pluginType) {
-            $pluginParam = convertTypeToParam($pluginType);
+            $pluginParam = self::convertTypeToParam($pluginType);
             $fullDependencies[$pluginParam] = $pluginType;
         }
 
@@ -572,7 +509,7 @@ $depdendencies
         }
 
         foreach (array_unique($this->plugins) as $pluginType) {
-            $pluginParam = convertTypeToParam($pluginType);
+            $pluginParam = self::convertTypeToParam($pluginType);
             $output .=  "        \$this->$pluginParam = \$$pluginParam;\n";
             $output .=  "        \$this->addPlugin(\$$pluginParam);\n";
         }
@@ -609,7 +546,7 @@ $depdendencies
         }
 
         foreach ($this->plugins as $plugin) {
-            $name = convertTypeToParam($plugin);
+            $name = self::convertTypeToParam($plugin);
             $output .=  "            '$name' => '$plugin',\n";
         }
 
@@ -638,5 +575,76 @@ $depdendencies
         fwrite($outputFileHandle, "\n");
         fwrite($outputFileHandle, $output);
         fwrite($outputFileHandle, "\n");
+    }
+    
+    public static function convertTypeToParam($helper)
+    {
+        $helper = str_replace('\\', '_', $helper);
+    
+        return $helper;
+    }
+    
+    /**
+     * Get the name space part of a fully namespaced class. Returns empty string
+     * if the class had no namespace part.
+     * @param $namespaceClass
+     * @return string
+     */
+    public static function getNamespace($namespaceClass)
+    {
+        if (is_object($namespaceClass)) {
+            $namespaceClass = get_class($namespaceClass);
+        }
+    
+        $lastSlashPosition = mb_strrpos($namespaceClass, '\\');
+    
+        if ($lastSlashPosition !== false) {
+            return mb_substr($namespaceClass, 0, $lastSlashPosition);
+        }
+    
+        return "";
+    }
+
+    public static function getFQCN($namespace, $classname)
+    {
+        if (strlen($namespace)) {
+            return $namespace."\\".$classname;
+        }
+    
+        return $classname;
+    }
+    
+    /**
+     * Get the class part of a fully namespaced class name
+     * @param $namespaceClass
+     * @return string
+     */
+    public static function getClassName($namespaceClass)
+    {
+        $lastSlashPosition = mb_strrpos($namespaceClass, '\\');
+    
+        if ($lastSlashPosition !== false) {
+            return mb_substr($namespaceClass, $lastSlashPosition + 1);
+        }
+    
+        return $namespaceClass;
+    }
+    
+    /**
+     * ensureDirectoryExists by creating it with 0755 permissions and throwing
+     * an exception if it does not exst after that mkdir call.
+     * @param $outputFilename
+     * @throws JigException
+     */
+    function ensureDirectoryExists($outputFilename)
+    {
+        $directoryName = dirname($outputFilename);
+        @mkdir($directoryName, 0755, true);
+        
+        //TODO - double-check umask
+    
+        if (file_exists($directoryName) == false) {
+            throw new JigException("Directory $directoryName does not exist and could not be created");
+        }
     }
 }

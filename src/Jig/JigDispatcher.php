@@ -21,15 +21,13 @@ class JigDispatcher extends Jig
     public function __construct(
         JigConfig $jigConfig,
         Injector $injector,
-        JigRender $jigRender = null
+        JigConverter $jigConverter = null
     ) {
-        if ($jigRender == null) {
-            $jigRender = new JigRender($jigConfig);
-        }
 
-        parent::__construct($jigConfig, $jigRender);
+        parent::__construct($jigConfig, $jigConverter);
         $this->injector = $injector;
-        $this->injector->share($jigRender);
+        $this->injector->alias('Jig\Jig', get_class($this));
+        $this->injector->share($this);
     }
 
     /**
@@ -39,7 +37,7 @@ class JigDispatcher extends Jig
      */
     public function renderTemplateFile($templateFilename)
     {
-        $this->jigRender->checkTemplateCompiled($templateFilename);
+        $this->checkTemplateCompiled($templateFilename);
         $className = $this->jigConfig->getFQCNFromTemplateName($templateFilename);
         $contents = $this->injector->execute([$className, 'render']);
 
@@ -56,7 +54,7 @@ class JigDispatcher extends Jig
      */
     public function renderTemplateFromString($templateString, $objectID)
     {
-        $className = $this->jigRender->getParsedTemplateFromString($templateString, $objectID);
+        $className = $this->getParsedTemplateFromString($templateString, $objectID);
         $contents = $this->injector->execute([$className, 'render']);
 
         return $contents;
