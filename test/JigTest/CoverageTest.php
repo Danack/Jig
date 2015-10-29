@@ -237,9 +237,51 @@ TPL;
         $this->assertContains('css is \\3C \\3E ', $output);
         $this->assertContains('js is \\x3C\\x3E', $output);
     }
-    
 
     
+    public function testForeachVariable()
+    {
+$templateString = <<< 'TPL'
+
+{$foo = [1, 2, 3]}
+
+{foreach $foo as $value}
+value is {$value}
+{/foreach}
+
+TPL;
+        $jig = $this->getJigDispatcher();
+
+        $objectID = "testForeachVariable".time();
+        $jig->deleteCompiledString($objectID);
+        $output = $jig->renderTemplateFromString($templateString, $objectID);
+        $jig->deleteCompiledString($objectID);
+
+        $this->assertContains('value is 1', $output);
+        $this->assertContains('value is 2', $output);
+        $this->assertContains('value is 3', $output);
+    }
+    
+    /**
+     * @group foreachcoverage
+     */
+    public function testForeachBadSyntax()
+    {
+$templateString = <<< 'TPL'
+
+{$foo = [1, 2, 3]}
+
+{foreach foo as $value}
+This should not compile
+{/foreach}
+
+TPL;
+        $jig = $this->getJigDispatcher();
+
+        $objectID = "testForeachBadSyntax".time();
+        $jig->deleteCompiledString($objectID);
+        $output = $jig->renderTemplateFromString($templateString, $objectID);
+    }
     
 }
 

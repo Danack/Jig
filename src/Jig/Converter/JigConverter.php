@@ -134,10 +134,10 @@ class JigConverter
     
         $this->outputMode = $newOutputMode;
     }
-    
+
     /**
-     * @param $blockName
-     * @return null|callable
+     * @param $segmentText
+     * @return null
      */
     public function matchCompileBlockFunction($segmentText)
     {
@@ -570,6 +570,10 @@ class JigConverter
         $this->parsedTemplate->addInjection($name, $type);
     }
 
+    /**
+     * @param $segmentText
+     * @throws JigException
+     */
     protected function processPlugin($segmentText)
     {
         //TODO - convert the second quote into a back reference?
@@ -668,23 +672,17 @@ class JigConverter
         $varPosition = $matches[1][1];
         $segmentText = str_replace('foreach', 'foreach (', $segmentText);
 
-        if ($this->parsedTemplate->hasLocalVariable($foreachItem) == true) {
-            $this->addLineInternal($segmentText.'){');
-        }
-        else {
-            $segment = new CodeTemplateSegment($foreachItem);
-            $replace = $segment->getCodeString(
-                $this->parsedTemplate,
-                CodeTemplateSegment::NO_FILTER |
-                CodeTemplateSegment::NO_PHP    |
-                CodeTemplateSegment::NO_OUTPUT
-            );
-            $segmentText = str_replace($foreachItem, $replace, $segmentText);
-            $this->addCode($segmentText.'){ ');
-        }
+        $segment = new CodeTemplateSegment($foreachItem);
+        $replace = $segment->getCodeString(
+            $this->parsedTemplate,
+            CodeTemplateSegment::NO_FILTER |
+            CodeTemplateSegment::NO_PHP    |
+            CodeTemplateSegment::NO_OUTPUT
+        );
+        $segmentText = str_replace($foreachItem, $replace, $segmentText);
+        $this->addCode($segmentText.'){ ');
 
         $dependentVariablesPosition = $varPosition + strlen($foreachItem);
-
         $pattern = '/\s+(\$\w+)\s?/u';
 
         $matchCount = preg_match_all($pattern, $segmentText, $matches, PREG_PATTERN_ORDER, $dependentVariablesPosition);
@@ -777,15 +775,9 @@ class JigConverter
     }
 
     /**
-     * Generate the full class name for teh compiled version of a template.
-     * @param $templateFilename
-     * @return string
+     * @param $classname
+     * @return mixed
      */
-    public function getNamespacedClassNameFromFileName($templateFilename)
-    {
-        return $this->jigConfig->getFQCNFromTemplateName($templateFilename);
-    }
-    
     public static function convertClassnameToParam($classname)
     {
         $paramName = str_replace('\\', '_', $classname);

@@ -63,7 +63,7 @@ class JigConfig
     }
 
     /**
-     * Returns the classname with full namespace.
+     * Generate the full class name for the compiled version of a template..
      * @param $templateName
      * @return string
      */

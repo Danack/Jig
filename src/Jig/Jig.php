@@ -83,6 +83,16 @@ class Jig
 
         return $deleted;
     }
+    
+    
+    public function deleteCompiledString($objectID)
+    {
+        $fqcn = $this->jigConfig->getFQCNFromTemplateName($objectID);
+        $compileFilename = $this->jigConfig->getCompiledFilenameFromClassname($fqcn);
+        $deleted = @unlink($compileFilename);
+
+        return $deleted;
+    }
 
     /**
      * @param $templateFilename
