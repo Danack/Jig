@@ -334,4 +334,128 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
+    
+    
+    public function testEscapeJavascriptFailObject()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeJavascript(new \StdClass);
+    }
+    
+    public function testEscapeJavascriptFailArray()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeJavascript(['Hello world']);
+    }
+    
+    public function testEscapeJavascriptObjectToString()
+    {
+        $string = 'Foobar';
+        $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
+        $result = Escaper::escapeJavascript($obj);
+        $this->assertEquals($string, $result);
+    }
+
+    
+    public function testEscapeHTMLObjectToString()
+    {
+        $string = 'Foobar';
+        $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
+        $result = Escaper::escapeHTML($obj);
+        $this->assertEquals($string, $result);
+    }
+    
+    
+    public function testEscapeCSSFailObject()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeCSS(new \StdClass);
+    }
+    
+    public function testEscapeCSSFailArray()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeCSS(['Hello world']);
+    }
+    
+    public function testEscapeCSSObjectToString()
+    {
+        $string = 'Foobar';
+        $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
+        $result = Escaper::escapeCSS($obj);
+        $this->assertEquals($string, $result);
+    }
+
+    public function testEscapeHTMLAttrFailObject()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeHTMLAttribute(new \StdClass);
+    }
+    
+    public function testEscapeHTMLAttrFailArray()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeHTMLAttribute(['Hello world']);
+    }
+    
+    public function testEscapeHTMLAttrObjectToString()
+    {
+        $string = 'Foobar';
+        $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
+        $result = Escaper::escapeHTMLAttribute($obj);
+        $this->assertEquals($string, $result);
+    }
+    
+    public function testEscapeURLFailObject()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeURL(new \StdClass);
+    }
+    
+    public function testEscapeURLFailArray()
+    {
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\JigException::FAILED_TO_RENDER
+        );
+
+        Escaper::escapeURL(['Hello world']);
+    }
+    
+    public function testEscapeURLObjectToString()
+    {
+        $string = 'Foobar';
+        $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
+        $result = Escaper::escapeURL($obj);
+        $this->assertEquals($string, $result);
+    }
+    
 }

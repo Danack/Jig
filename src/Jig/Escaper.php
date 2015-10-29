@@ -155,7 +155,6 @@ function _twig_escape_html_attr_callback($matches)
 
 class Escaper
 {
-
     /**
      * Escapes a string.
      *
@@ -165,6 +164,7 @@ class Escaper
      */
     public static function escapeHTML($string)
     {
+
         $charset = 'UTF-8';
 
         if (is_object($string) == true) {
@@ -246,7 +246,7 @@ class Escaper
                     get_class($string)
                 );
 
-                throw new JigException($message);
+                throw new JigException($message, JigException::FAILED_TO_RENDER);
             }
 
             $string = (string)$string;
@@ -369,6 +369,11 @@ class Escaper
         return $string;
     }
 
+    /**
+     * @param $string
+     * @return string
+     * @throws JigException
+     */
     public static function escapeURL($string)
     {
         if (is_object($string) == true) {

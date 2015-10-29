@@ -6,22 +6,6 @@ namespace Jig\Converter;
 use Jig\JigException;
 
 
-
-
-///**
-// * @param $namespaceClass
-// * @return mixed
-// */
-//function convertNamespaceClassToFilepath($namespaceClass)
-//{
-//    return str_replace('\\', "/", $namespaceClass);
-//}
-
-
-
-
-
-
 class ParsedTemplate
 {
     /**
@@ -91,25 +75,34 @@ class ParsedTemplate
         $knownItems = [];
 
         foreach ($classnames as $classname) {
-            try {
-                if (class_exists($classname) == false) {
-                    throw new JigException(
-                        "Class $classname does not exist.",
-                        JigException::FILTER_NO_INFO
-                    );
-                }
-                
-                $reflection = new \ReflectionMethod($classname, $methodName);
-                if ($reflection->isStatic() == false) {
-                    throw new JigException(
-                        "Method $methodName for filter class $classname must be static.",
-                        JigException::FILTER_NO_INFO
-                    );
-                }
+            $implementedInterfaces = class_implements($classname);
 
-                $closure = $reflection->getClosure(null);
-                $filters = $closure();
-                if (is_array($filters) == false) {
+            if ($implementedInterfaces === false) {
+                throw new JigException("Failed to load plugin class $classname to get info from it.");
+            }
+                
+            if (in_array('Jig\Plugin', $implementedInterfaces) == false) {
+                throw new JigException('Class $classname does not implement interface Jig\Plugin, cannot be used as a plugin.');
+            }
+
+            $callable = [$classname, $methodName];
+
+            $listItems = call_user_func($callable);
+            if (is_array($listItems) == false) {
+                $message = sprintf(
+                    "Method %s for class %s must return an array of the names, and the names must be strings",
+                    $methodName,
+                    $classname
+                );
+                
+                throw new JigException(
+                    $message,
+                    JigException::FILTER_NO_INFO
+                );
+            }
+
+            foreach ($listItems as $item) {
+                if (is_string($item) == false) {
                     $message = sprintf(
                         "Method %s for class %s must return an array of the names, and the names must be strings",
                         $methodName,
@@ -121,54 +114,18 @@ class ParsedTemplate
                         JigException::FILTER_NO_INFO
                     );
                 }
-
-                foreach ($filters as $filter) {
-                    if (is_string($filter) == false) {
-                        $message = sprintf(
-                            "Method getFilterList for filter class %s must return an array of the ".
-                            "names of filters, and the names must be strings",
-                            $classname
-                        );
-                        
-                        throw new JigException(
-                            $message,
-                            JigException::FILTER_NO_INFO
-                        );
-                    }
-                }
-
-                //TODO - should we detect duplicate filters here?
-                $knownItems = array_merge($knownItems, $filters);
             }
-            catch (\ReflectionException $re) {
-                throw new JigException(
-                    "Class $classname does not have a static method $methodName",
-                    JigException::FILTER_NO_INFO,
-                    $re
-                );
-            }
+
+            //TODO - should we detect and warn on duplicate filters here?
+            $knownItems = array_merge($knownItems, $listItems);
         }
 
         return $knownItems;
     }
     
-    /**
-     * @return array
-     * @throws JigException
-     */
-    public function getKnownFilters()
-    {
-        return $this->callStaticInfoMethod($this->plugins, 'getFilterList');
-    }
-    
     public function getKnownRenderBlocks()
     {
         return $this->callStaticInfoMethod($this->plugins, 'getBlockRenderList');
-    }
-
-    public function getKnownFunctions()
-    {
-        return $this->callStaticInfoMethod($this->plugins, 'getFunctionList');
     }
 
     public function addIncludeFile($filename, $paramName, $className)
@@ -430,31 +387,6 @@ END;
             fwrite($outputFileHandle, "    }\n");
             fwrite($outputFileHandle, "\n");
         }
-    }
-
-    /**
-     * @param $outputFileHandle
-     */
-    public function writeInjectionArray($outputFileHandle)
-    {
-        $output = "    private \$injections = array(\n";
-        $separator = '';
-
-        foreach ($this->injections as $name => $value) {
-            $output .= $separator;
-            $output .= "        '$name' => '$value'\n";
-            $separator = ',';
-        }
-
-        $output .= "    );\n\n";
-
-        foreach ($this->injections as $name => $value) {
-            $output .= "    protected \$$name;\n";
-        }
-
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
     }
 
     /**

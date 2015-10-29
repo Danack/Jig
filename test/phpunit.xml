@@ -14,7 +14,7 @@
     <filter>
         <whitelist>
             <directory>../src/Jig</directory>
-            <directory>../tmp/generatedTemplates/Jig</directory>
+            <!-- <directory>../tmp/generatedTemplates/Jig</directory> -->
         </whitelist>
     </filter>
 

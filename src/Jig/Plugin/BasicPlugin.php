@@ -42,7 +42,7 @@ class BasicPlugin implements Plugin
     public static function getFunctionList()
     {
         $methodFunctions = [
-            'methodFunction'
+            'memory_usage'
         ];
         
         return array_merge($methodFunctions, self::$globalFunctions);
@@ -150,9 +150,9 @@ class BasicPlugin implements Plugin
      * the plugin.
      * @return string
      */
-    public function methodFunction()
+    public function memory_usage()
     {
-        return "This is a method function";
+        return memory_get_peak_usage(true);
     }
 
     /**

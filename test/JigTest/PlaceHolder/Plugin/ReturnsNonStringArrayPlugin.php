@@ -1,28 +1,14 @@
 <?php
 
+namespace JigTest\PlaceHolder\Plugin;
 
-namespace Jig\Plugin;
+use Jig\Plugin;
 
-use Jig\JigException;
-
-/**
- * Class EmptyPlugin
- * An empty plugin. Extending this class is an easy way to create a plugin
- * without having to define all of the functions yourself. e.g. if you just 
- * want to create a plugin that implements one function, you only need to 
- * implement the 'getFunctionList' and 'callFunction' methods.
- * 
- * @package Jig\Plugin
- */
-class EmptyPlugin implements \Jig\Plugin
+class ReturnsNonStringArrayPlugin implements Plugin
 {
-    /**
-     * Return the list of blocks provided by this plugin.
-     * @return string[]
-     */
     public static function getBlockRenderList()
     {
-        return [];
+        return ['foo', new \StdClass()];
     }
 
     /**
@@ -31,7 +17,7 @@ class EmptyPlugin implements \Jig\Plugin
      */
     public static function getFilterList()
     {
-        return [];
+        return ['foo', new \StdClass()];
     }
 
     /**
@@ -40,7 +26,7 @@ class EmptyPlugin implements \Jig\Plugin
      */
     public static function getFunctionList()
     {
-        return [];
+        return ['foo', new \StdClass()];
     }
 
     /**
@@ -51,7 +37,7 @@ class EmptyPlugin implements \Jig\Plugin
      */
     public function callFunction($functionName, array $params)
     {
-        throw new JigException("callFunction called for unknown function '$functionName'");
+        throw new \Exception("Not implemented");
     }
 
     /**
@@ -62,7 +48,7 @@ class EmptyPlugin implements \Jig\Plugin
      */
     public function callFilter($filterName, $string)
     {
-        throw new JigException("callFilter called for unknown function '$filterName'");
+        throw new \Exception("Not implemented");
     }
 
     /**
@@ -74,7 +60,7 @@ class EmptyPlugin implements \Jig\Plugin
      */
     public function callBlockRenderStart($blockName, $extraParam)
     {
-        throw new JigException("callBlockRenderStart called for unknown block '$blockName'");
+        throw new \Exception("Not implemented");
     }
 
     /**
@@ -86,6 +72,6 @@ class EmptyPlugin implements \Jig\Plugin
      */
     public function callBlockRenderEnd($blockName, $contents)
     {
-        throw new JigException("callBlockRenderEnd called for unknown block '$blockName'");
+        throw new \Exception("Not implemented");
     }
 }

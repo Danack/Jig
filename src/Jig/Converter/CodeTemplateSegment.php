@@ -45,40 +45,6 @@ class CodeTemplateSegment extends TemplateSegment
         return '{'.$this->text.'}';
     }
 
-    // Replace variables
-    // {$user} => $this->getVariable('user');
-
-    // object variable
-    // {$user->getName()} => $this->getVariable('user')->getName();
-
-    // array variable
-    // {$user['name']} => $this->getVariable('user')['name'];
-
-    //Simple registered function
-    //{someFunction()} => $this->someFunction();
-
-    //Simple global function
-    //{someFunction()} => someFunction();
-
-    //function with variable
-    //{someFunction($user)} => $this->someFunction($this->getVariable('user'));
-
-    //Extends
-    //{extends template='some/name'} => $template class extends "some/name"
-
-    //{block name='someBlock'}		=> template function someBlock()
-    //{/block}						=> end it
-
-    //Foreach
-    //{foreach $someArray as $key => $value}
-    //=>
-    //foreach ($this->getVariable('someArray') as $key => $value){}
-    //{/foreach} =>  <?php } ? >
-
-    // {$count = 1;}
-    // {if ($count % 2) == 0}
-    //{$count++}
-
     private function removeFilters()
     {
         $pattern = '/\|\s*([\w\s]+)/u';
@@ -197,7 +163,7 @@ class CodeTemplateSegment extends TemplateSegment
                 $filterList = $pluginClasname::getFilterList();
 
                 if (in_array($filterName, $filterList, true)) {
-                    $filterParam = convertClassnameToParam($pluginClasname);
+                    $filterParam = JigConverter::convertClassnameToParam($pluginClasname);
                     $segmentText = sprintf(
                         "\$this->%s->callFilter('%s', %s)",
                         $filterParam,
@@ -215,26 +181,14 @@ class CodeTemplateSegment extends TemplateSegment
             );
         }
 
-        //if (in_array('nooutput', $filters) == false) {
         if (($flags & self::NO_OUTPUT) == 0) {
             $segmentText = "echo ".$segmentText."";
         }
 
-        //if (in_array('nophp', $filters) == false) {
         if (($flags & self::NO_PHP) == 0) {
             $segmentText = $segmentText."; ";
         }
 
         return $segmentText;
     }
-
-    //1. For all assignments, i.e. left of an equals sign - $parsedTemplate->addLocalVariable($assignmentMatch[1][0]);
-    
-    //2. Var all variable fetch, replace with
-        //2a - if ($parsedTemplate->hasLocalVariable($variableName) == true)
-            //just add it
-        //2b - else
-            //replace with $this->getVariable('".$variableName."')"
-    
-    //3. For all function calls - replace function with $this->call('functionName', $params).
 }

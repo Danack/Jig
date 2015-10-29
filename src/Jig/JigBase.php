@@ -120,21 +120,21 @@ abstract class JigBase
             throw $je;
         }
         catch (\Exception $e) {
-            //TODO - should put the bit that gave an error somewhere?
-            //$contents = ob_get_contents();
             ob_end_clean();
             
+            $message = sprintf(
+                "Failed to render template '%s' : %s",
+                get_class($this),
+                $e->getMessage()
+            );
+            
             throw new JigException(
-                "Failed to render template: ".$e->getMessage(),
+                $message,
                 JigException::FAILED_TO_RENDER,
                 $e
             );
         }
-        //TODO - think about this.
-//        finally {
-//            ob_end_clean();
-//        }
-    
+
         ob_end_clean();
 
         return $contents;

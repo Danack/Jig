@@ -6,12 +6,6 @@ namespace Jig\Converter;
 use Jig\JigException;
 use Jig\JigConfig;
 
-function convertClassnameToParam($classname)
-{
-    $paramName = str_replace('\\', '_', $classname);
-    
-    return $paramName;
-}
 
 /**
  * Class JigConverter The class that actually converts templates into PHP.
@@ -99,8 +93,7 @@ class JigConverter
      * @var array
      */
     private $defaultPlugins = [];
-    
-    
+
     public static $builtinFilters = [
         self::FILTER_NONE,
         self::FILTER_NO_OUTPUT,
@@ -119,24 +112,6 @@ class JigConverter
     {
         $this->jigConfig = $jigConfig;
         $this->outputMode = self::MODE_TEMPLATE;
-    }
-
-    /**
-     * @param $name
-     */
-    public function addDefaultHelper($name)
-    {
-        $this->defaultHelpers[] = $name;
-    }
-
-    public function addDefaultFilter($name)
-    {
-        $this->defaultFilters[] = $name;
-    }
-
-    public function addDefaultRenderBlock($name)
-    {
-        $this->defaultRenderBlocks[] = $name;
     }
     
     public function addDefaultPlugin($name)
@@ -198,14 +173,15 @@ class JigConverter
     public function createFromLines($fileLines)
     {
         if ($this->parsedTemplate != null) {
-            throw new \Exception("Trying to convert template while in the middle of converting another one.");
+            throw new JigException(
+                "Trying to convert template while in the middle of converting another one."
+            );
         }
 
         $this->parsedTemplate = new ParsedTemplate(
             $this->jigConfig->compiledNamespace,
             $this->defaultPlugins
         );
-
 
         $this->startInTemplateMode();
 
@@ -266,17 +242,6 @@ class JigConverter
         $segments = array();
         $matches = array();
 
-        $commentStart = strpos($fileLine, "{*");
-        if ($commentStart) {
-            $commentEnd = strpos($fileLine, "*}", $commentStart);
-            
-            if ($commentEnd) {
-                $segments[] = new CommentTemplateSegment(substr($fileLine, $commentStart, $commentEnd));
-                $newLine = substr($fileLine, 0, $commentStart).substr($fileLine, $commentEnd + 2);
-                $fileLine = $newLine;
-            }
-        }
-
         //U = ungreedy
         //u = utf
         $pattern = '/\{([^\s]+.*[^\s]+)\}/Uu';
@@ -324,7 +289,7 @@ class JigConverter
 
                 $position = $codeStartPosition + mb_strlen($codeWithBrackets);
 
-                if ($startStr== '{*' &&
+                if ($startStr == '{*' &&
                     $endStr == '*}') {
                     //it was a comment like {* *}
                     $segments[] = new CommentTemplateSegment($code);
@@ -340,32 +305,13 @@ class JigConverter
                 $segments[] = new TextTemplateSegment($remainingString);
             }
         }
-        
-//        $nonTextSegments = false;
-//        $anyTextFound = false;
-//        $remainingSegments = [];
-//        
-//        foreach ($segments as $segment) {
-//            if ($segment instanceof TextTemplateSegment) {
-//                if (strlen(trim($segment->getRawString()))) {
-//                    $anyTextFound = true;
-//                }
-//            }
-//            else {
-//                $nonTextSegments = true;
-//                $remainingSegments[] = $segment;
-//            }
-//        }
-        
-//        if ($nonTextSegments == true) {
-//            if ($anyTextFound == false) {
-//                return $remainingSegments;
-//            }
-//        //}
 
         return $segments;
     }
 
+    /**
+     * 
+     */
     private function finishParsing()
     {
         //Finish any text block that is active.
@@ -380,14 +326,13 @@ class JigConverter
         $this->literalMode = $literalMode;
     }
 
-
     /**
      * @param $filename
      */
     public function setInclude($filename)
     {
         $className = $this->jigConfig->getFQCNFromTemplateName($filename);
-        $paramName = convertClassnameToParam($className);
+        $paramName = self::convertClassnameToParam($className);
 
         $this->parsedTemplate->addIncludeFile($filename, $paramName, $className);
         
@@ -549,9 +494,6 @@ class JigConverter
                 $this->addLineInternal($segment->getCodeString($this->parsedTemplate)."\n");
             }
         }
-//        catch (JigException $je) {
-//            throw $je;
-//        }
         catch (\Exception $e) {
             $message = "Could not parse template segment [{".$segmentText."}]: ".$e->getMessage();
             throw new JigException($message, $e->getCode(), $e);
@@ -813,15 +755,6 @@ class JigConverter
     }
 
     /**
-     * @param $templateFilename
-     * @return string
-     */
-    public function setClassNameFromFilename($templateFilename)
-    {
-        return self::getClassNameFromFileName($templateFilename);
-    }
-
-    /**
      * Creates a 'named block' that is processed only when the template is compiled
      * from the template format to PHP, and binds a start and end callable to it.
      * @param $blockName
@@ -851,5 +784,12 @@ class JigConverter
     public function getNamespacedClassNameFromFileName($templateFilename)
     {
         return $this->jigConfig->getFQCNFromTemplateName($templateFilename);
+    }
+    
+    public static function convertClassnameToParam($classname)
+    {
+        $paramName = str_replace('\\', '_', $classname);
+        
+        return $paramName;
     }
 }

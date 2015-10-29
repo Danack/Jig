@@ -16,6 +16,6 @@ class CommentTemplateSegment extends TemplateSegment
     
     public function getCommentString(ParsedTemplate $parsedTemplate, $extraFilters = array())
     {
-        return '//'. $this->text.'';
+        return '//'. $this->text."\n";
     }
 }

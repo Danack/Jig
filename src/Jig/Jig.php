@@ -33,11 +33,6 @@ class Jig
     protected $jigConfig;
 
     /**
-     * @var \Jig\JigRender
-     */
-    protected $jigRender;
-
-    /**
      * @param JigConfig $jigConfig
      * @param JigConverter $jigConverter
      */
@@ -133,7 +128,7 @@ class Jig
         }
 
         //Either class file did not exist or it was out of date.
-        $this->compileTemplate($className, $templateFilename);
+        $this->compileTemplate($templateFilename);
 
 check_dependencies:
 
@@ -169,14 +164,13 @@ check_dependencies:
                / /  _ _
               (_.-.'O'-'.        "Deinonychus"
 */
-    
-    
-          /**
+
+    /**
      * @param $className
      * @param $templateFilename
      * @throws JigException
      */
-    private function compileTemplate($className, $templateFilename)
+    private function compileTemplate($templateFilename)
     {
         $parsedTemplate = $this->prepareTemplateFromFile($templateFilename);
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
@@ -194,6 +188,9 @@ check_dependencies:
 
         if (class_exists($fqcn, false) == false) {
             if (function_exists('opcache_invalidate') == true) {
+                // If the class exists in OPCache, it might be out of date.
+                // Invalidate the cache for that entry to ensure we get the 
+                // newly compiled version.
                 opcache_invalidate($outputFilename);
             }
             //This is very stupid. We should be able to auto-load the class
@@ -282,19 +279,21 @@ check_dependencies:
      * @param $templateString
      * @param $cacheName
      * @return mixed
-     */
-//    public function getParsedTemplateFromString($templateString, $cacheName)
-//    {
-//        return $this->jigRender->getParsedTemplateFromString($templateString, $cacheName);
-//    }
-    
-        public function getParsedTemplateFromString($templateString, $cacheName)
+     */    
+    public function getParsedTemplateFromString($templateString, $cacheName)
     {
         $templateString = str_replace("<?php", "&lt;php", $templateString);
         $templateString = str_replace("?>", "?&gt;", $templateString);
-
+        
         $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
         $parsedTemplate->setTemplateName($cacheName);
+
+        $fqcn = $this->jigConfig->getFQCNFromTemplateName($parsedTemplate->getTemplateName());
+
+        if (class_exists($fqcn, true)) {
+            return $fqcn;
+        }
+
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
 
         foreach ($templateDependencies as $templateDependency) {
@@ -307,20 +306,19 @@ check_dependencies:
             $this->jigConfig->templateCompileDirectory,
             $this->jigConfig->getFQCNFromTemplateName($cacheName)
         );
-        
+
         //This is very stupid. We should be able to auto-load the class
         //if and only if it is required. But the Composer autoloader caches
         //the 'class doesn't exist' result from earlier, which means we
         //have to load it by hand.
-        
         //TODO - this needs a check that the class doesn't already exist
         //(and a test case)        
         /** @noinspection PhpIncludeInspection */
         require($outputFilename);
 
-        return $this->jigConfig->getFQCNFromTemplateName($parsedTemplate->getTemplateName());
+        return $fqcn;
     }
-    
+
     /**
      * @param $templateName
      * @return string

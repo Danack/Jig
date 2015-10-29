@@ -155,11 +155,16 @@ END;
         $this->assertContains("Hello, this is a template.", $contents);
     }
 
+    /**
+     * @group comments
+     */
     public function testBasicComment()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         $contents = $this->jig->renderTemplateFile('basic/comments');
+        
         $this->assertContains("Basic comment test passed.", $contents);
+        $this->assertContains("bar", $contents);
     }
 
     public function testIncludeConversion()
@@ -644,7 +649,23 @@ TPL;
 
         $result = call_user_func([$className, 'getDependencyList']);
     }
-   
+
+    public function testDuplicateCompilationDoesNotError()
+    {
+        $templateString = <<< TPL
+Hello, I am a template
+TPL;
+
+        $this->jig->renderTemplateFromString(
+            $templateString,
+            "testDuplicateCompilationDoesNotError1"
+        );
+        $this->jig->renderTemplateFromString(
+            $templateString,
+            "testDuplicateCompilationDoesNotError1"
+        );
+    }
+
     public function testUpdatedIncludedTemplateIsCompiled()
     {
         $directory = realpath(__DIR__.'/../templates/includedTemplateIsCompiled/');
@@ -689,6 +710,7 @@ TPL;
     
     /**
      * @group phptags
+     * @group commentsbug
      */
     public function testCommentInsideLiteral()
     {
