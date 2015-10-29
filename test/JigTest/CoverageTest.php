@@ -271,7 +271,7 @@ $templateString = <<< 'TPL'
 
 {$foo = [1, 2, 3]}
 
-{foreach foo as $value}
+{foreach asdsd}
 This should not compile
 {/foreach}
 
@@ -280,7 +280,9 @@ TPL;
 
         $objectID = "testForeachBadSyntax".time();
         $jig->deleteCompiledString($objectID);
+        $this->setExpectedException('Jig\JigException');
         $output = $jig->renderTemplateFromString($templateString, $objectID);
+        
     }
     
 }
