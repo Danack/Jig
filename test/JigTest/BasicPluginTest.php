@@ -72,6 +72,6 @@ class BasicPluginTest extends BaseTestCase
         ob_end_clean();
 
         $result = $plugin->callFunction('memory_usage', []);
-        $this->assertGreaterThan(0, strlen($result)); 
+        $this->assertGreaterThan(0, strlen($result));
     }
 }

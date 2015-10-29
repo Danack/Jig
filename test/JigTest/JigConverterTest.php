@@ -422,7 +422,7 @@ END;
     }
 
     /**
-     * 
+     *
      */
     public function testRenderBlock()
     {
@@ -442,7 +442,7 @@ END;
     }
 
     /**
-     * 
+     *
      */
     public function testCompileBlock()
     {

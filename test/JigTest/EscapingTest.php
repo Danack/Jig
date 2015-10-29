@@ -457,5 +457,4 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
         $result = Escaper::escapeURL($obj);
         $this->assertEquals($string, $result);
     }
-    
 }

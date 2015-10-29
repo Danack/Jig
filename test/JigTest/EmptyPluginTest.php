@@ -2,10 +2,6 @@
 
 namespace JigTest;
 
-use Jig\Jig;
-use Jig\Converter\JigConverter;
-use Jig\JigConfig;
-use Jig\JigException;
 use Jig\Plugin\EmptyPlugin;
 
 /**

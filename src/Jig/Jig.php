@@ -199,7 +199,7 @@ check_dependencies:
         if (class_exists($fqcn, false) == false) {
             if (function_exists('opcache_invalidate') == true) {
                 // If the class exists in OPCache, it might be out of date.
-                // Invalidate the cache for that entry to ensure we get the 
+                // Invalidate the cache for that entry to ensure we get the
                 // newly compiled version.
                 opcache_invalidate($outputFilename);
             }
@@ -289,7 +289,7 @@ check_dependencies:
      * @param $templateString
      * @param $cacheName
      * @return mixed
-     */    
+     */
     public function getParsedTemplateFromString($templateString, $cacheName)
     {
         $templateString = str_replace("<?php", "&lt;php", $templateString);
@@ -321,8 +321,6 @@ check_dependencies:
         //if and only if it is required. But the Composer autoloader caches
         //the 'class doesn't exist' result from earlier, which means we
         //have to load it by hand.
-        //TODO - this needs a check that the class doesn't already exist
-        //(and a test case)        
         /** @noinspection PhpIncludeInspection */
         require($outputFilename);
 
@@ -337,7 +335,7 @@ check_dependencies:
     {
         $className = $jigConverter->getClassNameFromFilename($templateName);
         $compiledFilename = $jigConfig->getCompiledFilenameFromClassname($className);
-    
+
         return $compiledFilename;
     }
 }

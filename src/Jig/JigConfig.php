@@ -71,7 +71,7 @@ class JigConfig
     {
         $classname = $this->compiledNamespace."\\".$templateName;
         $classname = str_replace('/', '\\', $classname);
-        $classname .= "Jig";    
+        $classname .= "Jig";
 
         return $classname;
     }

@@ -8,10 +8,10 @@ use Jig\JigException;
 /**
  * Class EmptyPlugin
  * An empty plugin. Extending this class is an easy way to create a plugin
- * without having to define all of the functions yourself. e.g. if you just 
- * want to create a plugin that implements one function, you only need to 
+ * without having to define all of the functions yourself. e.g. if you just
+ * want to create a plugin that implements one function, you only need to
  * implement the 'getFunctionList' and 'callFunction' methods.
- * 
+ *
  * @package Jig\Plugin
  */
 class EmptyPlugin implements \Jig\Plugin

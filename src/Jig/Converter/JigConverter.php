@@ -1,11 +1,9 @@
 <?php
 
-
 namespace Jig\Converter;
 
 use Jig\JigException;
 use Jig\JigConfig;
-
 
 /**
  * Class JigConverter The class that actually converts templates into PHP.
@@ -310,7 +308,7 @@ class JigConverter
     }
 
     /**
-     * 
+     *
      */
     private function finishParsing()
     {

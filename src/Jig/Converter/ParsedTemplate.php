@@ -5,7 +5,6 @@ namespace Jig\Converter;
 
 use Jig\JigException;
 
-
 class ParsedTemplate
 {
     /**
@@ -82,7 +81,8 @@ class ParsedTemplate
             }
                 
             if (in_array('Jig\Plugin', $implementedInterfaces) == false) {
-                throw new JigException('Class $classname does not implement interface Jig\Plugin, cannot be used as a plugin.');
+                $message = "Class $classname does not implement interface Jig\\Plugin, cannot be used as a plugin.";
+                throw new JigException($message);
             }
 
             $callable = [$classname, $methodName];
@@ -568,7 +568,7 @@ $depdendencies
      * @param $outputFilename
      * @throws JigException
      */
-    function ensureDirectoryExists($outputFilename)
+    public function ensureDirectoryExists($outputFilename)
     {
         $directoryName = dirname($outputFilename);
         @mkdir($directoryName, 0755, true);
