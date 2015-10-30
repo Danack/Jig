@@ -29,10 +29,18 @@ class CodeTemplateSegment extends TemplateSegment
         $this->text = $text;
         $this->filters = $this->removeFilters();
     }
-    
+
+    /**
+     * @return bool
+     */
     public function hasAssignment()
     {
         return $this->hasAssignment;
+    }
+    
+    public function setHasAssignment($hasAssignment)
+    {
+        $this->hasAssignment = $hasAssignment;
     }
     
     /**

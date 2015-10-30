@@ -294,8 +294,14 @@ check_dependencies:
     {
         $templateString = str_replace("<?php", "&lt;php", $templateString);
         $templateString = str_replace("?>", "?&gt;", $templateString);
-        
-        $parsedTemplate = $this->jigConverter->createFromLines(array($templateString));
+        $templateString = str_replace("\r\n", "\n", $templateString);
+        $lines = explode("\n", $templateString);
+        $terminatedLines = [];
+        foreach ($lines as $line) {
+            $terminatedLines[] = $line."\n";
+        }
+
+        $parsedTemplate = $this->jigConverter->createFromLines($terminatedLines);
         $parsedTemplate->setTemplateName($cacheName);
 
         $fqcn = $this->jigConfig->getFQCNFromTemplateName($parsedTemplate->getTemplateName());

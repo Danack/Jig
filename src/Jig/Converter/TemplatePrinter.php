@@ -6,7 +6,8 @@ namespace Jig\Converter;
 // @codingStandardsIgnoreStart
 
 /**
- * Class TemplatePrinter
+ * Class TemplatePrinter 
+ * Prints the parsed 
  * @package Jig\Converter
  */
 class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
@@ -663,6 +664,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     /** @codeCoverageIgnore */
     public function pStmt_If(\PHPParser_Node_Stmt_If $node) {
+        $this->hasAssignment = true;
         return 'if (' . $this->p($node->cond) . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}'
              . $this->pImplode($node->elseifs)
@@ -671,17 +673,20 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     /** @codeCoverageIgnore */
     public function pStmt_Elseif(\PHPParser_Node_Stmt_Elseif $node) {
+        $this->hasAssignment = true;
         return ' elseif (' . $this->p($node->cond) . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
     /** @codeCoverageIgnore */
     public function pStmt_Else(\PHPParser_Node_Stmt_Else $node) {
+        $this->hasAssignment = true;
         return ' else {' . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }
 
     /** @codeCoverageIgnore */
     public function pStmt_For(\PHPParser_Node_Stmt_For $node) {
+        $this->hasAssignment = true;
         return 'for ('
              . $this->pCommaSeparated($node->init) . ';' . (!empty($node->cond) ? ' ' : '')
              . $this->pCommaSeparated($node->cond) . ';' . (!empty($node->loop) ? ' ' : '')
@@ -691,6 +696,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     /** @codeCoverageIgnore */
     public function pStmt_Foreach(\PHPParser_Node_Stmt_Foreach $node) {
+        $this->hasAssignment = true;
         return 'foreach (' . $this->p($node->expr) . ' as '
              . (null !== $node->keyVar ? $this->p($node->keyVar) . ' => ' : '')
              . ($node->byRef ? '&' : '') . $this->p($node->valueVar) . ') {'
@@ -699,6 +705,7 @@ class TemplatePrinter extends \PHPParser_PrettyPrinterAbstract
 
     /** @codeCoverageIgnore */
     public function pStmt_While(\PHPParser_Node_Stmt_While $node) {
+        $this->hasAssignment = true;
         return 'while (' . $this->p($node->cond) . ') {'
              . "\n" . $this->pStmts($node->stmts) . "\n" . '}';
     }

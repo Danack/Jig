@@ -430,9 +430,11 @@ class JigConverter
             }
             else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0) {
                 $this->processForeachStart($segmentText);
+                $segment->setHasAssignment(true);
             }
             else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0) {
                 $this->processForeachEnd();
+                $segment->setHasAssignment(true);
             }
             else if (strncmp($segmentText, 'php', mb_strlen('php')) == 0) {
                 $this->processPHPStart($segmentText);

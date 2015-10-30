@@ -738,4 +738,31 @@ TPL;
         $trimmedOutput = trim($output);
         $this->assertEquals(0, strlen($trimmedOutput), "non-whitespace characters detected in '$output'");
     }
+
+    /**
+     *
+     */
+    public function testForeachNoNewLines()
+    {
+        $templateString = <<< 'TPL'
+{$foo = [1, 2, 3]}
+{foreach $foo as $bar}
+{$bar}
+{/foreach}
+TPL;
+        $cacheID = "testForeachNoNewLines/testForeachNoNewLines".time();
+
+        $output = $this->jig->renderTemplateFromString(
+            $templateString,
+            $cacheID
+        );
+        $this->assertContains("1\n2\n3\n", $output);
+
+
+        $output = $this->jig->renderTemplateFile(
+            'bugs/foreachNewLines_12'
+        );
+
+        $this->assertContains("1\n2\n3\n", $output);
+    }
 }
