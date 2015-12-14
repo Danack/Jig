@@ -83,6 +83,17 @@ class JigConverterTest extends BaseTestCase
         $this->assertContains("Direct: redgreenblue", $contents);
         $this->assertContains("From function: redgreenblue", $contents);
     }
+    
+
+    /**
+     * @group basic
+     */
+    public function testPluginIsNotMultipleDepedency()
+    {
+        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        $contents = $this->jig->renderTemplateFile('bugs/pluginIsNotMultipleDepedency/child');
+        //@TODO write an assertion for this check, which probably will involve refactoring the code. 
+    }
 
     /**
      * @group helper

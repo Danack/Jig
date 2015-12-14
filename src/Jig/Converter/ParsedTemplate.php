@@ -473,15 +473,38 @@ $depdendencies
     
         return [\n";
         
+        $dependencies = [];
+        
+        
         foreach ($this->injections as $name => $type) {
-            $output .=  "            '$name' => '$type',\n";
+            //$output .=  "            '$name' => '$type',\n";
+            if (array_key_exists($name, $dependencies) == true &&
+                $dependencies[$name] !== $type) {
+                throw new JigException(
+                    "Error in conversion. Template has dependency twice different types ".$dependencies[$name]." and ".$type
+                );
+            }
+            $dependencies[$name] = $type;
         }
 
         foreach ($this->plugins as $plugin) {
             $name = self::convertTypeToParam($plugin);
-            $output .=  "            '$name' => '$plugin',\n";
+            //$output .=  "            '$name' => '$plugin',\n";
+            
+            if (array_key_exists($name, $dependencies) == true &&
+                $dependencies[$name] !== $plugin) {
+                throw new JigException(
+                    "Error in conversion. Template has dependency twice as different types ".$dependencies[$name]." and ".$plugin
+                );
+            }
+            
+            $dependencies[$name] = $plugin;
         }
 
+        foreach ($dependencies as $name => $type) {
+            $output .= "            '$name' => '$type',\n";
+        }
+        
         $output .= "        ];
     }
         ";
