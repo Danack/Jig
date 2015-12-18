@@ -28,7 +28,6 @@ class JigDispatcher extends Jig
         Escaper $escaper = null
     ) {
         parent::__construct($jigConfig, $jigConverter);
-        $this->injector = clone $injector;
         $this->injector->alias('Jig\Jig', get_class($this));
         $this->injector->share($this);
         if ($escaper == null) {
