@@ -75,21 +75,6 @@ class JigConverter
     /**
      * @var array
      */
-    private $defaultHelpers = [];
-
-    /**
-     * @var array
-     */
-    private $defaultFilters = [];
-
-    /**
-     * @var array
-     */
-    private $defaultRenderBlocks = [];
-
-    /**
-     * @var array
-     */
     private $defaultPlugins = [];
 
     public static $builtinFilters = [
