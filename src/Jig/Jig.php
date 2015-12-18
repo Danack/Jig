@@ -46,7 +46,7 @@ class Jig
             // Add basic useful stuff to Jig
             $jigConverter->addDefaultPlugin('Jig\Plugin\BasicPlugin');
         }
-        
+
         $this->jigConfig = clone $jigConfig;
         $this->jigConverter = $jigConverter;
     }

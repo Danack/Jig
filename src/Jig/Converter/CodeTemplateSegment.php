@@ -142,27 +142,27 @@ class CodeTemplateSegment extends TemplateSegment
                     break 2;
                 }
                 case (JigConverter::FILTER_HTML): {
-                    $segmentText = '\Jig\Escaper::escapeHTML('.$segmentText.')';
+                    $segmentText = '$this->escaper->escapeHTML('.$segmentText.')';
                     break 2;
                 }
                 
                 case (JigConverter::FILTER_HTML_ATTR): {
-                    $segmentText = '\Jig\Escaper::escapeHTMLAttribute('.$segmentText.')';
+                    $segmentText = '$this->escaper->escapeHTMLAttribute('.$segmentText.')';
                     break 2;
                 }
                 
                 case (JigConverter::FILTER_JS): {
-                    $segmentText = '\Jig\Escaper::escapeJavascript('.$segmentText.')';
+                    $segmentText = '$this->escaper->escapeJavascript('.$segmentText.')';
                     break 2;
                 }
                 
                 case (JigConverter::FILTER_CSS): {
-                    $segmentText = '\Jig\Escaper::escapeCSS('.$segmentText.')';
+                    $segmentText = '$this->escaper->escapeCSS('.$segmentText.')';
                     break 2;
                 }
                 
                 case (JigConverter::FILTER_URL): {
-                    $segmentText = '\Jig\Escaper::escapeURL('.$segmentText.')';
+                    $segmentText = '$this->escaper->escapeURLComponent('.$segmentText.')';
                     break 2;
                 }
             }

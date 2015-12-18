@@ -8,6 +8,8 @@ use Jig\Converter\JigConverter;
 use Jig\JigConfig;
 use Jig\JigException;
 use JigTest\PlaceHolder\PlaceHolderPlugin;
+use Jig\Bridge\ZendEscaperBridge;
+use Zend\Escaper\Escaper as ZendEscaper;
 
 class JigConverterTest extends BaseTestCase
 {
@@ -23,7 +25,7 @@ class JigConverterTest extends BaseTestCase
     /**
      * @var \Jig\JigDispatcher
      */
-    private $jig = null;
+    private $jigDispatcher = null;
 
     public function setUp()
     {
@@ -41,8 +43,15 @@ class JigConverterTest extends BaseTestCase
 
         $injector = new \Auryn\Injector();
         $this->injector = $injector;
+
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
+        $this->injector->alias('Jig\Escaper', get_class($escaper));
+        $this->injector->share($escaper);
         
-        $this->jig = new JigDispatcher($jigConfig, $injector);
+        $this->jigDispatcher = new JigDispatcher(
+            $jigConfig,
+            $injector
+        );
     }
 
     public function teardown()
@@ -57,7 +66,7 @@ class JigConverterTest extends BaseTestCase
     public function testBasicDebugging()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/debugging.php");
-        $contents = $this->jig->renderTemplateFile('basic/debugging');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/debugging');
         $this->assertContains("debugging test passed.", $contents);
     }
     
@@ -68,7 +77,7 @@ class JigConverterTest extends BaseTestCase
     public function testBasicConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $contents = $this->jig->renderTemplateFile('basic/basic');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
     }
 
@@ -78,8 +87,8 @@ class JigConverterTest extends BaseTestCase
     public function testForeachConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/foreachTest.php");
-        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
-        $contents = $this->jig->renderTemplateFile('basic/foreachTest');
+        $this->jigDispatcher->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/foreachTest');
         $this->assertContains("Direct: redgreenblue", $contents);
         $this->assertContains("From function: redgreenblue", $contents);
     }
@@ -89,7 +98,7 @@ class JigConverterTest extends BaseTestCase
      */
     public function testHelperBasic()
     {
-        $contents = $this->jig->renderTemplateFile('basic/helper');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/helper');
         $this->assertContains(PlaceHolderPlugin::GREETINGS_MESSAGE, $contents);
     }
 
@@ -103,8 +112,8 @@ class JigConverterTest extends BaseTestCase
 
         $templateName = 'basic/DependencyInsertion';
         //$className = $this->jigRender->getClassName('basic/DependencyInsertion');
-        $className = $this->jig->getFQCNFromTemplateName('basic/DependencyInsertion');
-        $this->jig->checkTemplateCompiled($templateName);
+        $className = $this->jigDispatcher->getFQCNFromTemplateName('basic/DependencyInsertion');
+        $this->jigDispatcher->checkTemplateCompiled($templateName);
 
         $contents = $this->injector->execute([$className, 'render']);
 
@@ -114,7 +123,7 @@ class JigConverterTest extends BaseTestCase
 
     public function testFunctionCall()
     {
-        $contents = $this->jig->renderTemplateFile('basic/functionCall');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/functionCall');
         $this->assertContains("checkRole works", $contents);
     }
 
@@ -129,7 +138,7 @@ This is the second child block.
 
 END;
 
-        $renderedText = $this->jig->renderTemplateFromString(
+        $renderedText = $this->jigDispatcher->renderTemplateFromString(
             $templateString,
             "testStringExtendsConversion123"
         );
@@ -138,20 +147,20 @@ END;
     public function testBasicCoversExistsConversion()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $contents = $this->jig->renderTemplateFile('basic/basic');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
     }
 
     public function testNonExistentConversion()
     {
         $this->setExpectedException('Jig\JigException');
-        $this->jig->renderTemplateFile('nonExistantFile');
+        $this->jigDispatcher->renderTemplateFile('nonExistantFile');
     }
 
     public function testMtimeCachesConversion()
     {
-        $this->jig->deleteCompiledFile('basic/simplest');
-        $contents = $this->jig->renderTemplateFile('basic/simplest');
+        $this->jigDispatcher->deleteCompiledFile('basic/simplest');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/simplest');
         $this->assertContains("Hello, this is a template.", $contents);
     }
 
@@ -161,7 +170,7 @@ END;
     public function testBasicComment()
     {
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
-        $contents = $this->jig->renderTemplateFile('basic/comments');
+        $contents = $this->jigDispatcher->renderTemplateFile('basic/comments');
         
         $this->assertContains("Basic comment test passed.", $contents);
         $this->assertContains("bar", $contents);
@@ -169,7 +178,7 @@ END;
 
     public function testIncludeConversion()
     {
-        $contents = $this->jig->renderTemplateFile('includeFile/includeTest');
+        $contents = $this->jigDispatcher->renderTemplateFile('includeFile/includeTest');
         $this->assertContains("Include test passed.", $contents);
     }
 
@@ -178,8 +187,8 @@ END;
      */
     public function testStandardExtends()
     {
-        $className = $this->jig->getFQCNFromTemplateName('extendTest/child');
-        $this->jig->checkTemplateCompiled('extendTest/child');
+        $className = $this->jigDispatcher->getFQCNFromTemplateName('extendTest/child');
+        $this->jigDispatcher->checkTemplateCompiled('extendTest/child');
 
         $contents = $this->injector->execute([$className, 'render']);
 
@@ -193,7 +202,7 @@ END;
      */
     public function testFunctionBinding()
     {
-        $contents = $this->jig->renderTemplateFile('binding/binding');
+        $contents = $this->jigDispatcher->renderTemplateFile('binding/binding');
         $this->assertContains(
             \JigTest\PlaceHolder\PlaceHolderPlugin::FUNCTION_MESSAGE,
             $contents
@@ -205,7 +214,7 @@ END;
      */
     public function testBlockEscaping()
     {
-        $contents = $this->jig->renderTemplateFile('binding/blocks');
+        $contents = $this->jigDispatcher->renderTemplateFile('binding/blocks');
         $this->assertContains("€¥™<>", $contents);
 
     }
@@ -222,9 +231,9 @@ The above should be decoded to characters
 
 END;
 
-        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        $this->jigDispatcher->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         
-        $contents = $this->jig->renderTemplateFromString(
+        $contents = $this->jigDispatcher->renderTemplateFromString(
             $string,
             'Foo1'
         );
@@ -233,7 +242,7 @@ END;
 
     public function testDynamicInclude()
     {
-        $contents = $this->jig->renderTemplateFile('includeFile/dynamicIncludeTest');
+        $contents = $this->jigDispatcher->renderTemplateFile('includeFile/dynamicIncludeTest');
         $this->assertContains("This is include 1.", $contents);
     }
 
@@ -243,8 +252,8 @@ END;
     public function testInclude()
     {
         $templateName = 'includeFile/includeTest';
-        $className = $this->jig->getFQCNFromTemplateName($templateName);
-        $this->jig->checkTemplateCompiled($templateName);
+        $className = $this->jigDispatcher->getFQCNFromTemplateName($templateName);
+        $this->jigDispatcher->checkTemplateCompiled($templateName);
 
         $contents = $this->injector->execute([$className, 'render']);
 
@@ -257,40 +266,40 @@ END;
 
     public function testNoOutput()
     {
-        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
-        $contents = $this->jig->renderTemplateFile('coverageTesting/nooutput');
+        $this->jigDispatcher->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        $contents = $this->jigDispatcher->renderTemplateFile('coverageTesting/nooutput');
         $this->assertEquals(0, strlen(trim($contents)), "Output of [$contents] found when none expected.");
     }
 
     public function testIsset()
     {
-        $contents = $this->jig->renderTemplateFile('coverageTesting/checkIsset');
+        $contents = $this->jigDispatcher->renderTemplateFile('coverageTesting/checkIsset');
         $this->assertEquals(0, strlen(trim($contents)));
     }
 
     public function testBadIssetCall()
     {
         $this->setExpectedException('Jig\JigException');
-        $this->jig->renderTemplateFile('coverageTesting/badIssetCall');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/badIssetCall');
     }
 
     public function testFunctionNotBound()
     {
         $this->setExpectedException('Jig\JigException');
-        $this->jig->renderTemplateFile('coverageTesting/functionNotDefined');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/functionNotDefined');
     }
 
     public function testInjectBadName1()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
-        $this->jig->renderTemplateFile('coverageTesting/injectBadName1');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/injectBadName1');
     }
 
     public function testInjectBadName2()
     {
         $this->setExpectedException('Jig\JigException', "Failed to get name for injection");
         $viewModel = new PlaceHolderPlugin();
-        $this->jig->renderTemplateFile(
+        $this->jigDispatcher->renderTemplateFile(
             'coverageTesting/injectBadName2',
             $viewModel
         );
@@ -300,7 +309,7 @@ END;
     {
         $this->setExpectedException('Jig\JigException', "Value must not be zero length");
         $viewModel = new PlaceHolderPlugin();
-        $this->jig->renderTemplateFile(
+        $this->jigDispatcher->renderTemplateFile(
             'coverageTesting/injectBadValue1',
             $viewModel
         );
@@ -310,7 +319,7 @@ END;
     {
         $this->setExpectedException('Jig\JigException', "Failed to get value for injection");
         $viewModel = new PlaceHolderPlugin();
-        $this->jig->renderTemplateFile(
+        $this->jigDispatcher->renderTemplateFile(
             'coverageTesting/injectBadValue2',
             $viewModel
         );
@@ -320,7 +329,7 @@ END;
     public function testBorkedCode()
     {
         $this->setExpectedException('Jig\JigException', "Failed to parse code");
-        $this->jig->renderTemplateFile(
+        $this->jigDispatcher->renderTemplateFile(
             'coverageTesting/borkedCode'
         );
     }
@@ -328,46 +337,50 @@ END;
     public function testBorkedExtends()
     {
         $this->setExpectedException('Jig\JigException', "Could not extract filename");
-        $this->jig->renderTemplateFile('coverageTesting/borkedExtends');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/borkedExtends');
     }
 
     public function testBorkedInclude1()
     {
         $this->setExpectedException('Jig\JigException', "Could not extract filename");
-        $this->jig->renderTemplateFile('coverageTesting/borkedInclude1');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/borkedInclude1');
     }
 
     public function testBorkedInclude2()
     {
         $this->setExpectedException('Jig\JigException', "Could not extract filename");
-        $this->jig->renderTemplateFile('coverageTesting/borkedInclude1');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/borkedInclude1');
     }
 
     public function testBlockNotSet()
     {
         $this->setExpectedException('Jig\JigException', '', JigException::UNKNOWN_BLOCK);
-        $this->jig->renderTemplateFile('coverageTesting/blockNotSet');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/blockNotSet');
     }
 
     public function testStringCoverageObject()
     {
-        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        $this->jigDispatcher->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
         $this->setExpectedException('Jig\JigException');
-        $this->jig->renderTemplateFile('coverageTesting/stringCoverageObject');
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/stringCoverageObject');
     }
 
     public function testStringCoverageArray()
     {
-        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
-        $this->setExpectedException('Jig\JigException', \Jig\JigException::IMPLICIT_ARRAY_TO_STRING);
-        $this->jig->renderTemplateFile('coverageTesting/stringCoverageArray');
+        $this->jigDispatcher->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        //TODO - make this test be resilient to the error message being changed.
+        $this->setExpectedException(
+            'Jig\JigException',
+            \Jig\EscapeException::IMPLICIT_ARRAY_TO_STRING
+        );
+        $this->jigDispatcher->renderTemplateFile('coverageTesting/stringCoverageArray');
     }
 
     public function testDelete()
     {
         $templateName = 'basic/simplest';
-        $this->jig->renderTemplateFile($templateName);
-        $this->jig->deleteCompiledFile($templateName);
+        $this->jigDispatcher->renderTemplateFile($templateName);
+        $this->jigDispatcher->deleteCompiledFile($templateName);
     }
 
     //TODO - This needs some assertion.
@@ -414,7 +427,7 @@ END;
 
         $jig = new \Jig\JigDispatcher($jigConfig, $provider);
         $templateName = "coverageTesting/mtimeonce";
-        $this->jig->deleteCompiledFile($templateName);
+        $this->jigDispatcher->deleteCompiledFile($templateName);
         $jig->renderTemplateFile($templateName);
         $filename = $jig->getCompiledFilenameFromTemplateName($templateName);
         touch($filename, time() - 3600); // will break if the test takes an hour ;)
@@ -428,8 +441,8 @@ END;
     {
         $blockRender = $this->injector->make('JigTest\PlaceHolder\PlaceHolderPlugin');
         
-        $this->jig->addPlugin($blockRender);
-        $contents = $this->jig->renderTemplateFile('block/renderBlock');
+        $this->jigDispatcher->addPlugin($blockRender);
+        $contents = $this->jigDispatcher->renderTemplateFile('block/renderBlock');
 
         $this->assertEquals(1, $blockRender->blockStartCallCount);
         $this->assertEquals(1, $blockRender->blockEndCallCount);
@@ -467,14 +480,14 @@ END;
         };
 
 
-        $this->jig->bindCompileBlock(
+        $this->jigDispatcher->bindCompileBlock(
             'compile',
             $compileBlockStart,
             $compileBlockEnd
         );
 
-        $this->jig->deleteCompiledFile('block/compileBlock');
-        $contents = $this->jig->renderTemplateFile('block/compileBlock');
+        $this->jigDispatcher->deleteCompiledFile('block/compileBlock');
+        $contents = $this->jigDispatcher->renderTemplateFile('block/compileBlock');
 
         //Because the block is called when the template is compiled, and
         //as the template should only be compiled once (due to caching) each
@@ -493,7 +506,7 @@ END;
     {
         $this->setExpectedException('Jig\JigException', "Could not parse template segment");
         $templateString = "This is an invalid template {not valid construct}";
-        $this->jig->renderTemplateFromString($templateString, "Exception1");
+        $this->jigDispatcher->renderTemplateFromString($templateString, "Exception1");
     }
 
     public function testRenderFromStringGenericExceptionHandling()
@@ -503,7 +516,7 @@ END;
     {plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
     
     This throws {throwup()}";
-        $this->jig->renderTemplateFromString($templateString, "Exception1");
+        $this->jigDispatcher->renderTemplateFromString($templateString, "Exception1");
     }
 
     /**
@@ -511,7 +524,7 @@ END;
      */
     public function testCheckInlinePHP()
     {
-        $contents = $this->jig->renderTemplateFile("testCheckInlinePHP/testCheckInlinePHP");
+        $contents = $this->jigDispatcher->renderTemplateFile("testCheckInlinePHP/testCheckInlinePHP");
         $this->assertContains('value is 5', $contents);
     }
 
@@ -520,14 +533,14 @@ END;
      */
     public function testFilterBinding()
     {
-        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
-        $contents = $this->jig->renderTemplateFile("filter/defaultFilter");
+        $this->jigDispatcher->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        $contents = $this->jigDispatcher->renderTemplateFile("filter/defaultFilter");
         $this->assertContains('HELLO', $contents);
     }
 
     public function testFilterInjection()
     {
-        $contents = $this->jig->renderTemplateFile("filter/injectedFilter");
+        $contents = $this->jigDispatcher->renderTemplateFile("filter/injectedFilter");
         $this->assertContains('HELLO', $contents);
     }
 
@@ -539,7 +552,7 @@ END;
             \Jig\JigException::UNKNOWN_FILTER
         );
 
-        $contents = $this->jig->renderTemplateFile("filter/unknownFilter");
+        $contents = $this->jigDispatcher->renderTemplateFile("filter/unknownFilter");
     }
 
     /**
@@ -553,7 +566,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-        $this->jig->checkTemplateCompiled("unknownVariable/unknownVariable");
+        $this->jigDispatcher->checkTemplateCompiled("unknownVariable/unknownVariable");
     }
     
     public function testErrorUnknownVariableForEach()
@@ -564,7 +577,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-        $this->jig->checkTemplateCompiled("unknownVariableForEach/unknownVariableForEach");
+        $this->jigDispatcher->checkTemplateCompiled("unknownVariableForEach/unknownVariableForEach");
     }
     
     public function testUnknownVariableWithFunction()
@@ -575,7 +588,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-        $this->jig->checkTemplateCompiled("unknownVariableWithFunction/unknownVariableWithFunction");
+        $this->jigDispatcher->checkTemplateCompiled("unknownVariableWithFunction/unknownVariableWithFunction");
     }
     
     public function testInjectVariableAsTwoTypes()
@@ -586,7 +599,7 @@ END;
             JigException::INJECTION_ERROR
         );
 
-        $this->jig->checkTemplateCompiled("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
+        $this->jigDispatcher->checkTemplateCompiled("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
     }
 
     public function bindTestStart(JigConverter $jigConverter, $segmentText)
@@ -610,13 +623,13 @@ END;
      */
     public function testContainsPHPOpening()
     {
-        $this->jig->bindCompileBlock(
+        $this->jigDispatcher->bindCompileBlock(
             'bindTest',
             [$this, 'bindTestStart'],
             [$this, 'bindTestEnd']
         );
         
-        $result = $this->jig->renderTemplateFile('testContainsPHPOpening');
+        $result = $this->jigDispatcher->renderTemplateFile('testContainsPHPOpening');
 
         $this->assertContains('<?php', $result);
     }
@@ -626,7 +639,7 @@ END;
      */
     public function testLiteralPHPOpening()
     {
-        $result = $this->jig->renderTemplateFile('testLiteralPHPOpening');
+        $result = $this->jigDispatcher->renderTemplateFile('testLiteralPHPOpening');
         $this->assertContains('{php}', $result);
     }
 
@@ -640,9 +653,9 @@ END;
 {plugin type='JigTest\\PlaceHolder\\PlaceHolderPlugin'}
 TPL;
 
-        $this->jig->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
+        $this->jigDispatcher->addDefaultPlugin('JigTest\PlaceHolder\PlaceHolderPlugin');
 
-        $className = $this->jig->getParsedTemplateFromString(
+        $className = $this->jigDispatcher->getParsedTemplateFromString(
             $templateString,
             "testStubReqeatOnlyInsertedOnce1"
         );
@@ -656,11 +669,11 @@ TPL;
 Hello, I am a template
 TPL;
 
-        $this->jig->renderTemplateFromString(
+        $this->jigDispatcher->renderTemplateFromString(
             $templateString,
             "testDuplicateCompilationDoesNotError1"
         );
-        $this->jig->renderTemplateFromString(
+        $this->jigDispatcher->renderTemplateFromString(
             $templateString,
             "testDuplicateCompilationDoesNotError1"
         );
@@ -676,7 +689,9 @@ TPL;
             Time is $time"
         );
 
-        $renderedOutput = $this->jig->renderTemplateFile('includedTemplateIsCompiled/includedTemplateIsCompiled');
+        $renderedOutput = $this->jigDispatcher->renderTemplateFile(
+            'includedTemplateIsCompiled/includedTemplateIsCompiled'
+        );
         $this->assertContains($time, $renderedOutput);
     }
     
@@ -703,7 +718,9 @@ TPL;
             $baseTemplate
         );
 
-        $renderedOutput = $this->jig->renderTemplateFile('extendedTemplateIsCompiled/extendedTemplateIsCompiled');
+        $renderedOutput = $this->jigDispatcher->renderTemplateFile(
+            'extendedTemplateIsCompiled/extendedTemplateIsCompiled'
+        );
         $this->assertContains($time, $renderedOutput);
     }
     
@@ -714,7 +731,7 @@ TPL;
      */
     public function testCommentInsideLiteral()
     {
-        $result = $this->jig->renderTemplateFile('coverageTesting/commentInsideLiteral');
+        $result = $this->jigDispatcher->renderTemplateFile('coverageTesting/commentInsideLiteral');
         $this->assertContains('{* This is a comment *}', $result);
     }
 
@@ -723,7 +740,7 @@ TPL;
      */
     public function testEscapeJS()
     {
-        $result = $this->jig->renderTemplateFile('escapeJS/escapeJS');
+        $result = $this->jigDispatcher->renderTemplateFile('escapeJS/escapeJS');
     }
     
     /**
@@ -734,7 +751,7 @@ TPL;
      */
     public function testwhitespaceOnly()
     {
-        $output = $this->jig->renderTemplateFile('whitespaceOnly/whitespaceParent');
+        $output = $this->jigDispatcher->renderTemplateFile('whitespaceOnly/whitespaceParent');
         $trimmedOutput = trim($output);
         $this->assertEquals(0, strlen($trimmedOutput), "non-whitespace characters detected in '$output'");
     }
@@ -752,14 +769,14 @@ TPL;
 TPL;
         $cacheID = "testForeachNoNewLines/testForeachNoNewLines".time();
 
-        $output = $this->jig->renderTemplateFromString(
+        $output = $this->jigDispatcher->renderTemplateFromString(
             $templateString,
             $cacheID
         );
         $this->assertContains("1\n2\n3\n", $output);
 
 
-        $output = $this->jig->renderTemplateFile(
+        $output = $this->jigDispatcher->renderTemplateFile(
             'bugs/foreachNewLines_12'
         );
 

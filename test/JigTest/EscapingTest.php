@@ -3,6 +3,8 @@
 namespace JigTest;
 
 use Jig\Escaper;
+use Zend\Escaper\Escaper as ZendEscaper;
+use Jig\Bridge\ZendEscaperBridge;
 
 /**
  * This class is adapted from code coming from Twig.
@@ -153,60 +155,69 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
 
     public function testHtmlEscapingConvertsSpecialChars()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         foreach ($this->htmlSpecialChars as $key => $value) {
-            $value = Escaper::escapeHTML($key);
+            $value = $escaper->escapeHTML($key);
             $this->assertEquals($value, $value, 'Failed to escape: '.$key);
         }
     }
 
     public function testHtmlAttributeEscapingConvertsSpecialChars()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         foreach ($this->htmlAttrSpecialChars as $key => $value) {
-            $value = Escaper::escapeHTMLAttribute($key);
+            $value = $escaper->escapeHTMLAttribute($key);
             $this->assertEquals($value, $value, 'Failed to escape: '.$key);
         }
     }
 
     public function testJavascriptEscapingConvertsSpecialChars()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         foreach ($this->jsSpecialChars as $key => $value) {
-            $value = Escaper::escapeJavascript($key);
+            $value = $escaper->escapeJavascript($key);
             $this->assertEquals($value, $value, 'Failed to escape: '.$key);
         }
     }
 
     public function testJavascriptEscapingReturnsStringIfZeroLength()
     {
-        $this->assertEquals('', $value = Escaper::escapeJavascript(''));
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
+        $this->assertEquals('', $value = $escaper->escapeJavascript(''));
     }
 
     public function testJavascriptEscapingReturnsStringIfContainsOnlyDigits()
     {
-        $this->assertEquals('123', $value = Escaper::escapeJavascript('123'), 'js');
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
+        $this->assertEquals('123', $value = $escaper->escapeJavascript('123'), 'js');
     }
 
     public function testCssEscapingConvertsSpecialChars()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         foreach ($this->cssSpecialChars as $key => $value) {
-            $value = Escaper::escapeCSS($key);
+            $value = $escaper->escapeCSS($key);
             $this->assertEquals($value, $value, 'Failed to escape: '.$key);
         }
     }
 
     public function testCssEscapingReturnsStringIfZeroLength()
     {
-        $this->assertEquals('', Escaper::escapeCSS(''));
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
+        $this->assertEquals('', $escaper->escapeCSS(''));
     }
 
     public function testCssEscapingReturnsStringIfContainsOnlyDigits()
     {
-        $this->assertEquals('123', Escaper::escapeCSS('123'));
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
+        $this->assertEquals('123', $escaper->escapeCSS('123'));
     }
 
     public function testUrlEscapingConvertsSpecialChars()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         foreach ($this->urlSpecialChars as $key => $value) {
-            $value = Escaper::escapeURL($key);
+            $value = $escaper->escapeURLComponent($key);
             $this->assertEquals($value, $value, 'Failed to escape: '.$key);
         }
     }
@@ -262,23 +273,24 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
 
     public function testJavascriptEscapingEscapesOwaspRecommendedRanges()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $immune = array(',', '.', '_'); // Exceptions to escaping ranges
         for ($chr = 0; $chr < 0xFF; ++$chr) {
             if ($chr >= 0x30 && $chr <= 0x39
             || $chr >= 0x41 && $chr <= 0x5A
             || $chr >= 0x61 && $chr <= 0x7A) {
                 $literal = $this->codepointToUtf8($chr);
-                $value = Escaper::escapeJavascript($literal);
+                $value = $escaper->escapeJavascript($literal);
                 $this->assertEquals($literal, $value);
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (in_array($literal, $immune)) {
-                    $value = Escaper::escapeJavascript($literal);
+                    $value = $escaper->escapeJavascript($literal);
                     $this->assertEquals($literal, $value);
                 } else {
                     $this->assertNotEquals(
                         $literal,
-                        Escaper::escapeJavascript($literal),
+                        $escaper->escapeJavascript($literal),
                         "$literal should be escaped!"
                     );
                 }
@@ -288,21 +300,22 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
 
     public function testHtmlAttributeEscapingEscapesOwaspRecommendedRanges()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $immune = array(',', '.', '-', '_'); // Exceptions to escaping ranges
         for ($chr = 0; $chr < 0xFF; ++$chr) {
             if ($chr >= 0x30 && $chr <= 0x39
             || $chr >= 0x41 && $chr <= 0x5A
             || $chr >= 0x61 && $chr <= 0x7A) {
                 $literal = $this->codepointToUtf8($chr);
-                $value = Escaper::escapeHTMLAttribute($literal);
+                $value = $escaper->escapeHTMLAttribute($literal);
                 $this->assertEquals($literal, $value);
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (in_array($literal, $immune)) {
-                    $value = Escaper::escapeHTMLAttribute($literal);
+                    $value = $escaper->escapeHTMLAttribute($literal);
                     $this->assertEquals($literal, $value);
                 } else {
-                    $value = Escaper::escapeHTMLAttribute($literal);
+                    $value = $escaper->escapeHTMLAttribute($literal);
                     $this->assertNotEquals(
                         $literal,
                         $value,
@@ -315,17 +328,18 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
 
     public function testCssEscapingEscapesOwaspRecommendedRanges()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         // CSS has no exceptions to escaping ranges
         for ($chr = 0; $chr < 0xFF; ++$chr) {
             if ($chr >= 0x30 && $chr <= 0x39
             || $chr >= 0x41 && $chr <= 0x5A
             || $chr >= 0x61 && $chr <= 0x7A) {
                 $literal = $this->codepointToUtf8($chr);
-                $value = Escaper::escapeCSS($literal);
+                $value = $escaper->escapeCSS($literal);
                 $this->assertEquals($literal, $value);
             } else {
                 $literal = $this->codepointToUtf8($chr);
-                $value = Escaper::escapeCSS($literal);
+                $value = $escaper->escapeCSS($literal);
                 $this->assertNotEquals(
                     $literal,
                     $value,
@@ -338,123 +352,136 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
     
     public function testEscapeJavascriptFailObject()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_OBJECT_NOT_STRING
         );
 
-        Escaper::escapeJavascript(new \StdClass);
+        $escaper->escapeJavascript(new \StdClass);
     }
     
     public function testEscapeJavascriptFailArray()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_ARRAY_NOT_STRING
         );
 
-        Escaper::escapeJavascript(['Hello world']);
+        $escaper->escapeJavascript(['Hello world']);
     }
     
     public function testEscapeJavascriptObjectToString()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $string = 'Foobar';
         $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
-        $result = Escaper::escapeJavascript($obj);
+        $result = $escaper->escapeJavascript($obj);
         $this->assertEquals($string, $result);
     }
 
     
     public function testEscapeHTMLObjectToString()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $string = 'Foobar';
         $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
-        $result = Escaper::escapeHTML($obj);
+        $result = $escaper->escapeHTML($obj);
         $this->assertEquals($string, $result);
     }
     
     
     public function testEscapeCSSFailObject()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_OBJECT_NOT_STRING
         );
 
-        Escaper::escapeCSS(new \StdClass);
+        $escaper->escapeCSS(new \StdClass);
     }
     
     public function testEscapeCSSFailArray()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_ARRAY_NOT_STRING
         );
 
-        Escaper::escapeCSS(['Hello world']);
+        $escaper->escapeCSS(['Hello world']);
     }
     
     public function testEscapeCSSObjectToString()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $string = 'Foobar';
         $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
-        $result = Escaper::escapeCSS($obj);
+        $result = $escaper->escapeCSS($obj);
         $this->assertEquals($string, $result);
     }
 
     public function testEscapeHTMLAttrFailObject()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_OBJECT_NOT_STRING
         );
 
-        Escaper::escapeHTMLAttribute(new \StdClass);
+        $escaper->escapeHTMLAttribute(new \StdClass);
     }
     
     public function testEscapeHTMLAttrFailArray()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_ARRAY_NOT_STRING
         );
 
-        Escaper::escapeHTMLAttribute(['Hello world']);
+        $escaper->escapeHTMLAttribute(['Hello world']);
     }
     
     public function testEscapeHTMLAttrObjectToString()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $string = 'Foobar';
         $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
-        $result = Escaper::escapeHTMLAttribute($obj);
+        $result = $escaper->escapeHTMLAttribute($obj);
         $this->assertEquals($string, $result);
     }
     
     public function testEscapeURLFailObject()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_OBJECT_NOT_STRING
         );
 
-        Escaper::escapeURL(new \StdClass);
+        $escaper->escapeURLComponent(new \StdClass);
     }
     
     public function testEscapeURLFailArray()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $this->setExpectedException(
-            'Jig\JigException',
-            \Jig\JigException::FAILED_TO_RENDER
+            'Jig\EscapeException',
+            \Jig\EscapeException::E_ARRAY_NOT_STRING
         );
 
-        Escaper::escapeURL(['Hello world']);
+        $escaper->escapeURLComponent(['Hello world']);
     }
     
     public function testEscapeURLObjectToString()
     {
+        $escaper = new ZendEscaperBridge(new ZendEscaper());
         $string = 'Foobar';
         $obj = new \JigTest\PlaceHolder\ObjectWithToString($string);
-        $result = Escaper::escapeURL($obj);
+        $result = $escaper->escapeURLComponent($obj);
         $this->assertEquals($string, $result);
     }
 }

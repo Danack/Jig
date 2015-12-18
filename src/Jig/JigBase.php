@@ -2,6 +2,7 @@
 
 namespace Jig;
 
+use Jig\Escaper;
 use Jig\Plugin;
 
 /**
@@ -16,20 +17,28 @@ abstract class JigBase
      * @var Plugin[]
      */
     protected $plugins = [];
+    
+    /** @var Escaper */
+    protected $escaper;
 
     /**
      * @return mixed
      */
     abstract public function renderInternal();
 
+    public function __construct(Escaper $escaper)
+    {
+        $this->escaper = $escaper;
+    }
+
     /**
      * Returns the list of dependencies needed by a template, which for the
-     * base template is an empty list. Used during compilation.
+     * base template is just an escaper. Used during compilation.
      * @return array
      */
     public static function getDependencyList()
     {
-        return [];
+        return ['Jig_Escaper' => 'Jig\Escaper'];
     }
 
     /**

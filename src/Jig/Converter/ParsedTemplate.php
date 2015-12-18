@@ -285,7 +285,6 @@ class ParsedTemplate
         $parentFullClassName = str_replace("/", "\\", $parentFullClassName);
 
         $outputFilename = str_replace('\\', "/", $fqcn);
-        //$outputFilename = convertNamespaceClassToFilepath($namespace."\\".$className);
         $outputFilename = $compilePath.$outputFilename.".php";
 
         self::ensureDirectoryExists($outputFilename);
@@ -323,7 +322,7 @@ END;
         fwrite($outputFileHandle, $startSection);
 
         $this->writeProperties($outputFileHandle);
-        $this->writeConstructor($outputFileHandle, $parentDependencies);
+        $this->writeConstructor($outputFileHandle, $parentDependencies, $parentFullClassName);
         $this->writeTemplatesUsed($outputFileHandle);
         $this->writeDependencyList($outputFileHandle);
 
@@ -375,9 +374,6 @@ END;
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "\n");
             fwrite($outputFileHandle, "    function ".$functionName."() {\n");
-            //fwrite($outputFileHandle, "echo <<< 'TEXT'\n");
-            //fwrite($outputFileHandle, "\n"); //is this necessary?
-
             foreach ($lines as $line) {
                 fwrite($outputFileHandle, $line);
             }
@@ -408,86 +404,127 @@ END;
         fwrite($outputFileHandle, $output);
     }
 
-
-    /**
-     * @param $outputFileHandle
-     */
-    public function writeConstructor($outputFileHandle, $parentDependencies)
+    private function getFullDependencies($parentFullClassName)
     {
-        $depdendencies = '';
-        $separator = "";
-
-        $fullDependencies = array_merge($this->injections, $parentDependencies);
-
+        $parentDependencies = call_user_func([$parentFullClassName, 'getDependencyList']);
+        $fullDependencies = array_merge($parentDependencies, $this->injections);
+        
         foreach (array_unique($this->plugins) as $pluginType) {
             $pluginParam = self::convertTypeToParam($pluginType);
             $fullDependencies[$pluginParam] = $pluginType;
         }
+        
+        return $fullDependencies;
+    }
+    
+    /**
+     * @param $outputFileHandle
+     */
+    public function writeConstructor($outputFileHandle, $parentDependencies, $parentFullClassName)
+    {
+
+        $depdendencies = '';
+        $separator = "";
+
+        $parentDependencies = call_user_func([$parentFullClassName, 'getDependencyList']);
+        $fullDependencies = $this->getFullDependencies($parentFullClassName);
 
         foreach ($fullDependencies as $name => $type) {
             $depdendencies .= $separator."       \\$type \$$name";
             $separator = ",\n";
         }
 
-        $output = "
-    function __construct(
-$depdendencies
-    )
-    {
-";
+        $functionString = <<< FUNCTION
 
+
+    public function __construct(
+        %s
+    ) {
+%s
+        %s
+    }
+    
+    
+FUNCTION;
+
+        $fullDependencyString = '';
+        $separator = '';
+        foreach ($fullDependencies as $name => $type) {
+            $fullDependencyString .= $separator."\\$type \$$name";
+            $separator = ",\n        ";
+        }
+
+        $selfAssignmentString = '';
         foreach ($this->injections as $name => $type) {
-            $output .=  "        \$this->$name = \$$name;\n";
+            $selfAssignmentString .=  "        \$this->$name = \$$name;\n";
         }
 
         foreach (array_unique($this->plugins) as $pluginType) {
             $pluginParam = self::convertTypeToParam($pluginType);
-            $output .=  "        \$this->$pluginParam = \$$pluginParam;\n";
-            $output .=  "        \$this->addPlugin(\$$pluginParam);\n";
+            $selfAssignmentString .=  "        \$this->$pluginParam = \$$pluginParam;\n";
+            $selfAssignmentString .=  "        \$this->addPlugin(\$$pluginParam);\n";
         }
 
+        $parentConstructString = '';
         if (count($parentDependencies)) {
-            $output .=  "        
-        parent::__construct(\n";
+            $parentConstructString .=  "parent::__construct(";
             $separator = '';
             foreach ($parentDependencies as $name => $type) {
-                $output .=  $separator."\$$name";
-                $separator = ",\n            ";
+                $parentConstructString .=  $separator."\n            \$$name";
+                $separator = ",";
             }
-            $output .="\n        );\n";
+            $parentConstructString .="\n        );\n";
         }
 
-        $output .=  "    }\n";
+        $output = sprintf(
+            $functionString,
+            $fullDependencyString,
+            $selfAssignmentString,
+            $parentConstructString
+        );
 
-        fwrite($outputFileHandle, "\n");
         fwrite($outputFileHandle, $output);
     }
 
+    public function getRenderDependencies()
+    {
+        $dependencies = $this->injections;
+        foreach ($this->plugins as $plugin) {
+            $name = self::convertTypeToParam($plugin);
+            //TODO - check already set
+            $dependencies[$name] = $plugin;
+        }
+        
+        return $dependencies;
+    }
+    
     /**
      * @param $outputFileHandle
      */
     public function writeDependencyList($outputFileHandle)
     {
-        $output = "
-    public static function getDependencyList() {
-    
-        return [\n";
+        $functionString = <<< FUNCTION
+
+    public static function getDependencyList()
+    {
+        \$parentDependencies = parent::getDependencyList();
+        \$selfDependencies = [%s
+        ];
         
-        foreach ($this->injections as $name => $type) {
-            $output .=  "            '$name' => '$type',\n";
-        }
+        //TODO - check for clashes
 
-        foreach ($this->plugins as $plugin) {
-            $name = self::convertTypeToParam($plugin);
-            $output .=  "            '$name' => '$plugin',\n";
-        }
-
-        $output .= "        ];
+        return array_merge(\$parentDependencies, \$selfDependencies);
     }
-        ";
-        fwrite($outputFileHandle, "\n");
-        fwrite($outputFileHandle, $output);
-        fwrite($outputFileHandle, "\n");
+
+FUNCTION;
+
+        $dependenciesString = '';
+        $renderDependencies = $this->getRenderDependencies();
+        foreach ($renderDependencies as $name => $type) {
+            $dependenciesString .=  "\n            '$name' => '$type',";
+        }
+
+        fwrite($outputFileHandle, sprintf($functionString, $dependenciesString));
     }
     
     public function writeTemplatesUsed($outputFileHandle)

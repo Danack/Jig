@@ -4,6 +4,9 @@ namespace Jig;
 
 use Jig\Converter\JigConverter;
 use Auryn\Injector;
+use Jig\Escaper;
+use Zend\Escaper\Escaper as ZendEscaper;
+use Jig\Bridge\ZendEscaperBridge;
 
 /**
  * Class JigDispatcher Allows compiled templates to be rendered by using
@@ -13,21 +16,28 @@ use Auryn\Injector;
  */
 class JigDispatcher extends Jig
 {
-    /**
-     * @var \Auryn\Injector
-     */
+    /** @var \Auryn\Injector */
     private $injector;
+    
+    public $escaper = null;
 
     public function __construct(
         JigConfig $jigConfig,
         Injector $injector,
-        JigConverter $jigConverter = null
+        JigConverter $jigConverter = null,
+        Escaper $escaper = null
     ) {
-
         parent::__construct($jigConfig, $jigConverter);
-        $this->injector = $injector;
+        $this->injector = clone $injector;
         $this->injector->alias('Jig\Jig', get_class($this));
         $this->injector->share($this);
+        if ($escaper == null) {
+            $escaper = new ZendEscaperBridge(new ZendEscaper());
+        }
+        $this->injector->alias('Jig\Escaper', get_class($escaper));
+        $this->injector->share($escaper);
+        
+        $this->escaper = $escaper;
     }
 
     /**
