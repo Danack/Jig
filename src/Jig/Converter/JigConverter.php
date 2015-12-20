@@ -28,7 +28,7 @@ class JigConverter
     const FILTER_NO_OUTPUT = 'nooutput';
 
     // Suppress adding ";" to generated code to allow modification
-    // of the generated code.
+    // of the generated code. Only used internally.
     const FILTER_NO_PHP = 'nophp';
     
     const FILTER_HTML = 'html';
@@ -39,7 +39,7 @@ class JigConverter
     
     const FILTER_URL = 'url';
 
-    const FILTER_HTML_ATTR = 'html_attr';
+    const FILTER_HTML_ATTR = 'attr';
 
     const LITERAL_TEMPLATE = 'template';
     
