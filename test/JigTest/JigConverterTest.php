@@ -37,8 +37,8 @@ class JigConverterTest extends BaseTestCase
         $jigConfig = new JigConfig(
             $this->templateDirectory,
             $this->compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_ALWAYS
+            Jig::COMPILE_ALWAYS,
+            "php.tpl"
         );
 
         $injector = new \Auryn\Injector();
@@ -113,7 +113,7 @@ class JigConverterTest extends BaseTestCase
         $templateName = 'basic/DependencyInsertion';
         //$className = $this->jigRender->getClassName('basic/DependencyInsertion');
         $className = $this->jigDispatcher->getFQCNFromTemplateName('basic/DependencyInsertion');
-        $this->jigDispatcher->checkTemplateCompiled($templateName);
+        $this->jigDispatcher->compile($templateName);
 
         $contents = $this->injector->execute([$className, 'render']);
 
@@ -188,7 +188,7 @@ END;
     public function testStandardExtends()
     {
         $className = $this->jigDispatcher->getFQCNFromTemplateName('extendTest/child');
-        $this->jigDispatcher->checkTemplateCompiled('extendTest/child');
+        $this->jigDispatcher->compile('extendTest/child');
 
         $contents = $this->injector->execute([$className, 'render']);
 
@@ -253,7 +253,7 @@ END;
     {
         $templateName = 'includeFile/includeTest';
         $className = $this->jigDispatcher->getFQCNFromTemplateName($templateName);
-        $this->jigDispatcher->checkTemplateCompiled($templateName);
+        $this->jigDispatcher->compile($templateName);
 
         $contents = $this->injector->execute([$className, 'render']);
 
@@ -396,8 +396,8 @@ END;
         $jigConfig = new JigConfig(
             $this->templateDirectory,
             $this->compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_CHECK_EXISTS
+            Jig::COMPILE_CHECK_EXISTS,
+            "php.tpl"
         );
 
         $provider = new \Auryn\Injector();
@@ -417,8 +417,8 @@ END;
         $jigConfig = new JigConfig(
             $this->templateDirectory,
             $this->compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_CHECK_MTIME
+            Jig::COMPILE_CHECK_MTIME,
+            "php.tpl"
         );
 
         $provider = new \Auryn\Injector();
@@ -566,7 +566,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-        $this->jigDispatcher->checkTemplateCompiled("unknownVariable/unknownVariable");
+        $this->jigDispatcher->compile("unknownVariable/unknownVariable");
     }
     
     public function testErrorUnknownVariableForEach()
@@ -577,7 +577,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-        $this->jigDispatcher->checkTemplateCompiled("unknownVariableForEach/unknownVariableForEach");
+        $this->jigDispatcher->compile("unknownVariableForEach/unknownVariableForEach");
     }
     
     public function testUnknownVariableWithFunction()
@@ -588,7 +588,7 @@ END;
             JigException::UNKNOWN_VARIABLE
         );
 
-        $this->jigDispatcher->checkTemplateCompiled("unknownVariableWithFunction/unknownVariableWithFunction");
+        $this->jigDispatcher->compile("unknownVariableWithFunction/unknownVariableWithFunction");
     }
     
     public function testInjectVariableAsTwoTypes()
@@ -599,7 +599,7 @@ END;
             JigException::INJECTION_ERROR
         );
 
-        $this->jigDispatcher->checkTemplateCompiled("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
+        $this->jigDispatcher->compile("injectVariableAsTwoTypes/injectVariableAsTwoTypes");
     }
 
     public function bindTestStart(JigConverter $jigConverter, $segmentText)

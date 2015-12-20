@@ -47,7 +47,7 @@ class JigDispatcher extends Jig
      */
     public function renderTemplateFile($templateFilename)
     {
-        $this->checkTemplateCompiled($templateFilename);
+        $this->compile($templateFilename);
         $className = $this->jigConfig->getFQCNFromTemplateName($templateFilename);
         $contents = $this->injector->execute([$className, 'render']);
 

@@ -28,8 +28,8 @@ class BugTest extends BaseTestCase
         $jigConfig = new JigConfig(
             $templateDirectory,
             $compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_ALWAYS
+            Jig::COMPILE_ALWAYS,
+            "php.tpl"
         );
 
         $provider = new \Auryn\Injector();

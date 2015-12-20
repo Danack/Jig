@@ -19,18 +19,18 @@ class JigConfig
      * @param $templateSourceDirectory string - The directory that contains the templates.
      * @param $templateCompileDirectory string - The directory that compiled templates should be
      *   written to.
-     * @param $extension string - The extension that will be appended to template names
-     * to find the full filenme
      * @param $compileCheck string  - How to determine whether to compile a template. One
      *   of the \Jig\Jig::COMPILE_* constants
+     * @param $extension string - The extension that will be appended to template names
+     * to find the full filenme
      * @param $compiledNamespace string - The namespace to use for compiled templates
      */
     public function __construct(
         $templateSourceDirectory,
         $templateCompileDirectory,
-        $extension,
         $compileCheck,
-        $compiledNamespace = "Jig\\CompiledTemplate"
+        $extension = 'tpl',
+        $compiledNamespace = 'Jig\CompiledTemplate'
     ) {
         $this->templateSourceDirectory = $templateSourceDirectory;
         $this->templateCompileDirectory = $templateCompileDirectory;

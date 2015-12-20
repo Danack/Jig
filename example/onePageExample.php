@@ -18,8 +18,8 @@ $injector = new Injector();
 $jigConfig = new JigConfig(
     __DIR__."/templates/",
     __DIR__."/compile/",
-    "php.tpl",
-    Jig::COMPILE_ALWAYS
+    Jig::COMPILE_ALWAYS,
+    "php.tpl"
 );
 
 // Tell the DIC that every class that needs an instance of JigConfig 
@@ -37,7 +37,7 @@ $templateName = 'onePageExample';
 $jig = new Jig($jigConfig);
 
 // Tell Jig to make sure the template is compiled.
-$jig->checkTemplateCompiled($templateName);
+$jig->compile($templateName);
 
 // Get the classname that the template will be called
 $className = $jig->getFQCNFromTemplateName($templateName);
@@ -46,4 +46,3 @@ $className = $jig->getFQCNFromTemplateName($templateName);
 $contents = $injector->execute([$className, 'render']);
 
 echo $contents;
-

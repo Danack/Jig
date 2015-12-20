@@ -20,8 +20,8 @@ function bootstrapInjector() {
     $jigConfig = new JigConfig(
         __DIR__."/templates/",
         __DIR__."/compile/",
-        'php.tpl',
-        Jig::COMPILE_CHECK_MTIME
+        Jig::COMPILE_CHECK_MTIME,
+        'php.tpl'
     );
 
     $injector = new Injector();
@@ -47,7 +47,7 @@ function getTemplateCallable($templateName, array $sharedObjects = [])
 {
     $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
         $className = $jigRender->getFQCNFromTemplateName($templateName);
-        $jigRender->checkTemplateCompiled($templateName);
+        $jigRender->compile($templateName);
 
         $alias = [];
         $alias['Jig\JigBase'] = $className;

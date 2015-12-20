@@ -67,8 +67,8 @@ class CoverageTest extends BaseTestCase
         $jigConfig = new JigConfig(
             $this->templateDirectory,
             $this->compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_ALWAYS
+            Jig::COMPILE_ALWAYS,
+            "php.tpl"
         );
 
         return $jigConfig;
@@ -128,11 +128,11 @@ class CoverageTest extends BaseTestCase
         $jigConfig = new JigConfig(
             $this->templateDirectory,
             $this->compileDirectory,
-            "php.tpl",
-            Jig::COMPILE_NEVER
+            Jig::COMPILE_NEVER,
+            "php.tpl"
         );
         $jig = new Jig($jigConfig);
-        $jig->checkTemplateCompiled("basic/basic");
+        $jig->compile("basic/basic");
 
     }
 

@@ -5,8 +5,9 @@
     
     <!-- <exclude-pattern>*Intahwebz*</exclude-pattern> -->
     <exclude-pattern>*JigTest/CoverageTest.php</exclude-pattern>
+    <exclude-pattern>*js</exclude-pattern>
     
-    
+    <exclude-pattern>*example/*</exclude-pattern>
 
     <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>

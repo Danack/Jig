@@ -111,18 +111,19 @@ class Jig
 
     /**
      * @param $templateFilename
+     * @return string The fully-qualified class name of the generated template.
      * @throws JigException
      */
-    public function checkTemplateCompiled($templateFilename)
+    public function compile($templateFilename)
     {
+        $className = $this->jigConfig->getFQCNFromTemplateName($templateFilename);
+
         if ($this->jigConfig->compileCheck == Jig::COMPILE_NEVER) {
             //This is useful when debugging templates. It allows you to edit the
             //generated code, without having it over-written.
-            return;
+            return $className;
         }
 
-        //$className = $this->jigConverter->getNamespacedClassNameFromFileName($templateFilename);
-        $className = $this->jigConfig->getFQCNFromTemplateName($templateFilename);
         if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_EXISTS) {
             if (class_exists($className) == true) {
                 goto check_dependencies;
@@ -144,8 +145,10 @@ check_dependencies:
 
         $templatesUsed = $className::getTemplatesUsed();
         foreach ($templatesUsed as $templateUsed) {
-            $this->checkTemplateCompiled($templateUsed);
+            $this->compile($templateUsed);
         }
+
+        return $className;
     }
 
 /*
@@ -186,7 +189,7 @@ check_dependencies:
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
 
         foreach ($templateDependencies as $templateDependency) {
-            $this->checkTemplateCompiled($templateDependency);
+            $this->compile($templateDependency);
         }
         
         $fqcn = $this->jigConfig->getFQCNFromTemplateName($templateFilename);
@@ -313,7 +316,7 @@ check_dependencies:
         $templateDependencies = $parsedTemplate->getTemplateDependencies();
 
         foreach ($templateDependencies as $templateDependency) {
-            $this->checkTemplateCompiled($templateDependency);
+            $this->compile($templateDependency);
         }
 
         //This has to be after checking the dependencies are compiled

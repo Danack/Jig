@@ -5,8 +5,8 @@ namespace JigDemo\Response;
 
 
 
-class TextResponse implements \JigDemo\Response\Response {
-
+class TextResponse implements \JigDemo\Response\Response
+{
     private $text;
 
     function __construct($text) {
