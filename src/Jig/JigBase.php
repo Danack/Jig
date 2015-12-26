@@ -83,8 +83,8 @@ abstract class JigBase
         foreach ($this->plugins as $plugin) {
             $blockRenderList = $plugin->getBlockRenderList();
             if (in_array($blockName, $blockRenderList)) {
-                ob_start();
                 echo $plugin->callBlockRenderStart($blockName, $segmentText);
+                ob_start();
                 return;
             }
         }
