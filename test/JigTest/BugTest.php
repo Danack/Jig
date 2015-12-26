@@ -88,4 +88,13 @@ class BugTest extends BaseTestCase
         $contents = $this->jig->renderTemplateFile('bugs/quotes');
         $this->assertContains('content: " ";', $contents);
     }
+    
+    public function testBlocksInsideLiteral()
+    {
+        $contents = $this->jig->renderTemplateFile('bugs/blocksInsideLiteral');
+        $this->assertContains(
+            "{trim}\n{/trim}",
+            $contents
+        );
+    }
 }
