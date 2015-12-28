@@ -295,8 +295,6 @@ check_dependencies:
      */
     public function getParsedTemplateFromString($templateString, $cacheName)
     {
-        $templateString = str_replace("<?php", "&lt;php", $templateString);
-        $templateString = str_replace("?>", "?&gt;", $templateString);
         $templateString = str_replace("\r\n", "\n", $templateString);
         $lines = explode("\n", $templateString);
         $terminatedLines = [];

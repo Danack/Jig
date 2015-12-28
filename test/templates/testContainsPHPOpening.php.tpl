@@ -3,7 +3,7 @@ So this works.
 {bindTest}
 <?php
 
-asdsd
+This is not valid code
 
 ?>
 

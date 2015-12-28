@@ -632,6 +632,7 @@ END;
         $result = $this->jigDispatcher->renderTemplateFile('testContainsPHPOpening');
 
         $this->assertContains('<?php', $result);
+        $this->assertContains('?>', $result);
     }
     
     /**
