@@ -41,10 +41,11 @@ By using it, all of your templates are unit-testable as it does not use the 'ser
 
 Please run this to view the documentation:
 
+```
 git clone https://github.com/danack/TierJigDocs
 cd TierJigDocs/
 composer install
 mkdir -p var/cache
 php -S localhost:8000 -t public
-
+```
 
