@@ -22,6 +22,9 @@ Basic test passed.
     foo is falsy
 {/if}
     
-    
+
+{$bar = ""}
+new line{$bar}
+starts here
     
 {/block}

@@ -29,78 +29,22 @@ Jig is a template renderer that promotes the view layer to be a first class citi
 
 By using it, all of your templates are unit-testable as it does not use the 'service locator' pattern like most other templating systems do.
 
-
 * Compiles to PHP class for super-duper performance.
 
 * Uses real Dependency injection in templates, to allow unit testing of views.  
 
 * Super lightweight. Zero overhead when templates are already compiled when used with APC/OPCache
 
-* Customisable helpers.
+* Simple but powerful plugin system.
 
+## Documentation
 
-## Features
+Please run this to view the documentation:
 
+git clone https://github.com/danack/TierJigDocs
+cd TierJigDocs/
+composer install
+mkdir -p var/cache
+php -S localhost:8000 -t public
 
-inject
-
-literal
-
-block
-
-extends
-
-helper
-
-include
-
-filters
-
-
-if
-
-else
-
-{$foo = 5}
-{if $foo}
-    foo is truthy
-{else}
-    foo is falsy
-{/if}
-
-
-bindRenderBlock
-
-bindCompileBlock
-
-
-## Invoking templates
-
-```
-
-function echoTemplateResponse(Jig\JigBase $template)
-{
-    $text = $template->render();
-    echo $text;
-}
-
-function getTemplateSetupCallable($templateName) {
-    $fn = function (JigRender $jigRender) use ($templateName) {
-        $className = $jigRender->getClassName($templateName);
-        $jigRender->checkTemplateCompiled($templateName);
-        $alias = [];
-        $alias['Jig\JigBase'] = $className;
-        $di = new InjectionParams([], $alias, [], []);
-
-        return new Tier('createTemplateResponse', $di);
-    };
-
-    return $fn;
-}
-```
-
-
-## Running example
-
-A set of examples can be found in the 'example' directory. They can be run by using the PHP built-in webserver with the command `php -S 0.0.0.0:8000 index.php` in the example directory, and then visiting http://127.0.0.1:8000/
 

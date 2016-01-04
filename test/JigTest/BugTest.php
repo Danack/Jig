@@ -81,10 +81,16 @@ class BugTest extends BaseTestCase
         }
     }
 
+    public function testEscapingNull()
+    {
+        $contents = $this->jig->renderTemplateFile('bugs/escapingNull');
+        
+        $this->assertContains('foo is []', $contents);
+        $this->assertContains('Fin.', $contents);
+    }
 
     public function testQuotesInTemplate()
     {
-        //@unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/DependencyInsertion.php");
         $contents = $this->jig->renderTemplateFile('bugs/quotes');
         $this->assertContains('content: " ";', $contents);
     }

@@ -79,6 +79,7 @@ class JigConverterTest extends BaseTestCase
         @unlink(__DIR__."/generatedTemplates/Intahwebz/PHPCompiledTemplate/basic.php");
         $contents = $this->jigDispatcher->renderTemplateFile('basic/basic');
         $this->assertContains("Basic test passed.", $contents);
+        $this->assertContains("new line\nstarts here", $contents);
     }
 
     /**
