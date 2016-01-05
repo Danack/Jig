@@ -14,6 +14,10 @@
            <property name="ignoreIndentationTokens" type="array" value="T_GOTO_LABEL"/>
         </properties>
     </rule>
+    
+
+    <rule ref="Squiz.Operators.ComparisonOperatorUsage"/>
+    <rule ref="Squiz.Operators.ValidLogicalOperators"/>
 
 
     <rule ref="PSR2">

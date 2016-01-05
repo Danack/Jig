@@ -56,10 +56,8 @@ class CodeTemplateSegment extends TemplateSegment
     private function removeFilters()
     {
         $pattern = '/\|\s*([\w\s]+)/u';
-
         $filterMatch = preg_match($pattern, $this->text, $matches, PREG_OFFSET_CAPTURE);
-
-        if (!$filterMatch) {
+        if ($filterMatch === 0 || $filterMatch === false) {
             return [];
         }
 
@@ -85,18 +83,17 @@ class CodeTemplateSegment extends TemplateSegment
     ) {
         $filters = $this->filters;
 
-        if ($flags & self::NO_FILTER) {
+        if (($flags & self::NO_FILTER) !== 0) {
             $filters[] = JigConverter::FILTER_NONE;
         }
 
-        if (count($filters) == 0) {
-            //TODO - allow default filter to be set
+        if (count($filters) === 0) {
             $filters[] = JigConverter::FILTER_HTML;
         }
 
         $code = "<?php ";
         
-        if ($flags & self::REMOVE_IF) {
+        if (($flags & self::REMOVE_IF) !== 0) {
             $code .= substr($this->text, 3);
         }
         else {
@@ -129,7 +126,7 @@ class CodeTemplateSegment extends TemplateSegment
         
         $filters = array_merge($filters, $printer->getFilters());
         
-        if ($printer->hasAssignment() == true) {
+        if ($printer->hasAssignment() === true) {
             $this->hasAssignment = true;
             return $segmentText."; ";
         }
@@ -170,7 +167,7 @@ class CodeTemplateSegment extends TemplateSegment
             foreach ($parsedTemplate->getPlugins() as $pluginClasname) {
                 $filterList = $pluginClasname::getFilterList();
 
-                if (in_array($filterName, $filterList, true)) {
+                if (in_array($filterName, $filterList, true) === true) {
                     $filterParam = JigConverter::convertClassnameToParam($pluginClasname);
                     $segmentText = sprintf(
                         "\$this->%s->callFilter('%s', %s)",
@@ -189,11 +186,11 @@ class CodeTemplateSegment extends TemplateSegment
             );
         }
 
-        if (($flags & self::NO_OUTPUT) == 0) {
+        if (($flags & self::NO_OUTPUT) === 0) {
             $segmentText = "echo ".$segmentText."";
         }
 
-        if (($flags & self::NO_PHP) == 0) {
+        if (($flags & self::NO_PHP) === 0) {
             $segmentText = $segmentText."; ";
         }
 

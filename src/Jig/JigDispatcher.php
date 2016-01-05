@@ -31,7 +31,7 @@ class JigDispatcher extends Jig
         $this->injector = $injector;
         $this->injector->alias('Jig\Jig', get_class($this));
         $this->injector->share($this);
-        if ($escaper == null) {
+        if ($escaper === null) {
             $escaper = new ZendEscaperBridge(new ZendEscaper());
         }
         $this->injector->alias('Jig\Escaper', get_class($escaper));

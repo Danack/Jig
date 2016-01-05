@@ -65,11 +65,11 @@ class BasicPlugin implements Plugin
      */
     public function callFunction($functionName, array $params)
     {
-        if (in_array($functionName, self::$globalFunctions)) {
+        if (in_array($functionName, self::$globalFunctions) === true) {
             return call_user_func_array($functionName, $params);
         }
         
-        if (method_exists($this, $functionName) == true) {
+        if (method_exists($this, $functionName) === true) {
             return call_user_func_array([$this, $functionName], $params);
         }
 
@@ -87,7 +87,7 @@ class BasicPlugin implements Plugin
     {
         $blockNameStart = $blockName."BlockRenderStart";
 
-        if (method_exists($this, $blockNameStart) == true) {
+        if (method_exists($this, $blockNameStart) === true) {
             return call_user_func([$this, $blockNameStart], $extraParam);
         }
 
@@ -105,7 +105,7 @@ class BasicPlugin implements Plugin
     {
         $blockNameEnd = $blockName."BlockRenderEnd";
 
-        if (method_exists($this, $blockNameEnd) == true) {
+        if (method_exists($this, $blockNameEnd) === true) {
             return call_user_func([$this, $blockNameEnd], $contents);
         }
         
@@ -136,7 +136,7 @@ class BasicPlugin implements Plugin
      */
     public function callFilter($filterName, $string)
     {
-        if (method_exists($this, $filterName) == true) {
+        if (method_exists($this, $filterName) === true) {
             return call_user_func([$this, $filterName], $string);
         }
         

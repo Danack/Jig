@@ -47,9 +47,9 @@ class JigConverter
     
     /**
      * Is the converter currently in literal mode.
-     * @var bool
+     * @var null
      */
-    private $literalMode = false;
+    private $literalMode = null;
 
     /**
      * @var array
@@ -104,14 +104,14 @@ class JigConverter
     
     public function changeOutputMode($newOutputMode)
     {
-        if ($newOutputMode == $this->outputMode) {
+        if ($newOutputMode === $this->outputMode) {
             return;
         }
         
-        if ($newOutputMode == self::MODE_CODE) {
+        if ($newOutputMode === self::MODE_CODE) {
             $this->addLineInternal("\nTEXT;\n");
         }
-        else if ($newOutputMode == self::MODE_TEMPLATE) {
+        else if ($newOutputMode === self::MODE_TEMPLATE) {
             $this->addLineInternal("\n    echo <<< 'TEXT'\n");
         }
     
@@ -125,7 +125,7 @@ class JigConverter
     public function matchCompileBlockFunction($segmentText)
     {
         foreach ($this->compileBlockFunctions as $blockName => $blockFunctions) {
-            if (strncmp($segmentText, $blockName, mb_strlen($blockName)) == 0) {
+            if (strncmp($segmentText, $blockName, mb_strlen($blockName)) === 0) {
                 return $blockFunctions;
             }
         }
@@ -135,13 +135,12 @@ class JigConverter
 
     /**
      * @param $blockName
-     * @return null|callable
+     * @return bool
      */
     public function doesRenderBlockExist($blockName)
     {
         $knownRenderBlocks = $this->parsedTemplate->getKnownRenderBlocks();
-
-        if (in_array($blockName, $knownRenderBlocks, true)) {
+        if (in_array($blockName, $knownRenderBlocks, true) === true) {
             return true;
         }
 
@@ -155,7 +154,7 @@ class JigConverter
      */
     public function createFromLines($fileLines)
     {
-        if ($this->parsedTemplate != null) {
+        if ($this->parsedTemplate !== null) {
             throw new JigException(
                 "Trying to convert template while in the middle of converting another one."
             );
@@ -181,11 +180,11 @@ class JigConverter
             $lastElementKey = key($nextSegments);
 
             foreach ($nextSegments as $key => $segment) {
-                if ($key == $lastElementKey) {
+                if ($key === $lastElementKey) {
                     if (($segment instanceof TextTemplateSegment) &&
-                        $anyTextFound == false &&
-                        $codeFound == true) {
-                        if (strlen(trim($segment->getRawString())) == 0) {
+                        $anyTextFound === false &&
+                        $codeFound === true) {
+                        if (strlen(trim($segment->getRawString())) === 0) {
                             continue;
                         }
                     }
@@ -194,13 +193,13 @@ class JigConverter
                 $this->addSegment($segment);
 
                 if ($segment instanceof TextTemplateSegment) {
-                    if (strlen($segment->getRawString())) {
+                    if (strlen($segment->getRawString()) !== 0) {
                         $anyTextFound = true;
                     }
                 }
                 else if ($segment instanceof CodeTemplateSegment) {
                     $codeFound = true;
-                    if ($segment->hasAssignment() == false) {
+                    if ($segment->hasAssignment() === false) {
                         $anyTextFound = true;
                     }
                 }
@@ -250,7 +249,7 @@ class JigConverter
 
         $matchCount = preg_match_all($pattern, $fileLine, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
 
-        if ($matchCount == 0) {
+        if ($matchCount === 0) {
             $segments[] = new TextTemplateSegment($fileLine);
         }
         else {
@@ -272,8 +271,8 @@ class JigConverter
 
                 $position = $codeStartPosition + mb_strlen($codeWithBrackets);
 
-                if ($startStr == '{*' &&
-                    $endStr == '*}') {
+                if ($startStr === '{*' &&
+                    $endStr === '*}') {
                     //it was a comment like {* *}
                     $segments[] = new CommentTemplateSegment($code);
                     continue;
@@ -306,7 +305,13 @@ class JigConverter
      */
     public function setLiteralMode($literalMode)
     {
-        $this->literalMode = $literalMode;
+        if ((is_string($literalMode) === true) ||
+            (is_null($literalMode) === true)) {
+            $this->literalMode = $literalMode;
+            return;
+        }
+
+        throw new JigException("Internal error [$literalMode] is not string or null");
     }
 
     /**
@@ -331,37 +336,38 @@ class JigConverter
     {
         $segmentText = $segment->getOriginalText();
 
-        if ($this->literalMode == self::LITERAL_TEMPLATE &&
-            strncmp($segmentText, '/literal', mb_strlen('/literal')) == 0) {
+        if ($this->literalMode === self::LITERAL_TEMPLATE &&
+            strncmp($segmentText, '/literal', mb_strlen('/literal')) === 0) {
             $this->processLiteralEnd();
             return;
         }
         
-        if ($this->literalMode == self::LITERAL_PHP &&
-            strncmp($segmentText, '/php', mb_strlen('/php')) == 0) {
+        if ($this->literalMode === self::LITERAL_PHP &&
+            strncmp($segmentText, '/php', mb_strlen('/php')) === 0) {
             $this->processPHPEnd();
             $this->processLiteralEnd();
             return;
         }
 
         foreach ($this->compileBlockFunctions as $blockName => $blockFunctions) {
-            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) == 0) {
+            if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) === 0) {
                 call_user_func($blockFunctions[1], $this, $segmentText);
                 return;
             }
         }
-        
-        if (preg_match('#/\w*#', $segmentText)) {
+        $segmentTextMatch = preg_match('#/\w*#', $segmentText);
+        if ($segmentTextMatch !== 0 && $segmentTextMatch !== false) {
             $blockName = substr($segmentText, 1);
             $knownBlocks = $this->parsedTemplate->getKnownRenderBlocks();
-            if (in_array($blockName, $knownBlocks, true)) {
+            if (in_array($blockName, $knownBlocks, true) === true) {
                 $this->addCode("\$this->endRenderBlock('$blockName');");
                 return;
             }
         }
 
+
         //Anything that exits literal mode (i.e. /literal or /php) must be above this
-        if ($this->literalMode) {
+        if ($this->literalMode !== null) {
             $this->addLineInternal($segment->getRawString());
             return;
         }
@@ -390,19 +396,19 @@ class JigConverter
         $segmentText = $segment->getOriginalText();
 
         try {
-            if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) == 0) {
+            if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) === 0) {
                 $this->processExtends($segmentText);
             }
-            else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) == 0) {
+            else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) === 0) {
                 $this->processInject($segmentText);
             }
-            else if (strncmp($segmentText, 'plugin ', mb_strlen('plugin ')) == 0) {
+            else if (strncmp($segmentText, 'plugin ', mb_strlen('plugin ')) === 0) {
                 $this->processPlugin($segmentText);
             }
-            else if (strncmp($segmentText, 'include ', mb_strlen('include ')) == 0) {
+            else if (strncmp($segmentText, 'include ', mb_strlen('include ')) === 0) {
                 $this->processInclude($segmentText);
             }
-            else if (strncmp($segmentText, 'block ', mb_strlen('block ')) == 0) {
+            else if (strncmp($segmentText, 'block ', mb_strlen('block ')) === 0) {
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->processBlockStart($segmentText);
                 //Blocks start in template mode.
@@ -410,24 +416,24 @@ class JigConverter
                 //be in its own object.
                 $this->startInTemplateMode();
             }
-            else if (strncmp($segmentText, '/block', mb_strlen('/block')) == 0) {
+            else if (strncmp($segmentText, '/block', mb_strlen('/block')) === 0) {
                 $this->processBlockEnd();
             }
-            else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) == 0) {
+            else if (strncmp($segmentText, 'foreach', mb_strlen('foreach')) === 0) {
                 $this->processForeachStart($segmentText);
                 $segment->setHasAssignment(true);
             }
-            else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) == 0) {
+            else if (strncmp($segmentText, '/foreach', mb_strlen('/foreach')) === 0) {
                 $this->processForeachEnd();
                 $segment->setHasAssignment(true);
             }
-            else if (strncmp($segmentText, 'php', mb_strlen('php')) == 0) {
+            else if (strncmp($segmentText, 'php', mb_strlen('php')) === 0) {
                 $this->processPHPStart($segmentText);
             }
-            else if (strncmp($segmentText, 'literal', mb_strlen('literal')) == 0) {
+            else if (strncmp($segmentText, 'literal', mb_strlen('literal')) === 0) {
                 $this->processLiteralStart();
             }
-            else if (strncmp($segmentText, 'if ', mb_strlen('if ')) == 0) {
+            else if (strncmp($segmentText, 'if ', mb_strlen('if ')) === 0) {
                 $text = $segment->getCodeString(
                     $this->parsedTemplate,
                     CodeTemplateSegment::REMOVE_IF |
@@ -438,11 +444,11 @@ class JigConverter
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->addLineInternal("if (".$text.") {\n");
             }
-            else if (strncmp($segmentText, '/if', mb_strlen('/if')) == 0) {
+            else if (strncmp($segmentText, '/if', mb_strlen('/if')) === 0) {
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->addLineInternal("}\n");
             }
-            else if (strncmp($segmentText, 'else', mb_strlen('else')) == 0) {
+            else if (strncmp($segmentText, 'else', mb_strlen('else')) === 0) {
                 $this->addCode(" } else { \n");
             }
             else {
@@ -454,13 +460,15 @@ class JigConverter
                     $blockFunctionName = substr($segmentText, 0, $position);
                     $remainingText = substr($segmentText, $position+1);
                 }
-
-                if ($compileBlockFunction = $this->matchCompileBlockFunction($blockFunctionName)) {
+                
+                $compileBlockFunction = $this->matchCompileBlockFunction($blockFunctionName);
+                if ($compileBlockFunction !== null) {
                     $compileBlockFunction[0]($this, $remainingText);
                     return;
                 }
 
-                if ($processedBlockFunction = $this->doesRenderBlockExist($blockFunctionName)) {
+                $processedBlockFunction = $this->doesRenderBlockExist($blockFunctionName);
+                if ($processedBlockFunction === true) {
                     $paramText = addslashes($remainingText);
                     $this->addCode("\$this->startRenderBlock('$blockFunctionName', '$paramText');");
                     return;
@@ -518,7 +526,7 @@ class JigConverter
         $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount == 0) {
+        if ($matchCount === 0) {
             throw new JigException("Could not extract filename from [$segmentText] to extend.");
         }
 
@@ -536,17 +544,17 @@ class JigConverter
         $nameMatchCount = preg_match($namePattern, $segmentText, $nameMatches);
         $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
 
-        if ($nameMatchCount == 0) {
+        if ($nameMatchCount === 0) {
             throw new JigException("Failed to get name for injection");
         }
-        if ($valueMatchCount == 0) {
+        if ($valueMatchCount === 0) {
             throw new JigException("Failed to get value for injection");
         }
 
         $name = $nameMatches[1];
         $type = $valueMatches[1];
         
-        if (strlen($type) == 0) {
+        if (strlen($type) === 0) {
             throw new JigException("Value must not be zero length");
         }
 
@@ -563,14 +571,14 @@ class JigConverter
         $valuePattern = '#type=[\'"](.*)[\'"]#u';
         $valueMatchCount = preg_match($valuePattern, $segmentText, $valueMatches);
 
-        if ($valueMatchCount == 0) {
+        if ($valueMatchCount === 0) {
             throw new JigException("Failed to get value for injection");
         }
 
         $classname = $valueMatches[1];
         //TODO - validate classname is valid
         
-        if (strlen($classname) == 0) {
+        if (strlen($classname) === 0) {
             throw new JigException("Type for filter must not be zero length");
         }
 
@@ -586,12 +594,12 @@ class JigConverter
         $pattern = '#file=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
 
         $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount != 0) {
+        if ($matchCount !== 0) {
             $this->setInclude($matches[1]);
             return;
         }
 
-        if ($matchCount == 0) {
+        if ($matchCount === 0 || $matchCount === false) {
             throw new JigException("Could not extract filename from [$segmentText] to include.");
         }
     }
@@ -604,13 +612,13 @@ class JigConverter
     {
         $pattern = '#name=[\'"]('.self::FILENAME_PATTERN.')[\'"]#u';
         $matchCount = preg_match($pattern, $segmentText, $matches);
-        if ($matchCount == 0) {
+        if ($matchCount === 0) {
             throw new JigException("Could not extract filename from [$segmentText] for blockStart.");
         }
 
         $blockName = $matches[1];
 
-        if ($this->activeBlock != null) {
+        if ($this->activeBlock !== null) {
             throw new JigException("Trying to start block [$blockName] while still in a block. That's not possible.");
         }
 
@@ -625,7 +633,7 @@ class JigConverter
     {
         $this->changeOutputMode(self::MODE_CODE);
 
-        if ($this->parsedTemplate->getExtends() == null) {
+        if ($this->parsedTemplate->getExtends() === null) {
             $this->parsedTemplate->addTextLine(" \$this->".$this->activeBlockName."(); \n");
         }
 
@@ -647,7 +655,7 @@ class JigConverter
 
         $matchCount = preg_match($pattern, $segmentText, $matches, PREG_OFFSET_CAPTURE);
 
-        if ($matchCount == 0) {
+        if ($matchCount === 0) {
             throw new JigException("Could not extract variable to foreach over from [$segmentText].");
         }
 
@@ -670,7 +678,7 @@ class JigConverter
 
         $matchCount = preg_match_all($pattern, $segmentText, $matches, PREG_PATTERN_ORDER, $dependentVariablesPosition);
 
-        if ($matchCount == 0) {
+        if ($matchCount === 0) {
             throw new \RuntimeException("Failed to parse foreach correctly.");
         }
 
@@ -702,7 +710,7 @@ class JigConverter
     public function processPHPEnd()
     {
         $this->addCode("\n");
-        $this->setLiteralMode(false);
+        $this->setLiteralMode(null);
     }
     
     
@@ -732,7 +740,7 @@ class JigConverter
      */
     private function processLiteralEnd()
     {
-        $this->setLiteralMode(false);
+        $this->setLiteralMode(null);
     }
 
     /**

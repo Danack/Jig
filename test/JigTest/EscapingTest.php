@@ -284,7 +284,7 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals($literal, $value);
             } else {
                 $literal = $this->codepointToUtf8($chr);
-                if (in_array($literal, $immune)) {
+                if (in_array($literal, $immune) === true) {
                     $value = $escaper->escapeJavascript($literal);
                     $this->assertEquals($literal, $value);
                 } else {
@@ -311,7 +311,7 @@ class EscapingTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals($literal, $value);
             } else {
                 $literal = $this->codepointToUtf8($chr);
-                if (in_array($literal, $immune)) {
+                if (in_array($literal, $immune) === true) {
                     $value = $escaper->escapeHTMLAttribute($literal);
                     $this->assertEquals($literal, $value);
                 } else {

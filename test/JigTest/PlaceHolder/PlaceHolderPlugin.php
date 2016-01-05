@@ -75,8 +75,8 @@ class PlaceHolderPlugin extends BasicPlugin
 
     public function hasBeenCalled($functionName, $paramString)
     {
-        if (array_key_exists($functionName, $this->calledFunctions) == true) {
-            if ($this->calledFunctions[$functionName] == $paramString) {
+        if (array_key_exists($functionName, $this->calledFunctions) === true) {
+            if ($this->calledFunctions[$functionName] === $paramString) {
                 return true;
             }
         }
@@ -85,7 +85,7 @@ class PlaceHolderPlugin extends BasicPlugin
 
     public function checkRole($role)
     {
-        if ($role == 'admin') {
+        if (strcmp($role, 'admin') === 0) {
             return true;
         }
 

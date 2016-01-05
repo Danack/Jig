@@ -63,7 +63,7 @@ abstract class JigBase
         
         foreach ($this->plugins as $plugin) {
             $functionList = $plugin->getFunctionList();
-            if (in_array($functionName, $functionList)) {
+            if (in_array($functionName, $functionList) === true) {
                 return $plugin->callFunction($functionName, $params);
             }
         }
@@ -82,7 +82,7 @@ abstract class JigBase
     {
         foreach ($this->plugins as $plugin) {
             $blockRenderList = $plugin->getBlockRenderList();
-            if (in_array($blockName, $blockRenderList)) {
+            if (in_array($blockName, $blockRenderList) === true) {
                 echo $plugin->callBlockRenderStart($blockName, $segmentText);
                 ob_start();
                 return;
@@ -102,7 +102,7 @@ abstract class JigBase
         ob_end_clean();
         foreach ($this->plugins as $plugin) {
             $blockRenderList = $plugin->getBlockRenderList();
-            if (in_array($blockName, $blockRenderList)) {
+            if (in_array($blockName, $blockRenderList) === true) {
                 echo $plugin->callBlockRenderEnd($blockName, $contents);
                 return;
             }

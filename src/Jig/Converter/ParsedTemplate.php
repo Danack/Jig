@@ -51,7 +51,7 @@ class ParsedTemplate
 
     public function addInjection($name, $type)
     {
-        if (array_key_exists($name, $this->injections)) {
+        if (array_key_exists($name, $this->injections) === true) {
             if (strcasecmp($type, $this->injections[$name]) !== 0) {
                 $message = sprintf(
                     "Cannot inject type %s as name %s, it is already injected as type %s",
@@ -80,7 +80,7 @@ class ParsedTemplate
                 throw new JigException("Failed to load plugin class $classname to get info from it.");
             }
                 
-            if (in_array('Jig\Plugin', $implementedInterfaces) == false) {
+            if (in_array('Jig\Plugin', $implementedInterfaces) === false) {
                 $message = "Class $classname does not implement interface Jig\\Plugin, cannot be used as a plugin.";
                 throw new JigException($message);
             }
@@ -88,7 +88,7 @@ class ParsedTemplate
             $callable = [$classname, $methodName];
 
             $listItems = call_user_func($callable);
-            if (is_array($listItems) == false) {
+            if (is_array($listItems) === false) {
                 $message = sprintf(
                     "Method %s for class %s must return an array of the names, and the names must be strings",
                     $methodName,
@@ -102,7 +102,7 @@ class ParsedTemplate
             }
 
             foreach ($listItems as $item) {
-                if (is_string($item) == false) {
+                if (is_string($item) === false) {
                     $message = sprintf(
                         "Method %s for class %s must return an array of the names, and the names must be strings",
                         $methodName,
@@ -176,11 +176,11 @@ class ParsedTemplate
 
     public function checkVariableKnown($variableName)
     {
-        if (in_array($variableName, $this->localVariables)) {
+        if (in_array($variableName, $this->localVariables) === true) {
             return;
         }
         
-        if (array_key_exists($variableName, $this->injections) == true) {
+        if (array_key_exists($variableName, $this->injections) === true) {
             return;
         }
 
@@ -203,7 +203,7 @@ class ParsedTemplate
             $varName = substr($localVariable, 1);
         }
 
-        if (in_array($varName, $this->localVariables) == false) {
+        if (in_array($varName, $this->localVariables) === false) {
             $this->localVariables[] = $varName;
         }
     }
@@ -239,7 +239,7 @@ class ParsedTemplate
      */
     public function getParentClass()
     {
-        if ($this->extends == null) {
+        if ($this->extends === null) {
             return "Jig\\JigBase";
         }
         $extendsClassName = str_replace('/', '\\', $this->extends);
@@ -261,7 +261,7 @@ class ParsedTemplate
     {
         $dependencies = [];
 
-        if ($this->extends) {
+        if ($this->extends !== null) {
             $dependencies[] = $this->extends;
         }
 
@@ -294,14 +294,14 @@ class ParsedTemplate
         chmod($tempFilename, 0750);
         $outputFileHandle = @fopen($tempFilename, "w");
 
-        if ($outputFileHandle == false) {
+        if ($outputFileHandle === false) {
             throw new JigException("Could not open file [$outputFilename] for writing template.");
         }
 
         $parentClassName = self::getClassName($parentFullClassName);
 
         $namespaceString = '';
-        if (strlen(trim($namespace))) {
+        if (strlen(trim($namespace)) !== 0) {
             $namespaceString = "namespace $namespace;";
         }
 
@@ -332,7 +332,7 @@ END;
             $this->writeFunction($outputFileHandle, $name, $functionBlockSegments);
         }
 
-        if ($this->getExtends() == null) {
+        if ($this->getExtends() === null) {
             $remainingSegments = $this->getLines();
             $this->writeFunction($outputFileHandle, 'renderInternal', $remainingSegments);
         }
@@ -342,7 +342,7 @@ END;
         //Close the file and move it to the correct place atomically.
         fclose($outputFileHandle);
         $renameResult = rename($tempFilename, $outputFilename);
-        if (!$renameResult) {
+        if ($renameResult === false) {
             throw new JigException("Failed to rename temp file $tempFilename to $outputFilename");
         }
 
@@ -466,7 +466,7 @@ FUNCTION;
         }
 
         $parentConstructString = '';
-        if (count($parentDependencies)) {
+        if (count($parentDependencies) !== 0) {
             $parentConstructString .=  "parent::__construct(";
             $separator = '';
             foreach ($parentDependencies as $name => $type) {
@@ -561,7 +561,7 @@ FUNCTION;
      */
     public static function getNamespace($namespaceClass)
     {
-        if (is_object($namespaceClass)) {
+        if (is_object($namespaceClass) === true) {
             $namespaceClass = get_class($namespaceClass);
         }
     
@@ -576,7 +576,7 @@ FUNCTION;
 
     public static function getFQCN($namespace, $classname)
     {
-        if (strlen($namespace)) {
+        if (strlen($namespace) !== 0) {
             return $namespace."\\".$classname;
         }
     
@@ -612,7 +612,7 @@ FUNCTION;
         
         //TODO - double-check umask
     
-        if (file_exists($directoryName) == false) {
+        if (file_exists($directoryName) === false) {
             throw new JigException("Directory $directoryName does not exist and could not be created");
         }
     }

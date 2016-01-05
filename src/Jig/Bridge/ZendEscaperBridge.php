@@ -18,13 +18,13 @@ class ZendEscaperBridge implements Escaper
     
     public function escapeHTML($string)
     {
-        if (is_object($string) == true) {
-            if (method_exists($string, '__toString') == false) {
+        if (is_object($string) === true) {
+            if (method_exists($string, '__toString') === false) {
                 throw EscapeException::fromBadObject($string);
             }
             $string = (string)$string;
         }
-        if (is_array($string) == true) {
+        if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
 
@@ -33,13 +33,13 @@ class ZendEscaperBridge implements Escaper
 
     public function escapeHTMLAttribute($string)
     {
-        if (is_object($string) == true) {
-            if (method_exists($string, '__toString') == false) {
+        if (is_object($string) === true) {
+            if (method_exists($string, '__toString') === false) {
                 throw EscapeException::fromBadObject($string);
             }
             $string = (string)$string;
         }
-        if (is_array($string) == true) {
+        if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
 
@@ -48,13 +48,13 @@ class ZendEscaperBridge implements Escaper
 
     public function escapeJavascript($string)
     {
-        if (is_object($string) == true) {
-            if (method_exists($string, '__toString') == false) {
+        if (is_object($string) === true) {
+            if (method_exists($string, '__toString') === false) {
                 throw EscapeException::fromBadObject($string);
             }
             $string = (string)$string;
         }
-        if (is_array($string) == true) {
+        if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
 
@@ -63,13 +63,13 @@ class ZendEscaperBridge implements Escaper
 
     public function escapeCSS($string)
     {
-        if (is_object($string) == true) {
-            if (method_exists($string, '__toString') == false) {
+        if (is_object($string) === true) {
+            if (method_exists($string, '__toString') === false) {
                 throw EscapeException::fromBadObject($string);
             }
             $string = (string)$string;
         }
-        if (is_array($string) == true) {
+        if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
 
@@ -78,13 +78,13 @@ class ZendEscaperBridge implements Escaper
 
     public function escapeURLComponent($string)
     {
-        if (is_object($string) == true) {
-            if (method_exists($string, '__toString') == false) {
+        if (is_object($string) === true) {
+            if (method_exists($string, '__toString') === false) {
                 throw EscapeException::fromBadObject($string);
             }
             $string = (string)$string;
         }
-        if (is_array($string) == true) {
+        if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
 

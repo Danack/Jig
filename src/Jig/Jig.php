@@ -41,7 +41,7 @@ class Jig
         JigConverter $jigConverter = null
     ) {
 
-        if ($jigConverter == null) {
+        if ($jigConverter === null) {
             $jigConverter = new JigConverter($jigConfig);
             // Add basic useful stuff to Jig
             $jigConverter->addDefaultPlugin('Jig\Plugin\BasicPlugin');
@@ -118,21 +118,21 @@ class Jig
     {
         $className = $this->jigConfig->getFQCNFromTemplateName($templateFilename);
 
-        if ($this->jigConfig->compileCheck == Jig::COMPILE_NEVER) {
+        if ($this->jigConfig->compileCheck === Jig::COMPILE_NEVER) {
             //This is useful when debugging templates. It allows you to edit the
             //generated code, without having it over-written.
             return $className;
         }
 
-        if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_EXISTS) {
-            if (class_exists($className) == true) {
+        if ($this->jigConfig->compileCheck === Jig::COMPILE_CHECK_EXISTS) {
+            if (class_exists($className) === true) {
                 goto check_dependencies;
             }
         }
 
-        if ($this->jigConfig->compileCheck == Jig::COMPILE_CHECK_MTIME) {
-            if ($this->isGeneratedFileOutOfDate($templateFilename) == false) {
-                if (class_exists($className) == true) {
+        if ($this->jigConfig->compileCheck === Jig::COMPILE_CHECK_MTIME) {
+            if ($this->isGeneratedFileOutOfDate($templateFilename) === false) {
+                if (class_exists($className) === true) {
                     goto check_dependencies;
                 }
             }
@@ -199,8 +199,8 @@ check_dependencies:
             $fqcn
         );
 
-        if (class_exists($fqcn, false) == false) {
-            if (function_exists('opcache_invalidate') == true) {
+        if (class_exists($fqcn, false) === false) {
+            if (function_exists('opcache_invalidate') === true) {
                 // If the class exists in OPCache, it might be out of date.
                 // Invalidate the cache for that entry to ensure we get the
                 // newly compiled version.
@@ -232,7 +232,7 @@ check_dependencies:
             throw new JigException("Could not open template [".$templateFullFilename."] for reading.");
         }
 
-        if (count($fileLines) == 0) {
+        if (count($fileLines) === 0) {
             // users probably prefer an empty template to it crashing.
             $fileLines = [''];
         }
@@ -307,7 +307,7 @@ check_dependencies:
 
         $fqcn = $this->jigConfig->getFQCNFromTemplateName($parsedTemplate->getTemplateName());
 
-        if (class_exists($fqcn, true)) {
+        if (class_exists($fqcn, true) === true) {
             return $fqcn;
         }
 
