@@ -305,7 +305,7 @@ class JigConverter
      */
     public function setLiteralMode($literalMode)
     {
-        if (is_bool($literalMode) === true) {
+        if (is_null($literalMode) === true || is_string($literalMode)) {
             $this->literalMode = $literalMode;
             return;
         }
