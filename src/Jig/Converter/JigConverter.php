@@ -301,17 +301,16 @@ class JigConverter
     }
     
     /**
-     * @param $literalMode
+     * @param $literalMode bool
      */
     public function setLiteralMode($literalMode)
     {
-        if ((is_string($literalMode) === true) ||
-            (is_null($literalMode) === true)) {
+        if (is_bool($literalMode) === true) {
             $this->literalMode = $literalMode;
             return;
         }
 
-        throw new JigException("Internal error [$literalMode] is not string or null");
+        throw new JigException("Internal error [$literalMode] is not boolean.");
     }
 
     /**
