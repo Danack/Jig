@@ -27,6 +27,7 @@ class ZendEscaperBridge implements Escaper
         if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
+        $string = (string)$string;
 
         return $this->zendEscape->escapeHtml($string);
     }
@@ -42,6 +43,7 @@ class ZendEscaperBridge implements Escaper
         if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
+        $string = (string)$string;
 
         return $this->zendEscape->escapeHtmlAttr($string);
     }
@@ -57,6 +59,7 @@ class ZendEscaperBridge implements Escaper
         if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
+        $string = (string)$string;
 
         return $this->zendEscape->escapeJs($string);
     }
@@ -72,6 +75,7 @@ class ZendEscaperBridge implements Escaper
         if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
+        $string = (string)$string;
 
         return $this->zendEscape->escapeCss($string);
     }
@@ -87,6 +91,7 @@ class ZendEscaperBridge implements Escaper
         if (is_array($string) === true) {
             throw EscapeException::fromBadArray();
         }
+        $string = (string)$string;
 
         return $this->zendEscape->escapeUrl($string);
     }
