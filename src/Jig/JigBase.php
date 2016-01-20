@@ -124,12 +124,12 @@ abstract class JigBase
             $contents = ob_get_contents();
         }
         catch (JigException $je) {
-            ob_end_clean();
+            @ob_end_clean();
             //Just rethrow it to keep the stack trace the same
             throw $je;
         }
         catch (\Exception $e) {
-            ob_end_clean();
+            @ob_end_clean();
             
             $message = sprintf(
                 "Failed to render template '%s' : %s",

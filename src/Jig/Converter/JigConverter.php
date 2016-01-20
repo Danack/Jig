@@ -310,7 +310,7 @@ class JigConverter
             return;
         }
 
-        throw new JigException("Internal error [$literalMode] is not boolean.");
+        throw new JigException("Internal error [".gettype($literalMode)."] is not boolean.");
     }
 
     /**
@@ -363,7 +363,6 @@ class JigConverter
                 return;
             }
         }
-
 
         //Anything that exits literal mode (i.e. /literal or /php) must be above this
         if ($this->literalMode !== null) {
