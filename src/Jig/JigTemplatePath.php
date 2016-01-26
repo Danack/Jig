@@ -6,7 +6,7 @@ use Jig\JigException;
 
 /**
  * Class JigTemplatePath
- * 
+ *
  *  The path that templates are stored.
  */
 class JigTemplatePath

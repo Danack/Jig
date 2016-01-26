@@ -6,7 +6,7 @@ use Jig\JigException;
 
 /**
  * Class JigCompilePath
- * 
+ *
  * The path that templates which are compiled into PHP files should be written
  */
 class JigCompilePath

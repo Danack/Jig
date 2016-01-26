@@ -42,7 +42,9 @@ use JigTest\BaseTestCase;
 use Jig\Jig;
 use JigTest\PlaceHolder\PlaceHolderPlugin;
 use Jig\Converter\ParsedTemplate;
-    use Jig\JigException;
+use Jig\JigException;
+use Jig\JigCompilePath;
+use Jig\JigTemplatePath;
     
 /**
  * Class CoverageTest
@@ -58,8 +60,8 @@ class CoverageTest extends BaseTestCase
     public function setUp()
     {
         parent::setup();
-        $this->templateDirectory = dirname(__DIR__)."/./templates/";
-        $this->compileDirectory = dirname(__DIR__)."/./../tmp/generatedTemplates/";
+        $this->templateDirectory = new JigTemplatePath(dirname(__DIR__)."/./templates/");
+        $this->compileDirectory = new JigCompilePath(dirname(__DIR__)."/./../tmp/generatedTemplates/");
     }
     
     private function getJigConfig()

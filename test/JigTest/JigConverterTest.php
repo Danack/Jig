@@ -10,6 +10,8 @@ use Jig\JigException;
 use JigTest\PlaceHolder\PlaceHolderPlugin;
 use Jig\Bridge\ZendEscaperBridge;
 use Zend\Escaper\Escaper as ZendEscaper;
+use Jig\JigCompilePath;
+use Jig\JigTemplatePath;
 
 class JigConverterTest extends BaseTestCase
 {
@@ -31,8 +33,8 @@ class JigConverterTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->templateDirectory = dirname(__DIR__)."/./templates/";
-        $this->compileDirectory = dirname(__DIR__)."/./../tmp/generatedTemplates/";
+        $this->compileDirectory = new JigCompilePath(dirname(__DIR__)."/./../tmp/generatedTemplates/");
+        $this->templateDirectory = new JigTemplatePath(dirname(__DIR__)."/./templates/");
 
         $jigConfig = new JigConfig(
             $this->templateDirectory,

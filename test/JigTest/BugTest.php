@@ -5,6 +5,8 @@ namespace JigTest;
 use Jig\Jig;
 use Jig\Converter\JigConverter;
 use Jig\JigConfig;
+use Jig\JigCompilePath;
+use Jig\JigTemplatePath;
 
 class BugTest extends BaseTestCase
 {
@@ -22,12 +24,12 @@ class BugTest extends BaseTestCase
     {
         parent::setUp();
 
-        $templateDirectory = dirname(__DIR__)."/./templates/";
-        $compileDirectory = dirname(__DIR__)."/./../tmp/generatedTemplates/";
+        $templatePath = new JigTemplatePath(dirname(__DIR__)."/./templates/");
+        $compilePath = new JigCompilePath(dirname(__DIR__)."/./../tmp/generatedTemplates/");
 
         $jigConfig = new JigConfig(
-            $templateDirectory,
-            $compileDirectory,
+            $templatePath,
+            $compilePath,
             Jig::COMPILE_ALWAYS,
             "php.tpl"
         );
