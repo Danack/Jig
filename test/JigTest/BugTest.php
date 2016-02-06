@@ -105,4 +105,10 @@ class BugTest extends BaseTestCase
             $contents
         );
     }
+    
+    public function testcheckNoExtraLines()
+    {
+        $contents = $this->jig->renderTemplateFile('block/checkNoExtraLines');
+        $this->assertEquals(4, count(explode("\n", $contents)), "Rendering is inserting extra lines.");
+    }
 }

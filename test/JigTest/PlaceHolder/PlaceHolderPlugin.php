@@ -49,6 +49,7 @@ class PlaceHolderPlugin extends BasicPlugin
             'trim',
             'warning',
             'htmlEntityDecode',
+            'checkNoExtraLine'
         ];
     }
 
@@ -176,5 +177,15 @@ class PlaceHolderPlugin extends BasicPlugin
         $this->blockEndCallCount++;
 
         return $contents."\n</span>";
+    }
+
+    public function checkNoExtraLineBlockRenderStart($segmentText)
+    {
+        return "";
+    }
+
+    public function checkNoExtraLineBlockRenderEnd($contents)
+    {
+        return $contents;
     }
 }

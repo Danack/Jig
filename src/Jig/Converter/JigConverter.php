@@ -199,7 +199,7 @@ class JigConverter
                 }
                 else if ($segment instanceof CodeTemplateSegment) {
                     $codeFound = true;
-                    if ($segment->hasAssignment() === false) {
+                    if ($segment->isOutputLine() === true) {
                         $anyTextFound = true;
                     }
                 }
@@ -350,6 +350,7 @@ class JigConverter
 
         foreach ($this->compileBlockFunctions as $blockName => $blockFunctions) {
             if (strncmp($segmentText, '/'.$blockName, mb_strlen('/'.$blockName)) === 0) {
+                $segment->setIsJigCommand(true);
                 call_user_func($blockFunctions[1], $this, $segmentText);
                 return;
             }
@@ -359,6 +360,7 @@ class JigConverter
             $blockName = substr($segmentText, 1);
             $knownBlocks = $this->parsedTemplate->getKnownRenderBlocks();
             if (in_array($blockName, $knownBlocks, true) === true) {
+                $segment->setIsJigCommand(true);
                 $this->addCode("\$this->endRenderBlock('$blockName');");
                 return;
             }
@@ -395,18 +397,23 @@ class JigConverter
 
         try {
             if (strncmp($segmentText, 'extends ', mb_strlen('extends ')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->processExtends($segmentText);
             }
             else if (strncmp($segmentText, 'inject ', mb_strlen('inject ')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->processInject($segmentText);
             }
             else if (strncmp($segmentText, 'plugin ', mb_strlen('plugin ')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->processPlugin($segmentText);
             }
             else if (strncmp($segmentText, 'include ', mb_strlen('include ')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->processInclude($segmentText);
             }
             else if (strncmp($segmentText, 'block ', mb_strlen('block ')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->processBlockStart($segmentText);
                 //Blocks start in template mode.
@@ -429,9 +436,11 @@ class JigConverter
                 $this->processPHPStart($segmentText);
             }
             else if (strncmp($segmentText, 'literal', mb_strlen('literal')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->processLiteralStart();
             }
             else if (strncmp($segmentText, 'if ', mb_strlen('if ')) === 0) {
+                $segment->setIsJigCommand(true);
                 $text = $segment->getCodeString(
                     $this->parsedTemplate,
                     CodeTemplateSegment::REMOVE_IF |
@@ -443,10 +452,12 @@ class JigConverter
                 $this->addLineInternal("if (".$text.") {\n");
             }
             else if (strncmp($segmentText, '/if', mb_strlen('/if')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->changeOutputMode(self::MODE_CODE);
                 $this->addLineInternal("}\n");
             }
             else if (strncmp($segmentText, 'else', mb_strlen('else')) === 0) {
+                $segment->setIsJigCommand(true);
                 $this->addCode(" } else { \n");
             }
             else {
@@ -467,6 +478,7 @@ class JigConverter
 
                 $processedBlockFunction = $this->doesRenderBlockExist($blockFunctionName);
                 if ($processedBlockFunction === true) {
+                    $segment->setIsJigCommand(true);
                     $paramText = addslashes($remainingText);
                     $this->addCode("\$this->startRenderBlock('$blockFunctionName', '$paramText');");
                     return;

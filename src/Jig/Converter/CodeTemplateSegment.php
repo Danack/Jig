@@ -24,12 +24,19 @@ class CodeTemplateSegment extends TemplateSegment
 
     private $hasAssignment = false;
     
+    private $isJigCommand = false;
+    
     public function __construct($text)
     {
         $this->text = $text;
         $this->filters = $this->removeFilters();
     }
 
+    public function setIsJigCommand($isJigCommand)
+    {
+        $this->isJigCommand = $isJigCommand;
+    }
+    
     /**
      * @return bool
      */
@@ -38,6 +45,19 @@ class CodeTemplateSegment extends TemplateSegment
         return $this->hasAssignment;
     }
     
+    public function isOutputLine()
+    {
+        if ($this->hasAssignment === true) {
+            return false;
+        }
+
+        if ($this->isJigCommand === true) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function setHasAssignment($hasAssignment)
     {
         $this->hasAssignment = $hasAssignment;
