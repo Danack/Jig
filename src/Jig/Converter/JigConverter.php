@@ -337,12 +337,14 @@ class JigConverter
 
         if ($this->literalMode === self::LITERAL_TEMPLATE &&
             strncmp($segmentText, '/literal', mb_strlen('/literal')) === 0) {
+            $segment->setIsJigCommand(true);
             $this->processLiteralEnd();
             return;
         }
         
         if ($this->literalMode === self::LITERAL_PHP &&
             strncmp($segmentText, '/php', mb_strlen('/php')) === 0) {
+            $segment->setIsJigCommand(true);
             $this->processPHPEnd();
             $this->processLiteralEnd();
             return;
@@ -742,6 +744,7 @@ class JigConverter
      */
     private function processLiteralStart()
     {
+        $this->changeOutputMode(self::MODE_TEMPLATE);
         $this->setLiteralMode(self::LITERAL_TEMPLATE);
     }
 

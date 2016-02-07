@@ -106,6 +106,13 @@ class BugTest extends BaseTestCase
         );
     }
     
+    public function testLiteralInsideBlocks()
+    {
+        $contents = $this->jig->renderTemplateFile('bugs/literalInsideBlocks');
+        
+        $this->assertEquals("    {foo is bar}\nend", $contents);
+    }
+
     public function testcheckNoExtraLines()
     {
         $contents = $this->jig->renderTemplateFile('block/checkNoExtraLines');
